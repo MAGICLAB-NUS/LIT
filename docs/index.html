@@ -43,8 +43,8 @@ a { color:var(--accent); }
 /* ---------- hero ---------- */
 header.hero { padding:64px 0 28px; text-align:center; }
 .venue { font-size:11px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); margin:0 0 16px; }
-h1 { font-family:var(--f-display); font-weight:500; font-size:clamp(28px,5.2vw,54px); line-height:1.12; letter-spacing:-0.015em; margin:0 0 6px; }
-h1 .sub { display:block; font-size:clamp(17px,2.7vw,27px); color:var(--ink-2); margin-top:10px; font-weight:400; }
+h1 { font-family:var(--f-display); font-weight:500; font-size:clamp(26px,4.4vw,44px); line-height:1.16; letter-spacing:-0.015em; margin:0 0 6px; text-wrap:balance; }
+h1 .sub { display:block; font-size:inherit; font-weight:inherit; color:var(--ink); margin-top:4px; }
 .authors { margin:24px 0 6px; font-size:17px; line-height:1.7; }
 .authors a { color:var(--ink); text-decoration:none; border-bottom:1px solid var(--rule); }
 .authors a:hover { border-color:var(--accent); color:var(--accent); }
@@ -198,7 +198,7 @@ footer a { color:var(--muted); }
   <section id="method">
     <p class="kicker">Method</p>
     <h2>Latent Interface Training</h2>
-    <p>LIT keeps the backbone and the action expert as they are and changes only the interface between them. Direct conditioning on backbone visual tokens is removed; a small set of learnable latent tokens becomes the action expert&rsquo;s only visual conditioning pathway, and those tokens are supervised to reconstruct the terminal SE(3) goal. The same spatial target ties the two stages together.</p>
+    <p>LIT keeps the backbone and the action expert as they are and changes only the interface between them. Direct conditioning on backbone visual tokens is removed; a small set of learnable latent tokens becomes the action expert&rsquo;s only visual conditioning pathway, and those tokens are supervised to reconstruct the terminal SE(3) goal. <strong>The shared spatial target thus connects action-prior learning with visual interface learning, while the exclusive interface constrains visual conditioning to mitigate vision&ndash;action shortcuts.</strong></p>
     <div class="stages">
       <div class="stage">
         <h3>Stage 1 &middot; Action prior without images</h3>
@@ -211,7 +211,7 @@ footer a { color:var(--muted); }
     </div>
     <figure>
       <img src="static/images/framework.png" alt="Overview of Latent Interface Training: Stage 1 learns a visual-free action prior; Stage 2 routes vision through a pose-supervised latent interface.">
-      <figcaption><b>Overview.</b> The shared spatial target connects action-prior learning with visual interface learning, while the exclusive interface constrains visual conditioning to mitigate vision&ndash;action shortcuts.</figcaption>
+      <figcaption><b>Overview of Latent Interface Training.</b> Stage&nbsp;1 learns a spatial-goal-conditioned action prior without images; Stage&nbsp;2 introduces visual conditioning exclusively through a pose-supervised latent interface.</figcaption>
     </figure>
   </section>
 
