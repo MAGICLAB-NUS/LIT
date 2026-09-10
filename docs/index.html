@@ -131,6 +131,19 @@ tr.sep td { border-top:1px solid var(--rule); }
 .clip .tag { display:inline-block; font-size:10px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); background:var(--accent-w); border-radius:4px; padding:2px 7px; margin-bottom:8px; }
 .empty { color:var(--faint); font-size:13px; }
 
+/* ---------- findings ---------- */
+.questions { margin:18px 0 0; padding:0; list-style:none; counter-reset:q; display:grid; gap:8px; }
+.questions li { position:relative; padding-left:34px; color:var(--ink-2); font-size:15px; line-height:1.55; }
+.questions li::before { counter-increment:q; content:"(" counter(q) ")"; position:absolute; left:0; top:0; font-family:var(--f-mono); font-size:13px; color:var(--accent); }
+.findings { display:grid; gap:14px; margin-top:22px; }
+.finding { display:grid; grid-template-columns:200px 1fr; gap:18px; background:var(--surface); border:1px solid var(--rule); border-radius:8px; padding:16px 20px; }
+@media (max-width:720px) { .finding { grid-template-columns:1fr; gap:8px; } }
+.finding .what { font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); line-height:1.5; padding-top:3px; }
+.finding .what .n { display:block; font-family:var(--f-mono); font-size:22px; letter-spacing:0; text-transform:none; color:var(--ink); margin-top:6px; font-variant-numeric:tabular-nums; }
+.finding .what .n small { font-size:12px; color:var(--neg); margin-left:6px; font-family:var(--f-mono); }
+.finding .what .n small.up { color:var(--pos); }
+.finding h3 { font-family:var(--f-sans); font-size:15.5px; font-weight:600; color:var(--ink); margin:0 0 6px; line-height:1.45; text-align:left; }
+.finding p { font-size:14px; margin:0; color:var(--ink-2); text-align:justify; }
 pre { margin:20px 0 0; background:var(--surface); border:1px solid var(--rule); border-radius:8px; padding:18px 20px; overflow-x:auto; font-family:var(--f-mono); font-size:12.5px; line-height:1.6; color:var(--ink-2); }
 footer { padding:32px 0 60px; font-size:13px; color:var(--faint); text-align:center; border-top:1px solid var(--rule); }
 footer a { color:var(--muted); }
@@ -246,6 +259,10 @@ footer a { color:var(--muted); }
       <img src="static/images/realrobot_envs.png" alt="Real-robot evaluation environments: three tasks under in-distribution, lighting, camera and distractor shifts.">
       <figcaption><b>Evaluation environments.</b> Rows are the three manipulation tasks; columns show the in-distribution setting and the three evaluated visual shifts: Lighting OOD, Camera OOD, and Distractors OOD. Camera OOD uses only the top-camera view.</figcaption>
     </figure>
+    <figure>
+      <img src="static/images/realrobot_success.png" alt="Real-robot task success under in-distribution and out-of-distribution visual conditions, per task.">
+      <figcaption><b>Real-robot task success under in-distribution (ID) and out-of-distribution (OOD) visual conditions.</b> Camera OOD uses only the top-camera view. Results are reported as successful rollouts / total rollouts, with success rates in parentheses.</figcaption>
+    </figure>
   </section>
 
   <section id="videos">
@@ -257,26 +274,111 @@ footer a { color:var(--muted); }
 
   <section id="analysis">
     <p class="kicker">Analysis</p>
-    <h2>Where the policy looks, and what moves it</h2>
-    <p>Baseline attention shifts across perturbations, whereas LIT&rsquo;s attention remains concentrated on task-relevant robot&ndash;object regions. Under counterfactual interventions, LIT stays on the reference trajectory when only task-irrelevant visual context changes, and redirects toward the new goal when the instruction changes.</p>
+    <h2>Behavior, learning dynamics, and design choices</h2>
+    <p>Having established LIT&rsquo;s generalization improvements in Table&nbsp;II, we examine the behavior, learning dynamics, and design choices underlying these gains. Unless otherwise specified, all analyses and ablations use MolmoAct2. We address four questions:</p>
+    <ol class="questions">
+      <li>Does LIT maintain attention to task-relevant regions under distribution shifts?</li>
+      <li>Do its responses to visual and goal interventions indicate reduced reliance on vision&ndash;action shortcuts?</li>
+      <li>Do LIT&rsquo;s training dynamics support effective action-prior and visual-interface learning, helping explain its generalization gains?</li>
+      <li>Which components contribute to LIT&rsquo;s generalization gains?</li>
+    </ol>
+
+    <div class="findings">
+      <div class="finding">
+        <div class="what">Stability of action-to-image attention</div>
+        <div>
+          <h3>Under distribution shifts, LIT keeps looking at the task-relevant robot&ndash;object regions; the baseline&rsquo;s attention drifts.</h3>
+          <p>For the baseline we use direct action-to-visual attention; for LIT we compose attention from the action expert to the latent tokens with attention from the latent tokens to visual representations. Across clean and perturbed observations, baseline attention shifts across perturbations, whereas LIT&rsquo;s attention remains more concentrated on task-relevant robot&ndash;object regions.</p>
+        </div>
+      </div>
+    </div>
     <figure>
       <img src="static/images/attention.png" alt="Effective action-to-image attention under distribution shifts, baseline versus LIT.">
       <figcaption><b>Effective action-to-image attention under distribution shifts.</b> Baseline attention varies substantially across perturbations, whereas LIT remains consistently aligned with task-relevant robot&ndash;object regions.</figcaption>
     </figure>
+
+    <div class="findings">
+      <div class="finding">
+        <div class="what">Probing vision&ndash;action shortcuts</div>
+        <div>
+          <h3>LIT is unmoved by task-irrelevant visual changes and follows a changed goal; the baseline does the opposite.</h3>
+          <p><strong>Task-preserving visual interventions:</strong> adding a distractor or blurring the image while keeping the instruction, spatial goal, and robot state fixed. The baseline trajectories deviate substantially from their clean counterparts, whereas LIT&rsquo;s remain close. <strong>Goal-changing intervention:</strong> changing the instructed goal while keeping the visual scene and robot state fixed. The baseline still moves toward the original goal, consistent with reliance on unchanged visual cues; LIT instead redirects toward the new goal.</p>
+        </div>
+      </div>
+    </div>
     <figure>
       <img src="static/images/intervention.png" alt="Counterfactual interventions: adding a distractor, blurring the image, swapping the instruction.">
-      <figcaption><b>Counterfactual interventions.</b> Adding a distractor, blurring the image, and swapping the instruction. End-effector trajectories before and after intervention for baseline and LIT.</figcaption>
+      <figcaption><b>Counterfactual interventions.</b> Left and middle: task-preserving visual interventions (add a distractor, blur the image). Right: goal-changing intervention (swap the instruction). End-effector trajectories before and after intervention for baseline and LIT.</figcaption>
+    </figure>
+
+    <div class="findings">
+      <div class="finding">
+        <div class="what">Learning dynamics across stages</div>
+        <div>
+          <h3>Each stage learns what it is designed to learn, and LIT reaches a lower action loss than the baseline on the same 30K-step budget.</h3>
+          <p>Stage&nbsp;1 action loss decreases rapidly to <strong>0.029</strong> after 10K steps, indicating that the expert effectively learns goal-directed action generation without images. In Stage&nbsp;2, pose-reconstruction loss reaches <strong>0.003</strong> after 20K steps, showing that the demonstrated spatial goals are recoverable from the learned interface on training data. LIT also achieves a lower action loss in 20K visual training steps than the baseline reaches in 30K steps, with both methods using the same total training budget.</p>
+        </div>
+      </div>
+    </div>
+    <figure>
+      <img src="static/images/training_dynamics.png" alt="Training dynamics on MolmoAct2: Stage 1 flow-matching loss, Stage 2 pose-reconstruction loss, and action flow-matching loss during visual policy training.">
+      <figcaption><b>Training dynamics on MolmoAct2.</b> (a) Stage&nbsp;1 action flow-matching loss. (b) Stage&nbsp;2 pose-reconstruction loss. (c) Action flow-matching loss during visual policy training. LIT uses 10K Stage&nbsp;1 and 20K Stage&nbsp;2 steps, matching the baseline&rsquo;s 30K-step total budget. LIT&rsquo;s Stage&nbsp;2 action loss reaches a lower value than the baseline&rsquo;s final loss. Panel (c) counts visual training steps; the 0.63&times; ratio compares losses at 20K steps.</figcaption>
     </figure>
   </section>
 
   <section id="ablation">
     <p class="kicker">Ablation</p>
-    <h2>Which parts of LIT matter</h2>
-    <p>All ablations use MolmoAct2. Removing Stage&nbsp;1, the pose supervision, or the exclusivity of the interface each lowers out-of-distribution success while leaving in-distribution success essentially unchanged; two-stage training alone does not account for the gain.</p>
+    <h2>Which components contribute to the gains</h2>
+    <p>We next examine how LIT&rsquo;s training and conditioning designs contribute to generalization through the ablations in Table&nbsp;III. Every variant keeps in-distribution LIBERO success essentially unchanged; the differences are all in out-of-distribution success on LIBERO-Plus.</p>
     <div class="tablebox">
       <table class="t3"><thead><tr><th class="l" rowspan="2">Variant</th><th class="grp">ID</th><th class="grp" colspan="8">OOD: LIBERO-Plus</th></tr><tr><th class="axis">LIBERO Avg.</th><th class="axis">Camera</th><th class="axis">Noise</th><th class="axis">Lighting</th><th class="axis">Backgr.</th><th class="axis">Robot</th><th class="axis">Layout</th><th class="axis">Lang.</th><th class="axis">Overall</th></tr></thead><tbody><tr class="sep"><td class="l">MolmoAct2</td><td class="num">93.50</td><td class="num">39.40</td><td class="num">49.03</td><td class="num">84.86</td><td class="num">89.78</td><td class="num">50.71</td><td class="num">55.90</td><td class="num">75.69</td><td class="num">63.62</td></tr><tr class="sep"><td class="l">Vanilla staged training</td><td class="num">93.75</td><td class="num">43.28</td><td class="num">52.09</td><td class="num">85.17</td><td class="num">88.08</td><td class="num">55.16</td><td class="num">60.98</td><td class="num">73.46</td><td class="num">65.46</td></tr><tr class=""><td class="l">LIT w/o Stage 1 &amp; pose supervision</td><td class="num">93.45</td><td class="num">39.84</td><td class="num">49.34</td><td class="num">87.22</td><td class="num">89.63</td><td class="num">53.00</td><td class="num">68.20</td><td class="num">72.67</td><td class="num">65.70</td></tr><tr class=""><td class="l">LIT w/o Stage 1</td><td class="num">93.70</td><td class="num">46.15</td><td class="num">54.65</td><td class="num">87.13</td><td class="num">86.34</td><td class="num">63.10</td><td class="num">66.43</td><td class="num">73.80</td><td class="num">68.23</td></tr><tr class=""><td class="l">LIT w/o pose supervision</td><td class="num">93.50</td><td class="num">42.78</td><td class="num">60.02</td><td class="num">91.07</td><td class="num">88.38</td><td class="num">57.81</td><td class="num">68.85</td><td class="num">73.11</td><td class="num">68.86</td></tr><tr class=""><td class="l">Baseline w/ pose supervision</td><td class="num">93.20</td><td class="num">40.32</td><td class="num">51.30</td><td class="num">89.00</td><td class="num">90.13</td><td class="num">55.45</td><td class="num">58.37</td><td class="num">73.56</td><td class="num">65.45</td></tr><tr class=""><td class="l">LIT w/ direct visual access</td><td class="num">94.25</td><td class="num">42.96</td><td class="num">55.28</td><td class="num">88.18</td><td class="num">89.22</td><td class="num">62.49</td><td class="num">63.74</td><td class="num">72.33</td><td class="num">67.74</td></tr><tr class="sep lit"><td class="l">LIT</td><td class="num">94.10</td><td class="num">48.41</td><td class="num">70.77</td><td class="num">85.64</td><td class="num">94.42</td><td class="num">59.03</td><td class="num">71.61</td><td class="num">73.58</td><td class="num">71.92</td></tr></tbody></table>
     </div>
     <p style="margin-top:10px"><small style="color:var(--muted)">Table III &middot; Ablation study of LIT on MolmoAct2. Task success rates (%) on LIBERO (ID) and LIBERO-Plus (OOD). Overall: mean across the seven OOD perturbation categories. Higher is better.</small></p>
+
+    <div class="findings">
+      <div class="finding">
+        <div class="what">Vanilla staged training<span class="n">65.46<small>&minus;6.46 vs. LIT</small></span></div>
+        <div>
+          <h3>Two-stage training alone does not account for LIT&rsquo;s gains.</h3>
+          <p>An LA4VLA-inspired baseline first predicts actions from language and robot state without images, then conditions the action expert on backbone visual representations. OOD success increases from 63.62% for the MolmoAct2 baseline to 65.46%, but remains 6.46 percentage points below LIT (71.92%).</p>
+        </div>
+      </div>
+      <div class="finding">
+        <div class="what">LIT w/o Stage 1 &amp; pose supervision<span class="n">65.70<small>&minus;6.22 vs. LIT</small></span></div>
+        <div>
+          <h3>A latent interface trained only through the action objective barely helps.</h3>
+          <p>Learnable tokens still aggregate backbone representations to condition the action expert, as in query-based interfaces such as VLA-Adapter, but are trained solely through the action objective. OOD success reaches 65.70%, only 2.08 percentage points above the baseline and 6.22 points below LIT &mdash; the interface needs both the action prior and the spatial-goal supervision.</p>
+        </div>
+      </div>
+      <div class="finding">
+        <div class="what">LIT w/o Stage 1<span class="n">68.23<small>&minus;3.69 vs. LIT</small></span></div>
+        <div>
+          <h3>The action prior matters for the visual policy learned on top of it.</h3>
+          <p>Skipping Stage&nbsp;1 and randomly initializing the action expert, while retaining the Stage&nbsp;2 latent interface and pose supervision, gives 68.23% OOD success compared with 71.92% for LIT &mdash; a 3.69-percentage-point decrease.</p>
+        </div>
+      </div>
+      <div class="finding">
+        <div class="what">LIT w/o pose supervision<span class="n">68.86<small>&minus;3.06 vs. LIT</small></span></div>
+        <div>
+          <h3>Spatial-goal supervision is what buys robustness to task-irrelevant visual perturbations.</h3>
+          <p>Removing the Stage&nbsp;2 pose-reconstruction loss while retaining all other components gives 68.86%, above the baseline&rsquo;s 63.62% but 3.06 percentage points below LIT. The largest decreases occur under Sensor Noise (70.77% &rarr; 60.02%, 10.75 points) and Background Textures (94.42% &rarr; 88.38%, 6.04 points).</p>
+        </div>
+      </div>
+      <div class="finding">
+        <div class="what">Baseline w/ pose supervision<span class="n">65.45<small>&minus;6.47 vs. LIT</small></span></div>
+        <div>
+          <h3>Pose supervision alone cannot explain the improvement.</h3>
+          <p>Adding the same pose-reconstruction objective to the baseline &mdash; an MLP decoder reconstructs the terminal goal state from the baseline&rsquo;s final-layer backbone features, with its original visual conditioning architecture retained &mdash; raises OOD success from 63.62% to only 65.45%, 6.47 percentage points below LIT.</p>
+        </div>
+      </div>
+      <div class="finding">
+        <div class="what">LIT w/ direct visual access<span class="n">67.74<small>&minus;4.18 vs. LIT</small></span></div>
+        <div>
+          <h3>The generalization comes from the interface being the action expert&rsquo;s only visual pathway.</h3>
+          <p>Allowing the action expert to directly access backbone visual representations while retaining all LIT components keeps LIBERO success comparable (94.25% vs.&nbsp;94.10%) but drops LIBERO-Plus success from 71.92% to 67.74% &mdash; a 4.18-percentage-point decrease.</p>
+        </div>
+      </div>
+    </div>
   </section>
 
   <section id="bibtex">
