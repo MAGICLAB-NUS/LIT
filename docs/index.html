@@ -232,6 +232,7 @@ footer a { color:var(--muted); }
 
 <div class="teaser">
   <video autoplay muted loop playsinline controls preload="metadata">
+    <source src="https://cdn.jsdelivr.net/gh/jianmanlincjx/LIT@ad95633/docs/static/video/realworld_demo.mp4" type="video/mp4">
     <source src="static/video/realworld_demo.mp4" type="video/mp4">
   </video>
 </div>
@@ -308,16 +309,18 @@ footer a { color:var(--muted); }
         { k: "dustpan",  name: "Wipe trash",   instr: "Clean the table using the dust pan." },
         { k: "transfer", name: "Transfer egg", instr: "Transfer the egg from the pan into the bowl." },
       ];
+      const CDN = "https://cdn.jsdelivr.net/gh/jianmanlincjx/LIT@f23efa7/";  // pin = commit that last touched docs/static/video/real
       const COND = { id: "In-distribution", lighting: "Lighting OOD", camera: "Camera OOD", distractors: "Distractors OOD" };
       const rows = document.getElementById("rr-rows"), tabs = document.querySelectorAll(".rr-tabs button");
       function show(c) {
         tabs.forEach(b => b.classList.toggle("on", b.dataset.c === c));
         rows.innerHTML = TASKS.map(t => {
           const f = "static/video/real/" + t.k + "_" + c;
+          const cdn = CDN + "docs/" + f;   // same file via jsDelivr (fast in CN); local copy as fallback
           return '<div class="rr-row">' +
             '<div class="rr-title"><b>' + t.name + '</b> <span>&ldquo;' + t.instr + '&rdquo;</span> <em>' + COND[c] + '</em></div>' +
             '<div class="rr-vid"><video autoplay muted loop playsinline controls preload="metadata" poster="' + f + '.jpg">' +
-            '<source src="' + f + '.mp4" type="video/mp4"></video>' +
+            '<source src="' + cdn + '.mp4" type="video/mp4"><source src="' + f + '.mp4" type="video/mp4"></video>' +
             '<span class="rr-tag base">MolmoAct2 baseline &nbsp;&#10007;</span><span class="rr-tag lit">LIT (ours) &nbsp;&#10003;</span></div></div>';
         }).join("");
       }
