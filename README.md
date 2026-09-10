@@ -11,15 +11,16 @@ the interface.
 
 ## Code
 
-One fork per framework. Each carries a `REPRODUCE.md` with its training and evaluation commands and the
-checkpoint that produced each reported number. Use the pinned branch/commit.
+One fork per framework. Each README has the same three parts — **evaluate the released checkpoint**,
+**train then evaluate** (from the pretrained base), and **how LIT is integrated in that framework** —
+with the upstream README kept as `README_upstream.md`. Use the pinned branch/commit.
 
 | Framework | Repository | Branch | Commit | Verified on a fresh machine |
 | --- | --- | --- | --- | --- |
-| MolmoAct2 | [Molmoact2](https://github.com/jianmanlincjx/Molmoact2) (+ [lerobot](https://github.com/jianmanlincjx/lerobot) submodule) | `feat/libero-goal-prior-v4` | `e6d4dfe` / `b966b8c0` | weights load; LIBERO and LIBERO-Plus rollouts ✓ |
-| π0.5 | [Pi05](https://github.com/jianmanlincjx/Pi05) | `main` | `b992444` | baseline and LIT weights load; rollouts ✓ |
-| FAST-WAM | [fastwam](https://github.com/jianmanlincjx/fastwam) | `feat/goal-pose-prior` | `fc15028` | LIT weights load; 2/2 LIBERO rollouts ✓ (env recipe in its REPRODUCE.md) |
-| ImageWAM | [ImageWAM](https://github.com/jianmanlincjx/ImageWAM) | `feat/goal-prior-bottleneck-fix` | `07e0026` | in progress |
+| MolmoAct2 | [Molmoact2](https://github.com/jianmanlincjx/Molmoact2) (+ [lerobot](https://github.com/jianmanlincjx/lerobot) submodule) | `feat/libero-goal-prior-v4` | `0dc1d64` / `b966b8c0` | weights load; LIBERO and LIBERO-Plus rollouts ✓ |
+| π0.5 | [Pi05](https://github.com/jianmanlincjx/Pi05) | `main` | `4209419` | baseline and LIT weights load; rollouts ✓ |
+| FAST-WAM | [fastwam](https://github.com/jianmanlincjx/fastwam) | `feat/goal-pose-prior` | `77d3632` | LIT weights load; 2/2 LIBERO rollouts ✓ (env recipe in its REPRODUCE.md) |
+| ImageWAM | [ImageWAM](https://github.com/jianmanlincjx/ImageWAM) | `feat/goal-prior-bottleneck-fix` | `6b5d02d` | in progress |
 
 ## Checkpoints
 
