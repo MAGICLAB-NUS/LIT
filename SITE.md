@@ -1,6 +1,9 @@
 # Project website
 
-GitHub Pages serves `main` and `/docs` at https://magiclab-nus.github.io/LIT/.
+Configure GitHub Pages to serve `main` and `/docs` at https://magiclab-nus.github.io/LIT/.
+Pages is not enabled yet: GitHub rejected setup because the current plan does
+not support Pages for this private repository. Publishing requires a supported
+plan or making the repository public, then enabling Pages with the source above.
 The site is fully static; no build step is needed. Images, videos, and the paper
 are included under `docs/static/`.
 
