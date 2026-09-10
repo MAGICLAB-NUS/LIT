@@ -114,12 +114,15 @@ Both are resumable across GPUs and print the per-axis / per-suite result when th
 ```bash
 export DATASET_ROOT=/path/to/libero_lerobot_format
 cd "$LIT_MOLMOACT2"
-bash scripts/libero_goal_prior/train_baseline.sh   # baseline, 30K steps
-bash scripts/libero_goal_prior/train_stage1.sh     # Stage 1: no images, 10K steps
-bash scripts/libero_goal_prior/train_stage2.sh     # Stage 2: latent interface, 30K steps, from Stage 1
+OPTIMIZER_ACTION_EXPERT_LR=1e-4 SCHEDULER_ACTION_EXPERT_WARMUP_STEPS=5000 \
+  bash scripts/libero_goal_prior/train_baseline.sh          # baseline, 30K steps, batch 32/GPU
+bash scripts/libero_goal_prior_v3/train_stage1.sh           # Stage 1: no images, 10K steps, batch 128/GPU
+bash scripts/libero_goal_prior_v3/train_stage2.sh           # Stage 2: 100 latents (8 pose-supervised), 30K steps, from Stage 1
 ```
 
-Then evaluate `outputs/…/checkpoints/030000/pretrained_model` as in ①. Stage 2 reports the Stage-1
+The `_v3` launchers are the ones the paper's checkpoints were trained with (their defaults equal the
+released `train_config.json`); `scripts/libero_goal_prior/` and `_v4/` are earlier / variant recipes.
+Batch sizes are per GPU; the paper used 7 GPUs. Then evaluate `outputs/…/checkpoints/030000/pretrained_model` as in ①. Stage 2 reports the Stage-1
 SE(3) encoder as unexpected keys when it loads — expected; the encoder is training-time only.
 
 </details>
