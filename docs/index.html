@@ -40,16 +40,12 @@ body { margin:0; background:var(--ground); color:var(--ink); font-family:var(--f
 .wrap-wide { max-width:1120px; margin:0 auto; padding:0 24px; }
 a { color:var(--accent); }
 
-/* ---------- sticky nav ---------- */
-.nav { position:sticky; top:0; z-index:20; background:color-mix(in srgb, var(--ground) 88%, transparent); backdrop-filter:saturate(1.4) blur(10px); -webkit-backdrop-filter:saturate(1.4) blur(10px); border-bottom:1px solid var(--rule); }
-.nav .wrap { display:flex; align-items:center; gap:18px; height:48px; overflow-x:auto; scrollbar-width:none; }
-.nav .wrap::-webkit-scrollbar { display:none; }
-.nav .brand { font-family:var(--f-display); font-weight:600; font-size:16px; color:var(--ink); text-decoration:none; white-space:nowrap; margin-right:6px; }
-.nav a.item { font-size:12.5px; font-weight:500; color:var(--muted); text-decoration:none; white-space:nowrap; padding:4px 0; border-bottom:2px solid transparent; transition:color .12s, border-color .12s; }
-.nav a.item:hover, .nav a.item.on { color:var(--ink); border-color:var(--accent); }
-.nav .sp { flex:1; }
-.nav a.gh { font-size:12.5px; font-weight:500; color:var(--ink); text-decoration:none; border:1px solid var(--rule); border-radius:999px; padding:5px 12px; white-space:nowrap; }
-.nav a.gh:hover { border-color:var(--accent); color:var(--accent); }
+/* ---------- section index (in-flow under the hero, sticks to the top when scrolled past) ---------- */
+.toc { position:sticky; top:0; z-index:20; background:color-mix(in srgb, var(--ground) 92%, transparent); backdrop-filter:saturate(1.4) blur(10px); -webkit-backdrop-filter:saturate(1.4) blur(10px); border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); margin-top:34px; }
+.toc .wrap { display:flex; justify-content:center; align-items:center; gap:6px 26px; flex-wrap:wrap; padding-top:14px; padding-bottom:14px; }
+.toc a { font-size:15.5px; font-weight:500; color:var(--ink-2); text-decoration:none; white-space:nowrap; padding:2px 0; border-bottom:2px solid transparent; transition:color .12s, border-color .12s; }
+.toc a:hover, .toc a.on { color:var(--ink); border-color:var(--accent); }
+@media (max-width:720px) { .toc .wrap { justify-content:flex-start; flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; gap:20px; } .toc .wrap::-webkit-scrollbar { display:none; } .toc a { font-size:14px; } }
 
 /* ---------- hero ---------- */
 header.hero { padding:64px 0 28px; text-align:center; }
@@ -166,22 +162,6 @@ footer a { color:var(--muted); }
 </head>
 <body>
 
-<nav class="nav" id="nav">
-  <div class="wrap">
-    <a class="brand" href="#top">LIT</a>
-    <a class="item" href="#abstract">Abstract</a>
-    <a class="item" href="#motivation">Motivation</a>
-    <a class="item" href="#method">Method</a>
-    <a class="item" href="#results">Results</a>
-    <a class="item" href="#realworld">Real robot</a>
-    <a class="item" href="#videos">Videos</a>
-    <a class="item" href="#analysis">Analysis</a>
-    <a class="item" href="#ablation">Ablation</a>
-    <a class="item" href="#bibtex">BibTeX</a>
-    <span class="sp"></span>
-    <a class="gh" href="https://github.com/jianmanlincjx/LIT">Code</a>
-  </div>
-</nav>
 
 <header class="hero" id="top">
   <div class="wrap">
@@ -211,6 +191,20 @@ footer a { color:var(--muted); }
     </nav>
   </div>
 </header>
+
+<nav class="toc" id="toc" aria-label="Sections">
+  <div class="wrap">
+    <a href="#abstract">Abstract</a>
+    <a href="#motivation">Motivation</a>
+    <a href="#method">Method</a>
+    <a href="#results">Results</a>
+    <a href="#realworld">Real robot</a>
+    <a href="#videos">Videos</a>
+    <a href="#analysis">Analysis</a>
+    <a href="#ablation">Ablation</a>
+    <a href="#bibtex">BibTeX</a>
+  </div>
+</nav>
 
 <div class="wrap">
 
@@ -501,7 +495,7 @@ const VIDEOS = [
 })();
 
 (function navHighlight() {
-  const links = [...document.querySelectorAll(".nav a.item")];
+  const links = [...document.querySelectorAll(".toc a")];
   const secs = links.map(a => document.querySelector(a.getAttribute("href"))).filter(Boolean);
   const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(a => a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id)); }), { rootMargin: "-40% 0px -55% 0px" });
   secs.forEach(sec => io.observe(sec));
