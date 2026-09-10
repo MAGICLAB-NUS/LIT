@@ -295,10 +295,10 @@ footer a { color:var(--muted); }
     <p>Each clip shows the same task under the same condition: the architecture-matched MolmoAct2 baseline on the left, LIT on the right (top camera, real time). Pick a condition:</p>
     <div class="rr">
       <div class="rr-tabs" role="tablist">
-        <button class="on" data-c="id">In-distribution</button>
-        <button data-c="lighting">Lighting OOD</button>
+        <button class="on" data-c="lighting">Lighting OOD</button>
         <button data-c="camera">Camera OOD</button>
         <button data-c="distractors">Distractors OOD</button>
+        <button data-c="id">In-distribution</button>
       </div>
       <div class="rr-rows" id="rr-rows"></div>
     </div>
@@ -325,7 +325,7 @@ footer a { color:var(--muted); }
         }).join("");
       }
       tabs.forEach(b => b.addEventListener("click", () => show(b.dataset.c)));
-      show("id");
+      show("lighting");   // 默认落在 OOD:项目页的默认视图应该先给出贡献所在
     })();
     </script>
     <p class="note">Baseline clips are failure cases and LIT clips are successes under the same condition; success rates over all trials are in the table above.</p>
