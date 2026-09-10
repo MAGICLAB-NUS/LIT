@@ -262,7 +262,7 @@ footer a { color:var(--muted); }
   <section id="videos">
     <p class="kicker">Videos</p>
     <h2>What the latent interface decodes to, mapped back onto the image</h2>
-    <p>Closed-loop rollouts of LIT on MolmoAct2 (Stage-2 checkpoint, 30K steps). At every control step the pose decoder reads the 8 pose-supervised latent tokens, recovers a terminal SE(3) end-effector pose, and that pose is projected back onto the rendered observation: the <strong style="color:#d9342b">red square (PRED)</strong> is where the model says the gripper should be at the end of the current action chunk (t+10); the <strong style="color:#12a4c9">cyan circle (CUR)</strong> is the gripper&rsquo;s actual current pose from the simulator; the line between them is the remaining displacement. The right panel shows the same two poses in a fixed-view 3D workspace. PRED is a prediction, so it should lead CUR rather than track it. No pose is given to the policy at inference &mdash; everything in red is inferred from vision through the interface.</p>
+    <p>Closed-loop rollouts of LIT on MolmoAct2 (Stage-2 checkpoint, 30K steps). At every control step the pose decoder reads the 8 pose-supervised latent tokens, recovers a terminal SE(3) end-effector pose, and that pose is projected back onto the rendered observation: the <strong style="color:#d9342b">red square (PRED)</strong> is where the model says the gripper should be at the end of the current action chunk (t+10); the <strong style="color:#12a4c9">cyan circle (CUR)</strong> is the gripper&rsquo;s actual current pose from the simulator; the line between them is the remaining displacement. The right panel shows the same two poses in a fixed-view 3D workspace. PRED is a prediction, so it should lead CUR rather than track it. No pose is given to the policy at inference &mdash; everything in red is inferred from vision through the interface. Clips play at half speed.</p>
 
     <h3 class="gh">LIBERO &middot; in-distribution</h3>
     <p class="gsub">Standard LIBERO tasks, one episode each. Two tasks per suite.</p>
@@ -464,6 +464,10 @@ const VIDEOS = [
         '<div class="meta">' + (v.tag ? '<span class="tag">' + v.tag + '</span>' : '') +
         '<p class="title">' + v.title + '</p>' + (v.cap ? '<p class="cap">' + v.cap + '</p>' : '') + '</div>';
       g.appendChild(el);
+      // Half speed so the decoded pose is easy to follow; re-applied on play in case the browser resets it.
+      const vid = el.querySelector("video");
+      const slow = () => { vid.playbackRate = 0.5; };
+      slow(); vid.addEventListener("loadedmetadata", slow); vid.addEventListener("play", slow);
     }
   }
 })();
