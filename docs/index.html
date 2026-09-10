@@ -60,12 +60,14 @@ h1 .sub { display:block; font-size:inherit; font-weight:inherit; color:var(--ink
 .affil sup { font-size:10px; margin-right:2px; }
 .notes { color:var(--faint); font-size:12.5px; margin:0 0 24px; }
 .note { color:var(--muted); font-size:14px; margin:8px 0 0; }
-.logos { display:flex; justify-content:center; align-items:center; gap:34px; margin:10px 0 16px; flex-wrap:wrap; }
-.logos img { height:58px; width:auto; opacity:.92; }
-.teaser { max-width:var(--wrap, 1100px); margin:26px auto 4px; padding:0 20px; text-align:center; }
-.teaser video { max-height:640px; max-width:100%; border-radius:14px; background:#000; box-shadow:0 10px 30px rgba(0,0,0,.14); }
+.logos { display:flex; justify-content:center; align-items:flex-start; gap:44px; margin:14px 0 18px; flex-wrap:wrap; }
+.logos span { display:inline-flex; align-items:flex-start; gap:6px; }
+.logos i { font-style:normal; font-size:12px; color:var(--muted); line-height:1; margin-top:2px; }
+.logos img { height:74px; width:auto; }
+.teaser { max-width:960px; margin:26px auto 4px; padding:0 24px; text-align:center; }
+.teaser video { display:block; width:100%; height:auto; border-radius:14px; background:#000; box-shadow:0 10px 30px rgba(0,0,0,.14); }
 .teaser p { color:var(--muted); font-size:14px; margin:10px 0 0; }
-@media (max-width:640px){ .logos img{height:44px} .teaser video{max-height:70vh} }
+@media (max-width:640px){ .logos img{height:48px} }
 .links { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; }
 .links a { display:inline-flex; align-items:center; gap:7px; font-size:14px; font-weight:500; text-decoration:none; color:var(--ink); background:var(--surface); border:1px solid var(--rule); border-radius:999px; padding:9px 17px; transition:border-color .13s,color .13s; }
 .links a:hover { border-color:var(--accent); color:var(--accent); }
@@ -185,9 +187,9 @@ footer a { color:var(--muted); }
     <p class="affil"><sup>1</sup>South China University of Technology&ensp;&middot;&ensp;<sup>2</sup>National University of Singapore&ensp;&middot;&ensp;<sup>3</sup>Nanyang Technological University</p>
     <p class="notes">&lowast; equal co-first contribution &ensp; &dagger; corresponding author</p>
     <div class="logos">
-      <img src="static/images/logos/scut.png" alt="South China University of Technology">
-      <img src="static/images/logos/nus.png" alt="National University of Singapore">
-      <img src="static/images/logos/ntu.png" alt="Nanyang Technological University">
+      <span><i>1</i><img src="static/images/logos/scut.png" alt="South China University of Technology"></span>
+      <span><i>2</i><img src="static/images/logos/nus.png" alt="National University of Singapore"></span>
+      <span><i>3</i><img src="static/images/logos/ntu.png" alt="Nanyang Technological University"></span>
     </div>
     <nav class="links">
       <a href="static/paper/LIT.pdf">
@@ -241,6 +243,9 @@ footer a { color:var(--muted); }
   <section id="motivation">
     <p class="kicker">Motivation</p>
     <h2>The vision&ndash;action shortcut</h2>
+    <p>Recent robot foundation models, including representative vision&ndash;language&ndash;action (VLA) and world&ndash;action model (WAM) architectures, combine pretrained vision&ndash;language or video backbones with action experts, achieving strong in-distribution manipulation performance. Visual representations condition action generation alongside language and robot-state information, as illustrated in Fig.&nbsp;1 (left). Robust generalization under visual distribution shifts, however, remains a challenge.</p>
+    <p>Under visual conditioning, action experts may learn <strong>vision&ndash;action shortcuts</strong>: reliance on task-irrelevant visual cues that correlate with demonstrated actions during training but become unreliable under distribution shifts. Limited visual diversity in robot demonstrations can further encourage this reliance, undermining generalization to changes in viewpoint, appearance, or sensing conditions. Yet visual representations also encode task-relevant spatial information essential for action generation. Mitigating these shortcuts therefore requires reducing sensitivity to task-irrelevant visual variations while preserving responsiveness to task-relevant changes that require different actions.</p>
+    <p>Existing efforts improve generalization through representation enhancement and stage-wise action pretraining. Representation-enhanced methods introduce structured spatial or motion information to ground action generation in task-relevant geometry. However, enriching the available information does not directly constrain how the action expert uses it, leaving room for vision&ndash;action shortcuts. Stage-wise approaches first learn language-conditioned action priors without images, then use them to initialize visual policy training. However, these approaches lack an explicit spatial goal for each action chunk during pretraining, and subsequent training introduces visual conditioning without explicitly constraining its use. Image-free pretraining alone therefore leaves the policy susceptible to shortcuts once visual conditioning is introduced. These limitations motivate a central question: <em>How can action learning and visual conditioning be structured to mitigate vision&ndash;action shortcuts while preserving the task-relevant spatial information needed for action generation?</em></p>
     <figure>
       <img src="static/images/motivation.png" alt="The vision–action shortcut: action experts conditioned on visual representations can rely on task-irrelevant visual cues, and LIT constrains visual conditioning through a pose-supervised latent interface.">
       <figcaption><b>Fig. 1. Training paradigms and generalization performance.</b> Standard training conditions the action expert on visual representations (left). LIT (right) first learns a spatial-goal-conditioned action prior without images to avoid relying on visual correlations during pre-training (Stage 1), then introduces visual conditioning through a pose-supervised latent interface (Stage 2). Across four VLA and WAM architectures, LIT improves out-of-distribution success rates while preserving or improving in-distribution success rates (center).</figcaption>
