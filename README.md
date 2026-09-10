@@ -16,16 +16,24 @@ checkpoint that produced each reported number. Use the pinned branch/commit.
 
 | Framework | Repository | Branch | Commit | Verified on a fresh machine |
 | --- | --- | --- | --- | --- |
-| MolmoAct2 | [Molmoact2](https://github.com/jianmanlincjx/Molmoact2) (+ [lerobot](https://github.com/jianmanlincjx/lerobot) submodule) | `feat/libero-goal-prior-v4` | `33d59ae` / `b966b8c0` | weights load; LIBERO and LIBERO-Plus rollouts ✓ |
-| π0.5 | [Pi05](https://github.com/jianmanlincjx/Pi05) | `main` | `d5f13e6` | baseline and LIT weights load; rollouts ✓ |
-| FAST-WAM | [fastwam](https://github.com/jianmanlincjx/fastwam) | `feat/goal-pose-prior` | `9450718`+ | LIT weights load; 2/2 LIBERO rollouts ✓ (env recipe in its REPRODUCE.md) |
+| MolmoAct2 | [Molmoact2](https://github.com/jianmanlincjx/Molmoact2) (+ [lerobot](https://github.com/jianmanlincjx/lerobot) submodule) | `feat/libero-goal-prior-v4` | `e6d4dfe` / `b966b8c0` | weights load; LIBERO and LIBERO-Plus rollouts ✓ |
+| π0.5 | [Pi05](https://github.com/jianmanlincjx/Pi05) | `main` | `b992444` | baseline and LIT weights load; rollouts ✓ |
+| FAST-WAM | [fastwam](https://github.com/jianmanlincjx/fastwam) | `feat/goal-pose-prior` | `fc15028` | LIT weights load; 2/2 LIBERO rollouts ✓ (env recipe in its REPRODUCE.md) |
 | ImageWAM | [ImageWAM](https://github.com/jianmanlincjx/ImageWAM) | `feat/goal-prior-bottleneck-fix` | `07e0026` | in progress |
 
 ## Checkpoints
 
-Released separately (links to follow). Each checkpoint directory is self-contained:
-`config.json` + `model.safetensors` (+ normaliser files) for MolmoAct2 and π0.5;
-`config.yaml` + `dataset_stats.json` + `step_NNNNNN.pt` for FAST-WAM and ImageWAM.
+Released on Hugging Face (link to follow), one directory per model:
+
+```
+molmoact2/{baseline, lit_stage1, lit_stage2}     LeRobot policy dirs — pass the directory to --policy.path
+pi05/{baseline, lit_stage1, lit_stage2}
+fastwam/{lit_stage1, lit_stage2}                 model.pt + config.yaml + dataset_stats.json
+imagewam/{lit_stage1, lit_stage2}                (baselines for these two are the authors' released weights)
+```
+
+`lit_stage2` is the model reported in the tables; `lit_stage1` is the image-free action prior it was
+initialised from.
 
 ## Quick start (MolmoAct2)
 
@@ -35,14 +43,14 @@ git clone https://github.com/jianmanlincjx/LIT.git && cd LIT
 
 export LIT_MOLMOACT2=/path/to/Molmoact2
 export LIBERO_PLUS_ROOT=/path/to/LIBERO-plus     # https://github.com/sylvestf/LIBERO-plus
-bash scripts/preflight.sh /path/to/checkpoint    # checks submodule commit, LIBERO-Plus, GPUs, and the checkpoint
+bash scripts/preflight.sh /path/to/molmoact2/lit_stage2   # checks submodule commit, LIBERO-Plus, GPUs, and the checkpoint
 ```
 
 **Evaluate a released checkpoint**
 
 ```bash
-bash scripts/eval_libero_plus.sh lit /path/to/lit_full_stage2_030000   # LIBERO-Plus, 10,030 tasks, seed 1000
-bash scripts/eval_libero.sh      lit /path/to/lit_full_stage2_030000   # LIBERO, 4 suites x 50 episodes
+bash scripts/eval_libero_plus.sh lit /path/to/molmoact2/lit_stage2   # LIBERO-Plus, 10,030 tasks, seed 1000
+bash scripts/eval_libero.sh      lit /path/to/molmoact2/lit_stage2   # LIBERO, 4 suites x 50 episodes
 ```
 
 Both are resumable and print the per-axis / per-suite result when done. `scripts/aggregate.py <results-root>`
