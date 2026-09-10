@@ -211,9 +211,9 @@ footer a { color:var(--muted); }
 <nav class="toc" id="toc" aria-label="Sections">
   <div class="wrap">
     <a href="#abstract">Abstract</a>
-    <a href="#realworld">Real robot</a>
     <a href="#motivation">Motivation</a>
     <a href="#method">Method</a>
+    <a href="#realworld">Real robot</a>
     <a href="#results">Results</a>
     <a href="#videos">Videos</a>
     <a href="#analysis">Analysis</a>
@@ -236,27 +236,6 @@ footer a { color:var(--muted); }
     <p class="lead">Robot foundation models achieve strong in-distribution performance but often degrade under visual distribution shifts. When learning to generate actions from pretrained visual representations, models may exploit task-irrelevant visual cues that correlate with demonstrated actions within the training distribution. Such <strong>vision&ndash;action shortcuts</strong> can undermine generalization when these correlations change under distribution shifts. Mitigating these shortcuts requires constraining how visual information is used for action generation while preserving task-relevant spatial information.</p>
     <p>We propose <strong>Latent Interface Training (LIT)</strong>, a framework-agnostic two-stage strategy that first establishes a spatial-goal-conditioned action prior without images, then constrains visual conditioning through a pose-supervised latent interface. Stage&nbsp;1 trains the action expert to generate action chunks conditioned on language, robot state, and each demonstrated chunk&rsquo;s terminal SE(3) end-effector pose, learning goal-directed action generation independently of visual cues. Stage&nbsp;2 introduces a latent interface that aggregates visual and semantic representations and serves as the pretrained action expert&rsquo;s only visual conditioning pathway. The interface is supervised to reconstruct the terminal pose previously used to condition Stage&nbsp;1, encouraging it to retain the goal-relevant spatial information needed for action generation.</p>
     <p>Across four vision&ndash;language&ndash;action and world&ndash;action architectures&mdash;&pi;<sub>0.5</sub>, MolmoAct2, FAST-WAM, and ImageWAM&mdash;LIT improves overall LIBERO-Plus success by <strong>3.88&ndash;10.71 percentage points</strong> while preserving or improving average LIBERO success. Real-world evaluations show <strong>13.3&ndash;16.7 percentage-point gains</strong> in success aggregated across three tasks under unseen camera configurations, lighting variations, and distractors.</p>
-  </section>
-
-  <section id="realworld">
-    <p class="kicker">Real robot</p>
-    <h2>Unseen lighting, cameras and distractors</h2>
-    <p>A single multi-task policy is trained on 300 demonstrations and evaluated on three manipulation tasks under the in-distribution setting and three visual shifts: changed scene illumination, a changed camera configuration (top camera only), and task-irrelevant distractor objects added to the scene. The demonstrations are public: <a href="https://huggingface.co/datasets/chinchinati/yam_bimanual_manipulation">chinchinati/yam_bimanual_manipulation</a> (YAM dual-arm platform, three tasks, 292 successful episodes after filtering, LeRobot v3.0). Aggregated across the three tasks:</p>
-    <div class="stats">
-      <div class="stat"><div class="lab">In-distribution</div><div class="val">74.7<span class="arrow">&rarr;</span><b>88.0</b><small>%</small></div><div class="d">+13.3 pp</div></div>
-      <div class="stat"><div class="lab">Lighting OOD</div><div class="val">53.3<span class="arrow">&rarr;</span><b>70.0</b><small>%</small></div><div class="d">+16.7 pp</div></div>
-      <div class="stat"><div class="lab">Camera OOD</div><div class="val">30.0<span class="arrow">&rarr;</span><b>46.7</b><small>%</small></div><div class="d">+16.7 pp</div></div>
-      <div class="stat"><div class="lab">Distractors OOD</div><div class="val">50.0<span class="arrow">&rarr;</span><b>63.3</b><small>%</small></div><div class="d">+13.3 pp</div></div>
-    </div>
-    <figure>
-      <img src="static/images/realrobot_envs.png" alt="Real-robot evaluation environments: three tasks under in-distribution, lighting, camera and distractor shifts.">
-      <figcaption><b>Evaluation environments.</b> Rows are the three manipulation tasks; columns show the in-distribution setting and the three evaluated visual shifts: Lighting OOD, Camera OOD, and Distractors OOD. Camera OOD uses only the top-camera view.</figcaption>
-    </figure>
-    <figure>
-      <img src="static/images/realrobot_success.png" alt="Real-robot task success under in-distribution and out-of-distribution visual conditions, per task.">
-      <figcaption><b>Real-robot task success under in-distribution (ID) and out-of-distribution (OOD) visual conditions.</b> Camera OOD uses only the top-camera view. Results are reported as successful rollouts / total rollouts, with success rates in parentheses.</figcaption>
-    </figure>
-    <p class="note">More real-robot demonstrations will be added to this section.</p>
   </section>
 
   <section id="motivation">
@@ -286,6 +265,27 @@ footer a { color:var(--muted); }
       <img src="static/images/framework.png" alt="Overview of Latent Interface Training: Stage 1 learns a visual-free action prior; Stage 2 routes vision through a pose-supervised latent interface.">
       <figcaption><b>Overview of Latent Interface Training.</b> Stage&nbsp;1 learns a spatial-goal-conditioned action prior without images; Stage&nbsp;2 introduces visual conditioning exclusively through a pose-supervised latent interface.</figcaption>
     </figure>
+  </section>
+
+  <section id="realworld">
+    <p class="kicker">Real robot</p>
+    <h2>Unseen lighting, cameras and distractors</h2>
+    <p>A single multi-task policy is trained on 300 demonstrations and evaluated on three manipulation tasks under the in-distribution setting and three visual shifts: changed scene illumination, a changed camera configuration (top camera only), and task-irrelevant distractor objects added to the scene. The demonstrations are public: <a href="https://huggingface.co/datasets/chinchinati/yam_bimanual_manipulation">chinchinati/yam_bimanual_manipulation</a> (YAM dual-arm platform, three tasks, 292 successful episodes after filtering, LeRobot v3.0). Aggregated across the three tasks:</p>
+    <div class="stats">
+      <div class="stat"><div class="lab">In-distribution</div><div class="val">74.7<span class="arrow">&rarr;</span><b>88.0</b><small>%</small></div><div class="d">+13.3 pp</div></div>
+      <div class="stat"><div class="lab">Lighting OOD</div><div class="val">53.3<span class="arrow">&rarr;</span><b>70.0</b><small>%</small></div><div class="d">+16.7 pp</div></div>
+      <div class="stat"><div class="lab">Camera OOD</div><div class="val">30.0<span class="arrow">&rarr;</span><b>46.7</b><small>%</small></div><div class="d">+16.7 pp</div></div>
+      <div class="stat"><div class="lab">Distractors OOD</div><div class="val">50.0<span class="arrow">&rarr;</span><b>63.3</b><small>%</small></div><div class="d">+13.3 pp</div></div>
+    </div>
+    <figure>
+      <img src="static/images/realrobot_envs.png" alt="Real-robot evaluation environments: three tasks under in-distribution, lighting, camera and distractor shifts.">
+      <figcaption><b>Evaluation environments.</b> Rows are the three manipulation tasks; columns show the in-distribution setting and the three evaluated visual shifts: Lighting OOD, Camera OOD, and Distractors OOD. Camera OOD uses only the top-camera view.</figcaption>
+    </figure>
+    <figure>
+      <img src="static/images/realrobot_success.png" alt="Real-robot task success under in-distribution and out-of-distribution visual conditions, per task.">
+      <figcaption><b>Real-robot task success under in-distribution (ID) and out-of-distribution (OOD) visual conditions.</b> Camera OOD uses only the top-camera view. Results are reported as successful rollouts / total rollouts, with success rates in parentheses.</figcaption>
+    </figure>
+    <p class="note">More real-robot demonstrations will be added to this section.</p>
   </section>
 
   <section id="results">
