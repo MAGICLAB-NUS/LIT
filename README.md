@@ -60,21 +60,22 @@ and keeps the upstream README as `README_upstream.md`. Use the pinned branch and
 
 ## Checkpoints
 
-The stage-2 models reported in the tables are on Hugging Face: **[linjianman/LIT](https://huggingface.co/linjianman/LIT)**
-(43 GB, public, no login needed).
+Stage-2 models (the ones in the tables) and the Stage-1 action priors they start from are on Hugging Face:
+**[linjianman/LIT](https://huggingface.co/linjianman/LIT)** (public, no login needed; 43 GB for the four Stage-2 models, 84 GB with Stage 1).
 
 ```bash
-hf download linjianman/LIT --local-dir LIT_ckpt                          # all four
-hf download linjianman/LIT --include "molmoact2/*" --local-dir LIT_ckpt  # one framework
+hf download linjianman/LIT --include "*/lit_stage2/*" --local-dir LIT_ckpt        # the four reported models
+hf download linjianman/LIT --include "molmoact2/*" --local-dir LIT_ckpt           # one framework, both stages
 ```
 
-| Directory | Format | How to point the evaluator at it |
+| Directory | Format | How to use it |
 | --- | --- | --- |
 | `molmoact2/lit_stage2`, `pi05/lit_stage2` | LeRobot policy directory (`config.json` + `model.safetensors` + normalisers) | `--policy.path <dir>` |
 | `fastwam/lit_stage2`, `imagewam/lit_stage2` | `model.pt` + `config.yaml` + `dataset_stats.json` | `ckpt=<dir>/model.pt` `dataset_stats_path=<dir>/dataset_stats.json` |
+| `*/lit_stage1` | same layout as the Stage 2 of that framework | start Stage 2 from it and skip Stage 1 — each fork's README ② gives the variable (`POLICY_PATH`, `STAGE1`, `resume=`, `STAGE1_CHECKPOINT`) |
 
-Stage-1 action priors and the MolmoAct2 / π0.5 baselines we fine-tuned are available on request;
-the FAST-WAM and ImageWAM baselines are the authors' released weights.
+The MolmoAct2 / π0.5 baselines we fine-tuned are available on request; the FAST-WAM and ImageWAM
+baselines are the authors' released weights.
 
 **Real-robot data.** The demonstrations behind the real-robot results are public:
 [chinchinati/yam_bimanual_manipulation](https://huggingface.co/datasets/chinchinati/yam_bimanual_manipulation)
