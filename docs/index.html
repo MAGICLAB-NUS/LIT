@@ -413,9 +413,45 @@ const VIDEOS = [
   { src: "static/video/realworld_01.mp4", tag: "Real robot",
     title: "Multi-task policy under visual shifts",
     cap: "Rollouts across the three tasks under lighting, camera and distractor changes." },
-  { src: "static/video/rollout.mp4", tag: "LIBERO",
-    title: "Simulation rollout (0.5×)",
-    cap: "" },
+  /* What the pose tokens decode to, step by step. CUR (cyan) is the gripper's current
+     end-effector pose from the simulator; PRED (red) is the pose decoded from the 8 learned
+     pose tokens — the model's own prediction of where the gripper should be at the end of
+     the action chunk, so it leads CUR rather than tracking it. Right panel: fixed-view 3D workspace. */
+  { src: "static/video/pose_id/libero_spatial_00.mp4", tag: "Decoded pose · LIBERO",
+    title: "Pick up the black bowl between the plate and the ramekin and place it on the plate",
+    cap: "Red: pose decoded from the latent tokens. Cyan: current end-effector pose." },
+  { src: "static/video/pose_id/libero_spatial_08.mp4", tag: "Decoded pose · LIBERO",
+    title: "Pick up the black bowl next to the plate and place it on the plate", cap: "" },
+  { src: "static/video/pose_id/libero_object_04.mp4", tag: "Decoded pose · LIBERO",
+    title: "Pick up the ketchup and place it in the basket", cap: "" },
+  { src: "static/video/pose_id/libero_object_06.mp4", tag: "Decoded pose · LIBERO",
+    title: "Pick up the butter and place it in the basket", cap: "" },
+  { src: "static/video/pose_id/libero_goal_06.mp4", tag: "Decoded pose · LIBERO",
+    title: "Put the cream cheese in the bowl", cap: "" },
+  { src: "static/video/pose_id/libero_goal_09.mp4", tag: "Decoded pose · LIBERO",
+    title: "Put the wine bottle on the rack", cap: "" },
+  { src: "static/video/pose_id/libero_10_01.mp4", tag: "Decoded pose · LIBERO",
+    title: "Put both the cream cheese box and the butter in the basket", cap: "" },
+  { src: "static/video/pose_id/libero_10_04.mp4", tag: "Decoded pose · LIBERO",
+    title: "Put the white mug on the left plate and put the yellow and white mug on the right plate", cap: "" },
+  /* The same two tasks under LIBERO-Plus perturbations (zero-shot). Same overlay as above. */
+  { src: "static/video/pose_ood/ood_spatial_camera.mp4", tag: "Decoded pose · LIBERO-Plus · Camera viewpoint",
+    title: "Pick up the black bowl between the plate and the ramekin and place it on the plate",
+    cap: "Unseen camera viewpoint. The decoded pose still leads the gripper to the bowl and then to the plate." },
+  { src: "static/video/pose_ood/ood_spatial_light.mp4", tag: "Decoded pose · LIBERO-Plus · Lighting",
+    title: "Pick up the black bowl between the plate and the ramekin and place it on the plate", cap: "Changed scene illumination." },
+  { src: "static/video/pose_ood/ood_spatial_background.mp4", tag: "Decoded pose · LIBERO-Plus · Background",
+    title: "Pick up the black bowl between the plate and the ramekin and place it on the plate", cap: "Changed table texture." },
+  { src: "static/video/pose_ood/ood_spatial_distractor.mp4", tag: "Decoded pose · LIBERO-Plus · Layout",
+    title: "Pick up the black bowl between the plate and the ramekin and place it on the plate", cap: "Task-irrelevant objects added to the scene." },
+  { src: "static/video/pose_ood/ood_object_camera.mp4", tag: "Decoded pose · LIBERO-Plus · Camera viewpoint",
+    title: "Pick up the alphabet soup and place it in the basket", cap: "Unseen camera viewpoint." },
+  { src: "static/video/pose_ood/ood_object_light.mp4", tag: "Decoded pose · LIBERO-Plus · Lighting",
+    title: "Pick up the alphabet soup and place it in the basket", cap: "Changed scene illumination." },
+  { src: "static/video/pose_ood/ood_object_background.mp4", tag: "Decoded pose · LIBERO-Plus · Background",
+    title: "Pick up the alphabet soup and place it in the basket", cap: "Changed table texture." },
+  { src: "static/video/pose_ood/ood_object_distractor.mp4", tag: "Decoded pose · LIBERO-Plus · Layout",
+    title: "Pick up the alphabet soup and place it in the basket", cap: "Task-irrelevant objects added to the scene." },
 ];
 
 (function () {
