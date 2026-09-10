@@ -56,7 +56,7 @@ and keeps the upstream README as `README_upstream.md`. Use the pinned branch and
 | MolmoAct2 | [Molmoact2](https://github.com/jianmanlincjx/Molmoact2) + [lerobot](https://github.com/jianmanlincjx/lerobot) submodule | `feat/libero-goal-prior-v4` | `d7e9a63` / `b966b8c0` | ✅ weights load; LIBERO and LIBERO-Plus rollouts |
 | π0.5 | [Pi05](https://github.com/jianmanlincjx/Pi05) | `main` | `b227a65` | ✅ baseline and LIT weights load; rollouts |
 | FAST-WAM | [fastwam](https://github.com/jianmanlincjx/fastwam) | `feat/goal-pose-prior` | `64dcd74` | ✅ LIT weights load; rollouts (environment recipe in its README) |
-| ImageWAM | [ImageWAM](https://github.com/jianmanlincjx/ImageWAM) | `feat/goal-prior-bottleneck-fix` | `850fb79` | ✅ environment builds from `uv.lock` (torch 2.7.1+cu118, CUDA visible); evaluation not re-run here — needs the gated FLUX.2-dev autoencoder |
+| ImageWAM | [ImageWAM](https://github.com/jianmanlincjx/ImageWAM) | `feat/goal-prior-bottleneck-fix` | `1792d10` | ✅ environment builds from `uv.lock` (torch 2.7.1+cu118, CUDA visible); evaluation not re-run here — needs the gated FLUX.2-dev autoencoder |
 
 ## Checkpoints
 
