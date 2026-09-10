@@ -121,14 +121,17 @@ tr.sep td { border-top:1px solid var(--rule); }
 .d-up { color:var(--pos); } .d-dn { color:var(--neg); }
 
 /* ---------- video gallery ---------- */
-.gallery { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:22px; }
-@media (max-width:720px) { .gallery { grid-template-columns:1fr; } }
-.clip { background:var(--surface); border:1px solid var(--rule); border-radius:10px; overflow:hidden; }
+.gh { font-family:var(--f-sans); font-size:13px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--ink); margin:30px 0 4px; padding-top:18px; border-top:1px solid var(--rule); text-align:left; }
+.gsub { font-size:13.5px; color:var(--muted); margin:0 0 4px; }
+.gallery { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:14px; }
+@media (max-width:960px) { .gallery { grid-template-columns:repeat(2,1fr); } }
+@media (max-width:520px) { .gallery { grid-template-columns:1fr; } }
+.clip { background:var(--surface); border:1px solid var(--rule); border-radius:8px; overflow:hidden; }
 .clip video { display:block; width:100%; height:auto; background:#000; }
-.clip .meta { padding:12px 14px 13px; }
-.clip .title { font-size:14px; font-weight:600; color:var(--ink); margin:0 0 3px; }
-.clip .cap { font-size:12.5px; color:var(--muted); margin:0; max-width:none; }
-.clip .tag { display:inline-block; font-size:10px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); background:var(--accent-w); border-radius:4px; padding:2px 7px; margin-bottom:8px; }
+.clip .meta { padding:9px 11px 10px; }
+.clip .title { font-size:12.5px; font-weight:500; color:var(--ink); margin:0; line-height:1.4; text-align:left; }
+.clip .cap { font-size:11.5px; color:var(--muted); margin:4px 0 0; max-width:none; text-align:left; line-height:1.45; }
+.clip .tag { display:inline-block; font-size:9.5px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--accent); background:var(--accent-w); border-radius:4px; padding:2px 6px; margin-bottom:6px; }
 .empty { color:var(--faint); font-size:13px; }
 
 /* ---------- findings ---------- */
@@ -180,15 +183,6 @@ footer a { color:var(--muted); }
     </nav>
   </div>
 </header>
-
-<div class="wrap teaser">
-  <figure>
-    <video autoplay muted loop playsinline controls preload="metadata" poster="static/images/realrobot_envs.png">
-      <source src="static/video/realworld_01.mp4" type="video/mp4">
-    </video>
-    <figcaption>Real-robot rollouts with LIT under unseen visual conditions. More clips in <a href="#videos">Videos</a>.</figcaption>
-  </figure>
-</div>
 
 <div class="wrap">
 
@@ -267,9 +261,16 @@ footer a { color:var(--muted); }
 
   <section id="videos">
     <p class="kicker">Videos</p>
-    <h2>Rollouts</h2>
-    <p>Real-robot and simulation rollouts. This gallery grows as clips are added.</p>
-    <div class="gallery" id="gallery"></div>
+    <h2>What the latent interface decodes to, mapped back onto the image</h2>
+    <p>Closed-loop rollouts of LIT on MolmoAct2 (Stage-2 checkpoint, 30K steps). At every control step the pose decoder reads the 8 pose-supervised latent tokens, recovers a terminal SE(3) end-effector pose, and that pose is projected back onto the rendered observation: the <strong style="color:#d9342b">red square (PRED)</strong> is where the model says the gripper should be at the end of the current action chunk (t+10); the <strong style="color:#12a4c9">cyan circle (CUR)</strong> is the gripper&rsquo;s actual current pose from the simulator; the line between them is the remaining displacement. The right panel shows the same two poses in a fixed-view 3D workspace. PRED is a prediction, so it should lead CUR rather than track it. No pose is given to the policy at inference &mdash; everything in red is inferred from vision through the interface.</p>
+
+    <h3 class="gh">LIBERO &middot; in-distribution</h3>
+    <p class="gsub">Standard LIBERO tasks, one episode each. Two tasks per suite.</p>
+    <div class="gallery" id="gallery-id"></div>
+
+    <h3 class="gh">LIBERO-Plus &middot; zero-shot out-of-distribution</h3>
+    <p class="gsub">The same two tasks under four LIBERO-Plus perturbations the policy never saw in training: camera viewpoint, lighting, background texture, and added distractor objects. The decoded pose keeps pointing at the object and the goal while the appearance changes.</p>
+    <div class="gallery" id="gallery-ood"></div>
   </section>
 
   <section id="analysis">
@@ -409,62 +410,61 @@ footer a { color:var(--muted); }
    cap   : optional caption
    poster: optional still image
 ------------------------------------------------------------------------------ */
+/* group: "id" (LIBERO) or "ood" (LIBERO-Plus). Four per row.
+   Real-robot clips go in a third group once they arrive — e.g. group: "real". */
 const VIDEOS = [
-  { src: "static/video/realworld_01.mp4", tag: "Real robot",
-    title: "Multi-task policy under visual shifts",
-    cap: "Rollouts across the three tasks under lighting, camera and distractor changes." },
-  /* What the pose tokens decode to, step by step. CUR (cyan) is the gripper's current
-     end-effector pose from the simulator; PRED (red) is the pose decoded from the 8 learned
-     pose tokens — the model's own prediction of where the gripper should be at the end of
-     the action chunk, so it leads CUR rather than tracking it. Right panel: fixed-view 3D workspace. */
-  { src: "static/video/pose_id/libero_spatial_00.mp4", tag: "Decoded pose · LIBERO",
-    title: "Pick up the black bowl between the plate and the ramekin and place it on the plate",
-    cap: "Red: pose decoded from the latent tokens. Cyan: current end-effector pose." },
-  { src: "static/video/pose_id/libero_spatial_08.mp4", tag: "Decoded pose · LIBERO",
-    title: "Pick up the black bowl next to the plate and place it on the plate", cap: "" },
-  { src: "static/video/pose_id/libero_object_04.mp4", tag: "Decoded pose · LIBERO",
-    title: "Pick up the ketchup and place it in the basket", cap: "" },
-  { src: "static/video/pose_id/libero_object_06.mp4", tag: "Decoded pose · LIBERO",
-    title: "Pick up the butter and place it in the basket", cap: "" },
-  { src: "static/video/pose_id/libero_goal_06.mp4", tag: "Decoded pose · LIBERO",
-    title: "Put the cream cheese in the bowl", cap: "" },
-  { src: "static/video/pose_id/libero_goal_09.mp4", tag: "Decoded pose · LIBERO",
-    title: "Put the wine bottle on the rack", cap: "" },
-  { src: "static/video/pose_id/libero_10_01.mp4", tag: "Decoded pose · LIBERO",
-    title: "Put both the cream cheese box and the butter in the basket", cap: "" },
-  { src: "static/video/pose_id/libero_10_04.mp4", tag: "Decoded pose · LIBERO",
-    title: "Put the white mug on the left plate and put the yellow and white mug on the right plate", cap: "" },
-  /* The same two tasks under LIBERO-Plus perturbations (zero-shot). Same overlay as above. */
-  { src: "static/video/pose_ood/ood_spatial_camera.mp4", tag: "Decoded pose · LIBERO-Plus · Camera viewpoint",
-    title: "Pick up the black bowl between the plate and the ramekin and place it on the plate",
-    cap: "Unseen camera viewpoint. The decoded pose still leads the gripper to the bowl and then to the plate." },
-  { src: "static/video/pose_ood/ood_spatial_light.mp4", tag: "Decoded pose · LIBERO-Plus · Lighting",
-    title: "Pick up the black bowl between the plate and the ramekin and place it on the plate", cap: "Changed scene illumination." },
-  { src: "static/video/pose_ood/ood_spatial_background.mp4", tag: "Decoded pose · LIBERO-Plus · Background",
-    title: "Pick up the black bowl between the plate and the ramekin and place it on the plate", cap: "Changed table texture." },
-  { src: "static/video/pose_ood/ood_spatial_distractor.mp4", tag: "Decoded pose · LIBERO-Plus · Layout",
-    title: "Pick up the black bowl between the plate and the ramekin and place it on the plate", cap: "Task-irrelevant objects added to the scene." },
-  { src: "static/video/pose_ood/ood_object_camera.mp4", tag: "Decoded pose · LIBERO-Plus · Camera viewpoint",
-    title: "Pick up the alphabet soup and place it in the basket", cap: "Unseen camera viewpoint." },
-  { src: "static/video/pose_ood/ood_object_light.mp4", tag: "Decoded pose · LIBERO-Plus · Lighting",
-    title: "Pick up the alphabet soup and place it in the basket", cap: "Changed scene illumination." },
-  { src: "static/video/pose_ood/ood_object_background.mp4", tag: "Decoded pose · LIBERO-Plus · Background",
-    title: "Pick up the alphabet soup and place it in the basket", cap: "Changed table texture." },
-  { src: "static/video/pose_ood/ood_object_distractor.mp4", tag: "Decoded pose · LIBERO-Plus · Layout",
-    title: "Pick up the alphabet soup and place it in the basket", cap: "Task-irrelevant objects added to the scene." },
+  // ---- LIBERO, in-distribution ----
+  { group: "id", src: "static/video/pose_id/libero_spatial_00.mp4", tag: "Spatial",
+    title: "Pick up the black bowl between the plate and the ramekin and place it on the plate" },
+  { group: "id", src: "static/video/pose_id/libero_spatial_08.mp4", tag: "Spatial",
+    title: "Pick up the black bowl next to the plate and place it on the plate" },
+  { group: "id", src: "static/video/pose_id/libero_object_04.mp4", tag: "Object",
+    title: "Pick up the ketchup and place it in the basket" },
+  { group: "id", src: "static/video/pose_id/libero_object_06.mp4", tag: "Object",
+    title: "Pick up the butter and place it in the basket" },
+  { group: "id", src: "static/video/pose_id/libero_goal_06.mp4", tag: "Goal",
+    title: "Put the cream cheese in the bowl" },
+  { group: "id", src: "static/video/pose_id/libero_goal_09.mp4", tag: "Goal",
+    title: "Put the wine bottle on the rack" },
+  { group: "id", src: "static/video/pose_id/libero_10_01.mp4", tag: "Long",
+    title: "Put both the cream cheese box and the butter in the basket" },
+  { group: "id", src: "static/video/pose_id/libero_10_04.mp4", tag: "Long",
+    title: "Put the white mug on the left plate and put the yellow and white mug on the right plate" },
+  // ---- LIBERO-Plus, zero-shot OOD: same two tasks, four perturbations each ----
+  { group: "ood", src: "static/video/pose_ood/ood_spatial_camera.mp4", tag: "Camera viewpoint",
+    title: "Pick up the black bowl between the plate and the ramekin and place it on the plate" },
+  { group: "ood", src: "static/video/pose_ood/ood_spatial_light.mp4", tag: "Lighting",
+    title: "Pick up the black bowl between the plate and the ramekin and place it on the plate" },
+  { group: "ood", src: "static/video/pose_ood/ood_spatial_background.mp4", tag: "Background texture",
+    title: "Pick up the black bowl between the plate and the ramekin and place it on the plate" },
+  { group: "ood", src: "static/video/pose_ood/ood_spatial_distractor.mp4", tag: "Added distractors",
+    title: "Pick up the black bowl between the plate and the ramekin and place it on the plate" },
+  { group: "ood", src: "static/video/pose_ood/ood_object_camera.mp4", tag: "Camera viewpoint",
+    title: "Pick up the alphabet soup and place it in the basket" },
+  { group: "ood", src: "static/video/pose_ood/ood_object_light.mp4", tag: "Lighting",
+    title: "Pick up the alphabet soup and place it in the basket" },
+  { group: "ood", src: "static/video/pose_ood/ood_object_background.mp4", tag: "Background texture",
+    title: "Pick up the alphabet soup and place it in the basket" },
+  { group: "ood", src: "static/video/pose_ood/ood_object_distractor.mp4", tag: "Added distractors",
+    title: "Pick up the alphabet soup and place it in the basket" },
+  // ---- Real robot: add here when the clips arrive ----
+  // { group: "real", src: "static/video/realworld_01.mp4", tag: "Real robot", title: "..." },
 ];
 
 (function () {
-  const g = document.getElementById("gallery");
-  if (!VIDEOS.length) { g.innerHTML = '<p class="empty">Clips coming soon.</p>'; return; }
-  for (const v of VIDEOS) {
-    const el = document.createElement("div"); el.className = "clip";
-    el.innerHTML =
-      '<video controls muted loop playsinline preload="metadata"' + (v.poster ? ' poster="' + v.poster + '"' : '') + '>' +
-      '<source src="' + v.src + '" type="video/mp4"></video>' +
-      '<div class="meta">' + (v.tag ? '<span class="tag">' + v.tag + '</span>' : '') +
-      '<p class="title">' + v.title + '</p>' + (v.cap ? '<p class="cap">' + v.cap + '</p>' : '') + '</div>';
-    g.appendChild(el);
+  for (const grp of ["id", "ood"]) {
+    const g = document.getElementById("gallery-" + grp);
+    const items = VIDEOS.filter(v => v.group === grp);
+    if (!items.length) { g.innerHTML = '<p class="empty">Clips coming soon.</p>'; continue; }
+    for (const v of items) {
+      const el = document.createElement("div"); el.className = "clip";
+      el.innerHTML =
+        '<video autoplay muted loop playsinline controls preload="auto"' + (v.poster ? ' poster="' + v.poster + '"' : '') + '>' +
+        '<source src="' + v.src + '#t=0.1" type="video/mp4"></video>' +
+        '<div class="meta">' + (v.tag ? '<span class="tag">' + v.tag + '</span>' : '') +
+        '<p class="title">' + v.title + '</p>' + (v.cap ? '<p class="cap">' + v.cap + '</p>' : '') + '</div>';
+      g.appendChild(el);
+    }
   }
 })();
 </script>
