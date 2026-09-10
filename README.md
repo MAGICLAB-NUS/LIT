@@ -88,14 +88,21 @@ For π0.5, FAST-WAM and ImageWAM follow the `REPRODUCE.md` in each fork; the pro
 ## Layout
 
 ```
+README.md             this page: the four forks, checkpoints, quick start
+docs/                 project page (GitHub Pages, served from /docs)
 scripts/
-  env.sh preflight.sh          paths and pre-run checks
-  eval_libero.sh eval_libero_plus.sh aggregate.py
-  render_pose_videos.sh        rollouts with the decoded pose drawn back onto the frame (project-page clips)
-  molmoact2/                   the MolmoAct2 train/eval scripts at the pinned commit
-  paper_runs/                  launchers exactly as run for the paper (machine-specific; provenance only)
-docs/                          project page
+  env.sh preflight.sh                       paths and pre-run checks
+  eval_libero.sh eval_libero_plus.sh        the two evaluation protocols (MolmoAct2; resumable, sharded)
+  aggregate.py                              per-axis / per-suite aggregation, paired comparison of two runs
+  render_pose_videos.sh                     rollouts with the decoded pose drawn back onto the frame
+results/
+  ablation_results.{tsv,csv,md}             Table III as evaluated (all arms, seven axes, ID)
+  extract_tables_from_pdf.py                pulls Tables I–III out of the submission PDF and checks them digit for digit
+  editors/*.html                            offline table editors that export the paper's LaTeX
+archive/paper_runs/                         launchers exactly as run for the paper (machine-specific; provenance only)
 ```
+
+The per-framework training and evaluation scripts live in the forks at the pinned commits, not here.
 
 ## Citation
 

@@ -1,0 +1,980 @@
+<title>LIBERO-Plus Table Editor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap">
+
+<style>
+:root {
+  --ground:   #F5F6F8;
+  --surface:  #FFFFFF;
+  --well:     #ECEFF3;
+  --ink:      #16191F;
+  --ink-2:    #3D4552;
+  --muted:    #6B7484;
+  --faint:    #99A1AE;
+  --rule:     #D8DDE5;
+  --rule-hard:#1F242C;
+  --accent:   #1F4E9C;
+  --accent-w: #E4EBF6;
+  --pos:      #1B62C4;
+  --neg:      #B23A32;
+  --ok:       #1C7357;
+  --warn:     #9A6410;
+  --warn-w:   #F6EDDC;
+  --bad:      #B23A32;
+  --focus:    #1F4E9C;
+
+  --f-display: "Newsreader", Georgia, "Times New Roman", serif;
+  --f-sans:    "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --f-mono:    "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground:   #121418;
+    --surface:  #191C21;
+    --well:     #23272E;
+    --ink:      #E7EAEF;
+    --ink-2:    #BFC6D0;
+    --muted:    #8B94A2;
+    --faint:    #69727F;
+    --rule:     #2E343D;
+    --rule-hard:#7E889A;
+    --accent:   #7BA6E8;
+    --accent-w: #1E2A3D;
+    --pos:      #7FB3F5;
+    --neg:      #EE9086;
+    --ok:       #4FBF97;
+    --warn:     #E0A756;
+    --warn-w:   #2E2618;
+    --bad:      #EE9086;
+    --focus:    #7BA6E8;
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground:   #121418;
+  --surface:  #191C21;
+  --well:     #23272E;
+  --ink:      #E7EAEF;
+  --ink-2:    #BFC6D0;
+  --muted:    #8B94A2;
+  --faint:    #69727F;
+  --rule:     #2E343D;
+  --rule-hard:#7E889A;
+  --accent:   #7BA6E8;
+  --accent-w: #1E2A3D;
+  --pos:      #7FB3F5;
+  --neg:      #EE9086;
+  --ok:       #4FBF97;
+  --warn:     #E0A756;
+  --warn-w:   #2E2618;
+  --bad:      #EE9086;
+  --focus:    #7BA6E8;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--f-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 32px 24px 72px;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+/* ---------- header ---------- */
+
+.masthead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px 24px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.masthead h1 {
+  font-family: var(--f-display);
+  font-weight: 500;
+  font-size: 30px;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin: 0 0 5px;
+  text-wrap: balance;
+}
+
+.masthead p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  max-width: 58ch;
+}
+
+.mast-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+button {
+  font-family: var(--f-sans);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink-2);
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  padding: 7px 12px;
+  cursor: pointer;
+  transition: border-color .12s, color .12s, background .12s;
+}
+button:hover { border-color: var(--accent); color: var(--accent); }
+button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+:root[data-theme="dark"] button.primary,
+:root:not([data-theme="light"]) button.primary { color: #10151E; }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) button.primary { color: #fff; }
+}
+button.primary:hover { filter: brightness(1.08); color: #fff; }
+:root[data-theme="dark"] button.primary:hover { color: #10151E; }
+
+/* ---------- the table: styled as the typeset artifact it produces ---------- */
+
+.sheet {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 26px 26px 20px;
+  overflow-x: auto;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 940px;
+}
+
+/* booktabs-flavoured rules */
+tr.toprule > * { border-top: 1.6px solid var(--rule-hard); }
+tr.midrule > * { border-top: 1px solid var(--rule); }
+tbody tr.overall > * { border-top: 1px solid var(--rule); }
+tfoot tr > * { border-top: 1.6px solid var(--rule-hard); }
+
+th, td { padding: 0; text-align: center; vertical-align: middle; }
+
+/* architecture group header */
+.arch-head {
+  padding: 4px 10px 10px;
+}
+.arch-name {
+  font-family: var(--f-display);
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+  display: block;
+  margin-bottom: 6px;
+}
+.arch-name .kind {
+  font-family: var(--f-sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-left: 5px;
+  vertical-align: 1.5px;
+}
+/* the \cmidrule under each group */
+.cmidrule { height: 1px; background: var(--rule); margin: 0 8px 9px; }
+
+.prov {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: .03em;
+  color: var(--muted);
+  margin-bottom: 8px;
+  cursor: help;
+}
+.dot { width: 6px; height: 6px; border-radius: 50%; flex: none; }
+.dot.ok { background: var(--ok); }
+.dot.warn { background: var(--warn); }
+.dot.bad { background: var(--bad); }
+
+select {
+  font-family: var(--f-sans);
+  font-size: 11px;
+  color: var(--ink-2);
+  background: var(--well);
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 3px 6px;
+  cursor: pointer;
+}
+select:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+
+.colhead {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--faint);
+  padding: 4px 0 9px;
+}
+.rowhead {
+  text-align: left;
+  font-size: 13.5px;
+  color: var(--ink);
+  padding: 0 22px 0 2px;
+  white-space: nowrap;
+}
+.rowhead .n {
+  display: block;
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  color: var(--faint);
+  letter-spacing: .01em;
+}
+
+/* value cells */
+td.val { padding: 2px 3px; }
+td.val input {
+  width: 100%;
+  min-width: 62px;
+  font-family: var(--f-mono);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 6px 2px;
+  transition: background .1s, border-color .1s;
+}
+td.val input:hover { background: var(--well); }
+td.val input:focus {
+  outline: none;
+  background: var(--surface);
+  border-color: var(--focus);
+  box-shadow: 0 0 0 2px var(--accent-w);
+}
+td.val input.best { font-weight: 600; }
+td.val input:disabled { color: var(--muted); background: transparent; cursor: default; }
+
+td.delta {
+  font-family: var(--f-mono);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  padding: 6px 4px;
+  white-space: nowrap;
+}
+.delta .up { color: var(--pos); }
+.delta .down { color: var(--neg); }
+
+tr.overall .rowhead { font-weight: 600; padding-top: 10px; }
+tr.overall td { padding-top: 8px; }
+tr.overall .delta { font-weight: 600; }
+
+/* the hint line under Overall */
+tr.hint td { padding: 2px 4px 4px; }
+.hintline {
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.hintline b { font-weight: 500; color: var(--muted); }
+.hintline .flag { color: var(--warn); }
+
+/* group gap: mimic the \hspace between column groups */
+.gap { width: 18px; padding: 0; }
+
+/* ---------- checks ---------- */
+
+.checks {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.checks h2 {
+  font-family: var(--f-sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin: 0;
+  padding: 13px 18px 11px;
+  border-bottom: 1px solid var(--rule);
+}
+.check {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 11px 18px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+  border-bottom: 1px solid var(--rule);
+}
+.check:last-child { border-bottom: none; }
+.check .dot { margin-top: 6px; align-self: flex-start; }
+.check b { color: var(--ink); font-weight: 600; }
+.check code {
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+/* ---------- latex ---------- */
+
+.out { display: flex; flex-direction: column; gap: 10px; }
+.out-bar {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.out-bar h2 {
+  font-family: var(--f-display);
+  font-size: 19px;
+  font-weight: 500;
+  margin: 0;
+}
+.out-bar .sub { color: var(--muted); font-size: 12.5px; }
+pre {
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 18px 20px;
+  overflow-x: auto;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  line-height: 1.65;
+  color: var(--ink-2);
+  tab-size: 4;
+  max-height: 460px;
+  overflow-y: auto;
+}
+pre::selection, pre *::selection { background: var(--accent-w); }
+
+footer {
+  font-size: 11.5px;
+  color: var(--faint);
+  border-top: 1px solid var(--rule);
+  padding-top: 14px;
+  line-height: 1.7;
+}
+footer code { font-family: var(--f-mono); font-size: 11px; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div>
+      <h1>LIBERO-Plus Table Editor</h1>
+      <p>Edit Base and LIT; &Delta;, bolding and Overall recompute, and the LaTeX below stays in sync with what you see.</p>
+    </div>
+    <div class="mast-actions">
+      <button id="preset-draft">Current draft</button>
+      <button id="preset-records">Raw records</button>
+      <button id="dl">Download .tex</button>
+      <button id="copy" class="primary">Copy LaTeX</button>
+    </div>
+  </header>
+
+  <section class="sheet">
+    <table id="grid"></table>
+  </section>
+
+  <section class="checks">
+    <h2>Consistency checks</h2>
+    <div id="checks"></div>
+  </section>
+
+  <section class="out">
+    <div class="out-bar">
+      <h2>LaTeX</h2>
+      <span class="sub">Preamble, column spec and rules preserved verbatim &mdash; only the numbers, bolding and &Delta; colours are generated.</span>
+    </div>
+    <pre id="latex"></pre>
+  </section>
+
+  <footer>
+    Success rates are percentages over 10,030 LIBERO-Plus tasks, one episode each, seed 1000.
+    Per-axis task counts sit under each perturbation name and drive the task-weighted Overall;
+    the seven-axis mean weights every axis equally regardless of size.
+    Edits are kept in this browser only.
+  </footer>
+
+</div>
+
+<script>
+"use strict";
+
+/* ---------------- data model ---------------- */
+
+const AXES = [
+  { key: "camera", label: "Camera Viewpoints",    n: 1599 },
+  { key: "noise",  label: "Sensor Noise",         n: 1601 },
+  { key: "light",  label: "Lighting Conditions",  n: 1142 },
+  { key: "backg",  label: "Background Textures",  n: 1076 },
+  { key: "robot",  label: "Robot Initial States", n: 1550 },
+  { key: "layout", label: "Object Layout",        n: 1525 },
+  { key: "lang",   label: "Language Instructions", n: 1537 }
+];
+
+const NTOT = AXES.reduce((s, a) => s + a.n, 0);
+
+const ARCHS = [
+  {
+    key: "pi05", name: "\u03C0\u2080.\u2085", kind: "VLA",
+    tex: "$\\pi_{0.5}$ (VLA)",
+    prov: { level: "bad", short: "Base pre-fix \u00B7 LIT unverified",
+      title: "Base: six axes are pre-language-fix; Language was raised 37.15 \u2192 52.15 with no matching run. LIT: no evaluation records found on local, fm1 or fm2." }
+  },
+  {
+    key: "mol", name: "MolmoAct2", kind: "VLA",
+    tex: "MolmoAct2 (VLA)",
+    prov: { level: "ok", short: "Both sides post-fix",
+      title: "Both Base and LIT recomputed from 10,030 per-task records on fm1 under LIBERO_PLUS_FIX_LANG=1. The only column that reproduces end to end." }
+  },
+  {
+    key: "fw", name: "FAST-WAM", kind: "WAM",
+    tex: "FAST-WAM (WAM)",
+    prov: { level: "warn", short: "Both sides pre-fix",
+      title: "Base and LIT were both measured before the language fix. Internally consistent, so the delta is fair, but the protocol differs from MolmoAct2." }
+  },
+  {
+    key: "iw", name: "ImageWAM", kind: "WAM",
+    tex: "ImageWAM (WAM)",
+    prov: { level: "bad", short: "Base pre-fix, LIT post-fix",
+      title: "Base is pre-language-fix, LIT is post-fix, so the two sides were not measured under the same harness. LIT also differs from the recorded run on Noise (+2.00) and Language (+3.00)." }
+  }
+];
+
+/* Values as they stand in the current draft (MolmoAct2 already corrected to the raw records). */
+const DRAFT = {
+  pi05: { base: [58.29, 79.89, 82.40, 85.32, 60.71, 64.00, 52.15], lit: [80.30, 91.94, 90.11, 86.99, 63.71, 73.11, 71.50], mode: "mean",   ov: null },
+  mol:  { base: [39.40, 49.03, 89.84, 89.78, 50.71, 55.41, 82.69], lit: [48.41, 71.77, 85.64, 94.42, 59.03, 71.61, 73.58], mode: "mean",   ov: null },
+  fw:   { base: [16.40, 37.70, 78.20, 53.70, 44.50, 60.70, 68.90], lit: [44.97, 58.03, 85.03, 58.36, 50.00, 65.31, 69.55], mode: "wtd",    ov: null },
+  iw:   { base: [82.93, 97.31, 98.42, 89.03, 48.58, 78.49, 91.74], lit: [84.55, 97.57, 97.99, 94.24, 60.19, 83.67, 90.05], mode: "manual", ov: { base: 83.01, lit: 86.89 } }
+};
+
+/* Only the cells for which a raw evaluation record actually exists. */
+const RECORDS = {
+  pi05: { base: [58.29, 79.89, 82.40, 85.32, 60.71, 64.00, 37.15] },
+  mol:  { base: [39.40, 49.03, 89.84, 89.78, 50.71, 55.41, 82.69], lit: [48.41, 71.77, 85.64, 94.42, 59.03, 71.61, 73.58] },
+  fw:   { base: [16.40, 37.70, 78.20, 53.70, 44.50, 60.70, 68.90], lit: [44.97, 58.03, 85.03, 58.36, 50.00, 65.31, 69.55] },
+  iw:   { base: [82.93, 97.31, 98.42, 89.03, 48.58, 78.49, 91.74], lit: [84.55, 95.57, 97.99, 94.24, 60.19, 83.67, 87.05] }
+};
+
+const STORE = "libero-plus-table-v1";
+let state = load();
+
+function clone(o) { return JSON.parse(JSON.stringify(o)); }
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORE);
+    if (raw) {
+      const p = JSON.parse(raw);
+      if (p && p.pi05 && p.pi05.base && p.pi05.base.length === 7) return p;
+    }
+  } catch (e) { /* private mode, blocked storage: fall through to defaults */ }
+  return clone(DRAFT);
+}
+
+function save() {
+  try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) { /* not persisted */ }
+}
+
+/* ---------------- maths ---------------- */
+
+const mean7 = v => v.reduce((s, x) => s + x, 0) / 7;
+const weighted = v => v.reduce((s, x, i) => s + x * AXES[i].n, 0) / NTOT;
+
+function overall(a, side) {
+  const st = state[a.key];
+  if (st.mode === "manual") return st.ov ? st.ov[side] : mean7(st[side]);
+  return st.mode === "wtd" ? weighted(st[side]) : mean7(st[side]);
+}
+
+const f2 = v => (Math.round(v * 100) / 100).toFixed(2);
+const fD = v => { const r = Math.round(v * 100) / 100; return (r >= 0 ? "+" : "") + r.toFixed(2); };
+
+/* ---------------- build the grid ---------------- */
+
+const grid = document.getElementById("grid");
+
+function build() {
+  const head = document.createElement("thead");
+
+  const r1 = document.createElement("tr");
+  r1.className = "toprule";
+  r1.appendChild(el("th", { class: "rowhead colhead", rowspan: 2 }, "Perturbation"));
+  ARCHS.forEach((a, i) => {
+    if (i) r1.appendChild(el("th", { class: "gap" }));
+    const th = el("th", { class: "arch-head", colspan: 3 });
+    const nm = el("span", { class: "arch-name" });
+    nm.appendChild(document.createTextNode(a.name));
+    nm.appendChild(el("span", { class: "kind" }, a.kind));
+    th.appendChild(nm);
+    th.appendChild(el("div", { class: "cmidrule" }));
+
+    const pv = el("span", { class: "prov", title: a.prov.title });
+    pv.appendChild(el("span", { class: "dot " + a.prov.level }));
+    pv.appendChild(document.createTextNode(a.prov.short));
+    th.appendChild(pv);
+
+    const sel = el("select", { "aria-label": "Overall convention for " + a.name });
+    [["mean", "Overall: 7-axis mean"], ["wtd", "Overall: task-weighted"], ["manual", "Overall: typed in"]]
+      .forEach(([v, t]) => {
+        const o = el("option", { value: v }, t);
+        if (state[a.key].mode === v) o.selected = true;
+        sel.appendChild(o);
+      });
+    sel.addEventListener("change", () => {
+      const st = state[a.key];
+      if (sel.value === "manual" && !st.ov) st.ov = { base: overall(a, "base"), lit: overall(a, "lit") };
+      st.mode = sel.value;
+      save(); render();
+    });
+    th.appendChild(el("div", {}, sel));
+    r1.appendChild(th);
+  });
+  head.appendChild(r1);
+
+  const r2 = document.createElement("tr");
+  ARCHS.forEach((a, i) => {
+    if (i) r2.appendChild(el("th", { class: "gap" }));
+    ["Base", "LIT", "\u0394"].forEach(t => r2.appendChild(el("th", { class: "colhead" }, t)));
+  });
+  head.appendChild(r2);
+  grid.appendChild(head);
+
+  const body = document.createElement("tbody");
+
+  AXES.forEach((ax, ri) => {
+    const tr = document.createElement("tr");
+    if (ri === 0) tr.className = "midrule";
+    const rh = el("td", { class: "rowhead" });
+    rh.appendChild(document.createTextNode(ax.label));
+    rh.appendChild(el("span", { class: "n" }, ax.n.toLocaleString() + " tasks"));
+    tr.appendChild(rh);
+
+    ARCHS.forEach((a, ai) => {
+      if (ai) tr.appendChild(el("td", { class: "gap" }));
+      ["base", "lit"].forEach(side => {
+        const td = el("td", { class: "val" });
+        const inp = el("input", {
+          type: "text", inputmode: "decimal", spellcheck: "false",
+          "data-arch": a.key, "data-side": side, "data-row": String(ri),
+          "aria-label": a.name + " " + side + " " + ax.label
+        });
+        inp.value = f2(state[a.key][side][ri]);
+        wire(inp, a.key, side, ri);
+        td.appendChild(inp);
+        tr.appendChild(td);
+      });
+      tr.appendChild(el("td", { class: "delta", "data-d": a.key + "-" + ri }));
+    });
+    body.appendChild(tr);
+  });
+
+  /* Overall */
+  const ov = document.createElement("tr");
+  ov.className = "overall";
+  ov.appendChild(el("td", { class: "rowhead" }, "Overall"));
+  ARCHS.forEach((a, ai) => {
+    if (ai) ov.appendChild(el("td", { class: "gap" }));
+    ["base", "lit"].forEach(side => {
+      const td = el("td", { class: "val" });
+      const inp = el("input", {
+        type: "text", inputmode: "decimal", spellcheck: "false",
+        "data-arch": a.key, "data-side": side, "data-row": "ov",
+        "aria-label": a.name + " " + side + " Overall"
+      });
+      wireOverall(inp, a.key, side);
+      td.appendChild(inp);
+      ov.appendChild(td);
+    });
+    ov.appendChild(el("td", { class: "delta", "data-d": a.key + "-ov" }));
+  });
+  body.appendChild(ov);
+
+  /* hint line */
+  const hi = document.createElement("tr");
+  hi.className = "hint";
+  hi.appendChild(el("td", {}));
+  ARCHS.forEach((a, ai) => {
+    if (ai) hi.appendChild(el("td", { class: "gap" }));
+    hi.appendChild(el("td", { colspan: 3, class: "hintcell", "data-h": a.key }));
+  });
+  body.appendChild(hi);
+
+  grid.appendChild(body);
+  grid.appendChild(el("tfoot", {}, el("tr", {}, el("td", { colspan: 16, style: "height:2px" }))));
+}
+
+function el(tag, attrs, child) {
+  const n = document.createElement(tag);
+  if (attrs) for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (child != null) {
+    if (typeof child === "string") n.textContent = child;
+    else n.appendChild(child);
+  }
+  return n;
+}
+
+function parse(s) {
+  const v = parseFloat(String(s).replace(/[^0-9.\-]/g, ""));
+  return Number.isFinite(v) ? v : null;
+}
+
+function wire(inp, arch, side, ri) {
+  inp.addEventListener("focus", () => inp.select());
+  inp.addEventListener("input", () => {
+    const v = parse(inp.value);
+    if (v === null) return;
+    state[arch][side][ri] = v;
+    save(); render({ skip: inp });
+  });
+  inp.addEventListener("blur", () => {
+    const v = parse(inp.value);
+    inp.value = f2(v === null ? state[arch][side][ri] : v);
+    render();
+  });
+  inp.addEventListener("keydown", e => nav(e, arch, side, ri));
+}
+
+function wireOverall(inp, arch, side) {
+  inp.addEventListener("focus", () => inp.select());
+  inp.addEventListener("input", () => {
+    if (state[arch].mode !== "manual") return;
+    const v = parse(inp.value);
+    if (v === null) return;
+    if (!state[arch].ov) state[arch].ov = { base: 0, lit: 0 };
+    state[arch].ov[side] = v;
+    save(); render({ skip: inp });
+  });
+  inp.addEventListener("blur", () => render());
+  inp.addEventListener("keydown", e => nav(e, arch, side, "ov"));
+}
+
+/* arrow keys move down the column the way a spreadsheet does */
+function nav(e, arch, side, ri) {
+  if (e.key !== "ArrowUp" && e.key !== "ArrowDown" && e.key !== "Enter") return;
+  const order = AXES.map((_, i) => String(i)).concat(["ov"]);
+  let idx = order.indexOf(String(ri));
+  if (idx < 0) return;
+  idx += (e.key === "ArrowUp") ? -1 : 1;
+  if (idx < 0 || idx >= order.length) return;
+  const next = document.querySelector(
+    'input[data-arch="' + arch + '"][data-side="' + side + '"][data-row="' + order[idx] + '"]');
+  if (next && !next.disabled) { e.preventDefault(); next.focus(); }
+}
+
+/* ---------------- render ---------------- */
+
+function render(opts) {
+  const skip = opts && opts.skip;
+
+  AXES.forEach((ax, ri) => {
+    ARCHS.forEach(a => {
+      const b = state[a.key].base[ri], l = state[a.key].lit[ri];
+      ["base", "lit"].forEach(side => {
+        const inp = document.querySelector(
+          'input[data-arch="' + a.key + '"][data-side="' + side + '"][data-row="' + ri + '"]');
+        if (!inp) return;
+        if (inp !== skip) inp.value = f2(state[a.key][side][ri]);
+        inp.classList.toggle("best", side === "base" ? b > l : l > b);
+      });
+      const d = document.querySelector('[data-d="' + a.key + "-" + ri + '"]');
+      const diff = l - b;
+      d.innerHTML = "";
+      d.appendChild(el("span", { class: diff < 0 ? "down" : "up" }, fD(diff)));
+    });
+  });
+
+  ARCHS.forEach(a => {
+    const st = state[a.key];
+    const ob = overall(a, "base"), ol = overall(a, "lit");
+    ["base", "lit"].forEach(side => {
+      const inp = document.querySelector(
+        'input[data-arch="' + a.key + '"][data-side="' + side + '"][data-row="ov"]');
+      const v = side === "base" ? ob : ol;
+      if (inp !== skip) inp.value = f2(v);
+      inp.disabled = st.mode !== "manual";
+      inp.classList.toggle("best", side === "base" ? ob > ol : ol > ob);
+    });
+    const d = document.querySelector('[data-d="' + a.key + '-ov"]');
+    const diff = ol - ob;
+    d.innerHTML = "";
+    d.appendChild(el("span", { class: diff < 0 ? "down" : "up" }, fD(diff)));
+
+    const h = document.querySelector('[data-h="' + a.key + '"]');
+    h.innerHTML = "";
+    const line = el("span", { class: "hintline" });
+    line.appendChild(el("b", {}, "7-axis "));
+    line.appendChild(document.createTextNode(f2(mean7(st.base)) + " / " + f2(mean7(st.lit)) + "   "));
+    line.appendChild(el("b", {}, "weighted "));
+    line.appendChild(document.createTextNode(f2(weighted(st.base)) + " / " + f2(weighted(st.lit))));
+    if (st.mode === "manual") {
+      const bad = !near(ob, mean7(st.base)) && !near(ob, weighted(st.base))
+               || !near(ol, mean7(st.lit))  && !near(ol, weighted(st.lit));
+      if (bad) line.appendChild(el("span", { class: "flag" }, "   \u2022 typed value matches neither"));
+    }
+    h.appendChild(line);
+  });
+
+  runChecks();
+  document.getElementById("latex").textContent = toLatex();
+}
+
+const near = (a, b) => Math.abs(a - b) < 0.02;
+
+/* ---------------- checks ---------------- */
+
+function runChecks() {
+  const box = document.getElementById("checks");
+  box.innerHTML = "";
+  const items = [];
+
+  /* mixed Overall conventions across the four columns */
+  ARCHS.forEach(a => {
+    const st = state[a.key];
+    const ob = overall(a, "base"), ol = overall(a, "lit");
+    const bMean = near(ob, mean7(st.base)), bWtd = near(ob, weighted(st.base));
+    const lMean = near(ol, mean7(st.lit)),  lWtd = near(ol, weighted(st.lit));
+    if ((bMean && lWtd && !lMean) || (bWtd && lMean && !lWtd)) {
+      items.push(["bad", a.name + ": the two sides of \u0394 use different Overall conventions \u2014 "
+        + "Base is " + (bMean ? "a 7-axis mean" : "task-weighted") + ", LIT is "
+        + (lMean ? "a 7-axis mean" : "task-weighted") + ". Same convention on both sides, or \u0394 is not a like-for-like difference."]);
+    } else if (!bMean && !bWtd) {
+      items.push(["warn", a.name + ": the Base Overall (" + f2(ob) + ") is neither the 7-axis mean ("
+        + f2(mean7(st.base)) + ") nor task-weighted (" + f2(weighted(st.base)) + ")."]);
+    } else if (!lMean && !lWtd) {
+      items.push(["warn", a.name + ": the LIT Overall (" + f2(ol) + ") is neither the 7-axis mean ("
+        + f2(mean7(st.lit)) + ") nor task-weighted (" + f2(weighted(st.lit)) + ")."]);
+    }
+  });
+
+  const conv = ARCHS.map(a => {
+    const st = state[a.key];
+    const ob = overall(a, "base");
+    return near(ob, mean7(st.base)) ? "mean" : (near(ob, weighted(st.base)) ? "wtd" : "?");
+  });
+  if (new Set(conv.filter(c => c !== "?")).size > 1) {
+    items.push(["warn", "The four columns do not share one Overall convention: "
+      + ARCHS.map((a, i) => a.name + " " + (conv[i] === "mean" ? "7-axis mean" : conv[i] === "wtd" ? "task-weighted" : "custom")).join(", ")
+      + ". A reader comparing across columns is comparing two different statistics."]);
+  }
+
+  /* drift from the recorded runs */
+  ARCHS.forEach(a => {
+    const rec = RECORDS[a.key];
+    if (!rec) return;
+    ["base", "lit"].forEach(side => {
+      if (!rec[side]) return;
+      const off = [];
+      AXES.forEach((ax, i) => {
+        const d = state[a.key][side][i] - rec[side][i];
+        if (Math.abs(d) > 0.005) off.push(ax.label.split(" ")[0] + " " + fD(d));
+      });
+      if (off.length) items.push(["warn", a.name + " " + (side === "base" ? "Base" : "LIT")
+        + " differs from the recorded run on " + off.length + " " + (off.length === 1 ? "axis" : "axes")
+        + ": " + off.join(", ") + "."]);
+    });
+  });
+
+  if (!RECORDS.pi05.lit) {
+    items.push(["bad", ARCHS[0].name + " LIT has no evaluation record to check against \u2014 nothing on the local machine, fm1 or fm2. These seven numbers cannot be verified from here."]);
+  }
+
+  if (!items.length) items.push(["ok", "Every Overall follows a stated convention and every editable cell matches its recorded run."]);
+
+  items.forEach(([lvl, text]) => {
+    const row = el("div", { class: "check" });
+    row.appendChild(el("span", { class: "dot " + lvl }));
+    row.appendChild(el("span", {}, text));
+    box.appendChild(row);
+  });
+}
+
+/* ---------------- LaTeX ---------------- */
+
+function cellPair(b, l) {
+  const B = b > l ? "\\textbf{" + f2(b) + "}" : f2(b);
+  const L = l > b ? "\\textbf{" + f2(l) + "}" : f2(l);
+  return [B, L];
+}
+function tint(d, bold) {
+  const s = fD(d);
+  const inner = bold ? "\\textbf{" + s + "}" : s;
+  return "\\textcolor{" + (d < 0 ? "red" : "blue") + "}{" + inner + "}";
+}
+
+function toLatex() {
+  const P = "        ";
+  let out = "";
+
+  out += "\\begin{table*}[t]\n";
+  out += "    \\centering\n";
+  out += "    \\caption{Zero-shot success rates (\\%) on LIBERO-Plus.\n";
+  out += "    $\\Delta$: change from the paired baseline.\n";
+  out += "    Better result in each architecture in bold.}\n";
+  out += "    \\label{tab:libero_plus}\n\n";
+  out += "    \\footnotesize\n";
+  out += "    \\setlength{\\tabcolsep}{2.5pt}\n";
+  out += "    \\renewcommand{\\arraystretch}{1.15}\n\n";
+  out += "    \\begin{tabularx}{\\textwidth}{\n";
+  out += "        @{}l\n";
+  out += "        @{\\hspace{8pt}}\n";
+  out += "        YYZ\n";
+  out += "        @{\\hspace{10pt}}\n";
+  out += "        YYZ\n";
+  out += "        @{\\hspace{10pt}}\n";
+  out += "        YYZ\n";
+  out += "        @{\\hspace{10pt}}\n";
+  out += "        YYZ\n";
+  out += "        @{}\n";
+  out += "    }\n";
+  out += P + "\\toprule\n";
+  out += P + "\\multirow{2}{*}{\\textbf{Perturbation}}\n";
+  ARCHS.forEach(a => { out += P + "& \\multicolumn{3}{c}{" + a.tex + "}" + (a === ARCHS[ARCHS.length - 1] ? " \\\\" : "") + "\n"; });
+  out += "\n";
+  out += P + "\\cmidrule(lr){2-4}\n";
+  out += P + "\\cmidrule(lr){5-7}\n";
+  out += P + "\\cmidrule(lr){8-10}\n";
+  out += P + "\\cmidrule(lr){11-13}\n\n";
+  ARCHS.forEach((a, i) => {
+    out += P + "& Base & LIT & $\\Delta$" + (i === ARCHS.length - 1 ? " \\\\" : "") + "\n";
+  });
+  out += P + "\\midrule\n\n";
+
+  AXES.forEach((ax, ri) => {
+    out += P + ax.label + "\n";
+    ARCHS.forEach((a, ai) => {
+      const b = state[a.key].base[ri], l = state[a.key].lit[ri];
+      const [B, L] = cellPair(b, l);
+      out += P + "& " + B + " & " + L + " & " + tint(l - b, false)
+           + (ai === ARCHS.length - 1 ? " \\\\" : "") + "\n";
+    });
+    out += "\n";
+  });
+
+  out += P + "\\midrule\n";
+  out += P + "\\textbf{Overall}\n";
+  ARCHS.forEach((a, ai) => {
+    const b = overall(a, "base"), l = overall(a, "lit");
+    const [B, L] = cellPair(b, l);
+    out += P + "& " + B + " & " + L + "\n";
+    out += P + "& " + tint(l - b, true) + (ai === ARCHS.length - 1 ? " \\\\" : "") + "\n";
+  });
+  out += P + "\\bottomrule\n";
+  out += "    \\end{tabularx}\n";
+  out += "    \\vspace{-12pt}\n";
+  out += "\\end{table*}\n";
+  return out;
+}
+
+/* ---------------- actions ---------------- */
+
+document.getElementById("preset-draft").addEventListener("click", () => {
+  state = clone(DRAFT); save(); refreshSelects(); render();
+});
+
+document.getElementById("preset-records").addEventListener("click", () => {
+  ARCHS.forEach(a => {
+    const rec = RECORDS[a.key];
+    if (!rec) return;
+    if (rec.base) state[a.key].base = rec.base.slice();
+    if (rec.lit) state[a.key].lit = rec.lit.slice();
+  });
+  /* one convention for all four, so the columns are comparable */
+  ARCHS.forEach(a => { state[a.key].mode = "mean"; state[a.key].ov = null; });
+  save(); refreshSelects(); render();
+});
+
+function refreshSelects() {
+  document.querySelectorAll("select").forEach((s, i) => { s.value = state[ARCHS[i].key].mode; });
+}
+
+document.getElementById("copy").addEventListener("click", async e => {
+  const btn = e.currentTarget;
+  const text = toLatex();
+  let ok = false;
+  try { await navigator.clipboard.writeText(text); ok = true; }
+  catch (err) {
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+    } catch (e2) { ok = false; }
+  }
+  const label = btn.textContent;
+  btn.textContent = ok ? "Copied" : "Select the block below to copy";
+  setTimeout(() => { btn.textContent = label; }, ok ? 1400 : 2600);
+});
+
+document.getElementById("dl").addEventListener("click", () => {
+  const blob = new Blob([toLatex()], { type: "text/x-tex;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "libero_plus_table.tex";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
+
+/* file:// 下部分浏览器禁用 localStorage，提前告诉使用者改动不会留存 */
+(function () {
+  let ok = true;
+  try { localStorage.setItem("__probe__", "1"); localStorage.removeItem("__probe__"); }
+  catch (e) { ok = false; }
+  if (!ok) {
+    const f = document.querySelector("footer");
+    const w = document.createElement("div");
+    w.style.cssText = "margin-top:8px;color:var(--warn)";
+    w.textContent = "This browser blocks storage for local files, so edits are lost on reload. "
+      + "Serve the folder with  python3 -m http.server 8800  and open http://localhost:8800/libero_plus_table.html  to keep them.";
+    f.appendChild(w);
+  }
+})();
+
+build();
+render();
+</script>

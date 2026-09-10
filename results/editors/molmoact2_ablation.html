@@ -1,0 +1,519 @@
+<title>MolmoAct2 Ablation Table</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap">
+
+<style>
+:root {
+  --ground:   #F5F6F8;
+  --surface:  #FFFFFF;
+  --well:     #ECEFF3;
+  --ink:      #16191F;
+  --ink-2:    #3D4552;
+  --muted:    #6B7484;
+  --faint:    #99A1AE;
+  --rule:     #D8DDE5;
+  --rule-hard:#1F242C;
+  --accent:   #1F4E9C;
+  --accent-w: #E4EBF6;
+  --pos:      #1B62C4;
+  --neg:      #B23A32;
+  --new:      #1C7357;
+  --new-w:    #E1F0EA;
+
+  --f-display: "Newsreader", Georgia, "Times New Roman", serif;
+  --f-sans:    "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --f-mono:    "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground:#121418; --surface:#191C21; --well:#23272E;
+    --ink:#E7EAEF; --ink-2:#BFC6D0; --muted:#8B94A2; --faint:#69727F;
+    --rule:#2E343D; --rule-hard:#7E889A;
+    --accent:#7BA6E8; --accent-w:#1E2A3D;
+    --pos:#7FB3F5; --neg:#EE9086;
+    --new:#4FBF97; --new-w:#16302A;
+  }
+}
+:root[data-theme="dark"] {
+  --ground:#121418; --surface:#191C21; --well:#23272E;
+  --ink:#E7EAEF; --ink-2:#BFC6D0; --muted:#8B94A2; --faint:#69727F;
+  --rule:#2E343D; --rule-hard:#7E889A;
+  --accent:#7BA6E8; --accent-w:#1E2A3D;
+  --pos:#7FB3F5; --neg:#EE9086;
+  --new:#4FBF97; --new-w:#16302A;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background: var(--ground); color: var(--ink);
+  font-family: var(--f-sans); font-size: 14px; line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap {
+  max-width: 1260px; margin: 0 auto; padding: 32px 24px 72px;
+  display: flex; flex-direction: column; gap: 26px;
+}
+
+.masthead {
+  display: flex; flex-wrap: wrap; align-items: flex-end;
+  justify-content: space-between; gap: 16px 24px;
+  padding-bottom: 18px; border-bottom: 1px solid var(--rule);
+}
+.masthead h1 {
+  font-family: var(--f-display); font-weight: 500; font-size: 30px;
+  line-height: 1.15; letter-spacing: -0.01em; margin: 0 0 5px; text-wrap: balance;
+}
+.masthead p { margin: 0; color: var(--muted); font-size: 13px; max-width: 62ch; }
+.mast-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+button {
+  font-family: var(--f-sans); font-size: 12.5px; font-weight: 500;
+  color: var(--ink-2); background: var(--surface);
+  border: 1px solid var(--rule); border-radius: 5px;
+  padding: 7px 12px; cursor: pointer;
+  transition: border-color .12s, color .12s;
+}
+button:hover { border-color: var(--accent); color: var(--accent); }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button.primary:hover { filter: brightness(1.08); color: #fff; }
+:root[data-theme="dark"] button.primary,
+:root[data-theme="dark"] button.primary:hover { color: #10151E; }
+
+.sheet {
+  background: var(--surface); border: 1px solid var(--rule);
+  border-radius: 8px; padding: 24px 24px 18px; overflow-x: auto;
+}
+
+table { border-collapse: collapse; width: 100%; min-width: 1040px; }
+th, td { padding: 0; text-align: center; vertical-align: middle; }
+
+tr.toprule > * { border-top: 1.6px solid var(--rule-hard); }
+tr.rule > * { border-top: 1px solid var(--rule); }
+tfoot tr > * { border-top: 1.6px solid var(--rule-hard); }
+
+.grouphead {
+  font-family: var(--f-display); font-size: 15px; font-weight: 500;
+  color: var(--ink); padding: 2px 0 4px;
+}
+.cmidrule { height: 1px; background: var(--rule); margin: 0 10px 8px; }
+
+.colhead {
+  font-size: 10px; font-weight: 600; letter-spacing: .07em;
+  text-transform: uppercase; color: var(--faint);
+  padding: 3px 2px 10px; line-height: 1.35; white-space: pre-line;
+}
+.colhead.left { text-align: left; }
+
+td.name { text-align: left; padding: 0 16px 0 0; min-width: 262px; }
+td.name input {
+  width: 100%; font-family: var(--f-sans); font-size: 13.5px;
+  color: var(--ink); background: transparent;
+  border: 1px solid transparent; border-radius: 4px;
+  padding: 7px 6px 7px 2px;
+}
+td.name input:hover { background: var(--well); }
+td.name input:focus { outline: none; background: var(--surface); border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-w); }
+tr.full td.name input { font-weight: 600; }
+
+td.val { padding: 2px 2px; }
+td.val input {
+  width: 100%; min-width: 58px;
+  font-family: var(--f-mono); font-size: 13.5px; font-variant-numeric: tabular-nums;
+  text-align: center; color: var(--ink); background: transparent;
+  border: 1px solid transparent; border-radius: 4px; padding: 6px 1px;
+  transition: background .1s, border-color .1s;
+}
+td.val input:hover { background: var(--well); }
+td.val input:focus { outline: none; background: var(--surface); border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-w); }
+td.val input.dash { color: var(--faint); }
+tr.full td.val input { font-weight: 600; }
+td.ovcell input { font-weight: 500; }
+
+/* the newly measured row */
+tr.fresh td.val input { background: var(--new-w); }
+tr.fresh td.val input:focus { background: var(--surface); }
+.freshtag {
+  display: inline-block; margin-left: 8px; padding: 1px 6px;
+  font-size: 9.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--new); border: 1px solid var(--new); border-radius: 3px;
+  vertical-align: 1px;
+}
+
+td.rel { padding: 4px 0 4px 14px; min-width: 130px; }
+.relbox { display: flex; align-items: center; gap: 8px; }
+.relnum {
+  font-family: var(--f-mono); font-size: 12px; font-variant-numeric: tabular-nums;
+  min-width: 46px; text-align: right; color: var(--neg);
+}
+.relnum.up { color: var(--pos); }
+.relnum.zero { color: var(--faint); }
+.reltrack { flex: 1; height: 6px; background: var(--well); border-radius: 3px; overflow: hidden; }
+.relbar { height: 100%; background: var(--neg); border-radius: 3px; }
+.relbar.up { background: var(--pos); }
+
+.hint {
+  padding: 14px 2px 0; margin-top: 4px;
+  border-top: 1px solid var(--rule);
+  font-size: 12px; color: var(--muted);
+  display: flex; gap: 16px; flex-wrap: wrap; align-items: center;
+}
+.hint kbd {
+  font-family: var(--f-mono); font-size: 11px; background: var(--well);
+  border: 1px solid var(--rule); border-radius: 3px; padding: 1px 5px; color: var(--ink-2);
+}
+
+.out { display: flex; flex-direction: column; gap: 10px; }
+.out-bar { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.out-bar h2 { font-family: var(--f-display); font-size: 19px; font-weight: 500; margin: 0; }
+.out-bar .sub { color: var(--muted); font-size: 12.5px; }
+pre {
+  margin: 0; background: var(--surface); border: 1px solid var(--rule);
+  border-radius: 8px; padding: 18px 20px; overflow: auto;
+  font-family: var(--f-mono); font-size: 12px; line-height: 1.65;
+  color: var(--ink-2); tab-size: 4; max-height: 460px;
+}
+
+footer {
+  font-size: 11.5px; color: var(--faint);
+  border-top: 1px solid var(--rule); padding-top: 14px; line-height: 1.7;
+}
+footer b { color: var(--muted); font-weight: 600; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div>
+      <h1>MolmoAct2 Ablation Table</h1>
+      <p>Every number is the one in the paper draft. Only <em>Baseline w/ pose supervision</em> was filled in, from the run that finished on 10 September. Edit any cell and the LaTeX below follows.</p>
+    </div>
+    <div class="mast-actions">
+      <button id="reset">Reset</button>
+      <button id="dl">Download .tex</button>
+      <button id="copy" class="primary">Copy LaTeX</button>
+    </div>
+  </header>
+
+  <section class="sheet">
+    <table id="grid"></table>
+    <div class="hint">
+      <span>Overall is kept exactly as written &mdash; nothing recomputes it on its own.</span>
+      <button id="recalc">Recompute Overall as the 7-axis mean</button>
+      <span>Type <kbd>-</kbd> or clear a cell for <kbd>--</kbd>.</span>
+    </div>
+  </section>
+
+  <section class="out">
+    <div class="out-bar">
+      <h2>LaTeX</h2>
+      <span class="sub">Caption, column spec and rules reproduced verbatim &mdash; only the numbers are generated.</span>
+    </div>
+    <pre id="latex"></pre>
+  </section>
+
+  <footer>
+    <b>Baseline w/ pose supervision</b> &mdash; MolmoAct2 with a three-layer MLP head on the pooled action-expert
+    hidden states regressing the same SE(3) target, &lambda;&nbsp;=&nbsp;0.3, 20,000 steps.
+    The seven axes come from the full LIBERO-Plus run of 10,030 tasks that finished 2026-09-10;
+    LIBERO Avg. is <kbd>--</kbd> because no in-distribution evaluation was run for this arm.
+    Its Overall, 63.31, is the 7-axis mean of those seven values.
+    Every other cell is the paper draft's, untouched.
+  </footer>
+
+</div>
+
+<script>
+"use strict";
+
+const AXES = [
+  { short: "Camera\nViewpoints",     tex: "\\shortstack{Camera\\\\Viewpoints}" },
+  { short: "Sensor\nNoise",          tex: "\\shortstack{Sensor\\\\Noise}" },
+  { short: "Lighting\nConditions",   tex: "\\shortstack{Lighting\\\\Conditions}" },
+  { short: "Background\nTextures",   tex: "\\shortstack{Background\\\\Textures}" },
+  { short: "Robot Initial\nStates",  tex: "\\shortstack{Robot Initial\\\\States}" },
+  { short: "Object\nLayout",         tex: "\\shortstack{Object\\\\Layout}" },
+  { short: "Language\nInstructions", tex: "\\shortstack{Language\\\\Instructions}" }
+];
+
+/* group: base | abl | full — drives the \midrule placement and the bold LIT name.
+   ov is stored, never derived, so 73.50 stays 73.50 (its 7-axis mean rounds to 73.49). */
+const DEFAULT = [
+  { name: "MolmoAct2",                          group: "base", id: 93.50, v: [39.40, 49.03, 89.86, 89.78, 50.71, 54.90, 82.69], ov: 65.20 },
+  { name: "Vanilla staged training",            group: "abl",  id: 93.75, v: [43.28, 52.09, 85.17, 88.08, 55.16, 60.98, 78.46], ov: 66.17 },
+  { name: "LIT w/o Stage 1 & pose supervision", group: "abl",  id: 93.45, v: [39.84, 49.34, 87.22, 89.63, 53.00, 68.20, 76.67], ov: 66.27 },
+  { name: "LIT w/o Stage 1",                    group: "abl",  id: 93.70, v: [46.15, 54.65, 87.13, 86.34, 63.10, 66.43, 79.80], ov: 69.09 },
+  { name: "LIT w/o pose supervision",           group: "abl",  id: 93.50, v: [42.78, 60.02, 91.07, 88.38, 57.81, 68.85, 78.11], ov: 69.57 },
+  { name: "Baseline w/ pose supervision",       group: "abl",  id: null,  v: [35.15, 45.47, 87.83, 85.13, 54.32, 53.18, 82.11], ov: 63.31, fresh: true },
+  { name: "LIT w/ direct visual access",        group: "abl",  id: 94.25, v: [42.96, 55.28, 88.18, 89.22, 62.49, 63.74, 77.33], ov: 68.46 },
+  { name: "LIT",                                group: "full", id: 94.10, v: [48.41, 70.77, 90.64, 94.42, 59.03, 70.61, 80.58], ov: 73.50 }
+];
+
+const STORE = "molmoact2-ablation-v1";
+const clone = o => JSON.parse(JSON.stringify(o));
+
+let rows = (function () {
+  try {
+    const raw = localStorage.getItem(STORE);
+    if (raw) { const p = JSON.parse(raw); if (Array.isArray(p) && p.length === DEFAULT.length) return p; }
+  } catch (e) {}
+  return clone(DEFAULT);
+})();
+
+function save() { try { localStorage.setItem(STORE, JSON.stringify(rows)); } catch (e) {} }
+
+const f2 = v => (Math.round(v * 100) / 100).toFixed(2);
+const fD = v => { const r = Math.round(v * 100) / 100; return (r >= 0 ? "+" : "") + r.toFixed(2); };
+const DASH = "\u2013";
+
+function parse(s) {
+  const t = String(s).trim();
+  if (t === "" || t === "-" || t === "--" || t === DASH) return null;
+  const v = parseFloat(t.replace(/[^0-9.\-]/g, ""));
+  return Number.isFinite(v) ? v : undefined;   // undefined = 无法解析，保持原值
+}
+
+function el(tag, attrs, child) {
+  const n = document.createElement(tag);
+  if (attrs) for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (child != null) { if (typeof child === "string") n.textContent = child; else n.appendChild(child); }
+  return n;
+}
+
+/* ---------------- build ---------------- */
+
+const grid = document.getElementById("grid");
+
+function build() {
+  grid.innerHTML = "";
+  const head = el("thead");
+
+  const r0 = el("tr", { class: "toprule" });
+  r0.appendChild(el("th"));
+  const idg = el("th");
+  idg.appendChild(el("div", { class: "grouphead" }, "ID"));
+  idg.appendChild(el("div", { class: "cmidrule" }));
+  r0.appendChild(idg);
+  const oodg = el("th", { colspan: 8 });
+  oodg.appendChild(el("div", { class: "grouphead" }, "OOD: LIBERO-Plus"));
+  oodg.appendChild(el("div", { class: "cmidrule" }));
+  r0.appendChild(oodg);
+  r0.appendChild(el("th"));
+  head.appendChild(r0);
+
+  const r1 = el("tr");
+  r1.appendChild(el("th", { class: "colhead left" }, "Variant"));
+  r1.appendChild(el("th", { class: "colhead" }, "LIBERO\nAvg."));
+  AXES.forEach(a => r1.appendChild(el("th", { class: "colhead" }, a.short)));
+  r1.appendChild(el("th", { class: "colhead" }, "Overall"));
+  r1.appendChild(el("th", { class: "colhead" }, "vs LIT"));
+  head.appendChild(r1);
+  grid.appendChild(head);
+
+  const body = el("tbody");
+  rows.forEach((r, ri) => {
+    const prev = rows[ri - 1];
+    const tr = el("tr", { "data-row": String(ri) });
+    tr.className = [
+      r.group === "full" ? "full" : "",
+      r.fresh ? "fresh" : "",
+      (ri === 0 || (prev && prev.group !== r.group)) ? "rule" : ""
+    ].filter(Boolean).join(" ");
+
+    const nm = el("td", { class: "name" });
+    const ni = el("input", { type: "text", spellcheck: "false", "aria-label": "Variant name" });
+    ni.value = r.name;
+    ni.addEventListener("input", () => { r.name = ni.value; save(); render(); });
+    nm.appendChild(ni);
+    if (r.fresh) nm.appendChild(el("span", { class: "freshtag", title: "Filled in from the 10,030-task run that finished 2026-09-10" }, "new"));
+    tr.appendChild(nm);
+
+    ["id"].concat(AXES.map((_, i) => i)).concat(["ov"]).forEach(slot => {
+      const td = el("td", { class: slot === "ov" ? "val ovcell" : "val" });
+      const inp = el("input", {
+        type: "text", inputmode: "decimal", spellcheck: "false",
+        "data-row": String(ri), "data-slot": String(slot),
+        "aria-label": r.name + " " + (slot === "id" ? "LIBERO average"
+                    : slot === "ov" ? "Overall" : AXES[slot].short.replace("\n", " "))
+      });
+      inp.addEventListener("focus", () => inp.select());
+      inp.addEventListener("input", () => {
+        const v = parse(inp.value);
+        if (v === undefined) return;
+        if (slot === "id") r.id = v; else if (slot === "ov") r.ov = v; else r.v[slot] = v;
+        save(); render({ skip: inp });
+      });
+      inp.addEventListener("blur", () => render());
+      inp.addEventListener("keydown", e => nav(e, ri, slot));
+      td.appendChild(inp);
+      tr.appendChild(td);
+    });
+
+    tr.appendChild(el("td", { class: "rel", "data-rel": String(ri) }));
+    body.appendChild(tr);
+  });
+  grid.appendChild(body);
+  grid.appendChild(el("tfoot", {}, el("tr", {}, el("td", { colspan: 11, style: "height:2px" }))));
+}
+
+function nav(e, ri, slot) {
+  if (e.key !== "ArrowUp" && e.key !== "ArrowDown" && e.key !== "Enter") return;
+  const next = ri + (e.key === "ArrowUp" ? -1 : 1);
+  if (next < 0 || next >= rows.length) return;
+  const t = document.querySelector('input[data-row="' + next + '"][data-slot="' + slot + '"]');
+  if (t) { e.preventDefault(); t.focus(); }
+}
+
+/* ---------------- render ---------------- */
+
+function cellValue(r, slot) {
+  return slot === "id" ? r.id : slot === "ov" ? r.ov : r.v[slot];
+}
+
+function render(opts) {
+  const skip = opts && opts.skip;
+  const full = rows.find(r => r.group === "full");
+  const ref = full && full.ov != null ? full.ov : null;
+
+  let maxAbs = 0;
+  rows.forEach(r => {
+    if (r === full || ref == null || r.ov == null) return;
+    maxAbs = Math.max(maxAbs, Math.abs(r.ov - ref));
+  });
+  if (maxAbs === 0) maxAbs = 1;
+
+  rows.forEach((r, ri) => {
+    ["id"].concat(AXES.map((_, i) => i)).concat(["ov"]).forEach(slot => {
+      const inp = document.querySelector('input[data-row="' + ri + '"][data-slot="' + slot + '"]');
+      if (!inp) return;
+      const v = cellValue(r, slot);
+      if (inp !== skip) inp.value = v == null ? DASH : f2(v);
+      inp.classList.toggle("dash", v == null);
+    });
+
+    const rel = document.querySelector('[data-rel="' + ri + '"]');
+    rel.innerHTML = "";
+    if (r === full) {
+      rel.appendChild(el("span", { class: "relnum zero" }, "ref"));
+    } else if (ref != null && r.ov != null) {
+      const d = r.ov - ref;
+      const box = el("div", { class: "relbox" });
+      box.appendChild(el("span", { class: "relnum" + (d > 0 ? " up" : "") }, fD(d)));
+      const track = el("div", { class: "reltrack" });
+      const bar = el("div", { class: "relbar" + (d > 0 ? " up" : "") });
+      bar.style.width = Math.max(2, Math.abs(d) / maxAbs * 100) + "%";
+      track.appendChild(bar);
+      box.appendChild(track);
+      rel.appendChild(box);
+    }
+  });
+
+  document.getElementById("latex").textContent = toLatex();
+}
+
+/* ---------------- LaTeX ---------------- */
+
+const texName = s => s.replace(/&/g, "\\&").replace(/_/g, "\\_").replace(/%/g, "\\%");
+const cell = v => v == null ? "--" : f2(v);
+
+function toLatex() {
+  let o = "";
+  o += "\\begin{table*}[t]\n\\centering\n\\caption{\n";
+  o += "Ablation study of LIT on MolmoAct2.\n";
+  o += "We report task success rates (\\%) on LIBERO (ID) and\n";
+  o += "LIBERO-Plus (OOD).\n";
+  o += "Overall denotes the aggregate OOD success rate.\n";
+  o += "Unfinished evaluations are marked with --.\n";
+  o += "Higher is better.\n}\n";
+  o += "\\label{tab:ablation}\n";
+  o += "\\setlength{\\tabcolsep}{4pt}\n";
+  o += "\\renewcommand{\\arraystretch}{1.15}\n";
+  o += "\\resizebox{\\textwidth}{!}{\n";
+  o += "\\begin{tabular}{@{}lccccccccc@{}}\n";
+  o += "\\toprule\n& ID\n& \\multicolumn{8}{c}{OOD: LIBERO-Plus} \\\\\n";
+  o += "\\cmidrule(lr){2-2}\n\\cmidrule(lr){3-10}\n";
+  o += "Variant\n& \\shortstack{LIBERO\\\\Avg.}\n";
+  AXES.forEach(a => { o += "& " + a.tex + "\n"; });
+  o += "& Overall \\\\\n\\midrule\n";
+
+  rows.forEach((r, ri) => {
+    const prev = rows[ri - 1];
+    if (prev && prev.group !== r.group) o += "\\midrule\n";
+    else if (prev && prev.group === "abl" && r.group === "abl") o += "\n";
+
+    o += (r.group === "full" ? "\\textbf{" + texName(r.name) + "}" : texName(r.name)) + "\n";
+
+    const c = [cell(r.id)].concat(r.v.map(cell)).concat([cell(r.ov)]);
+    if (c.every(x => x === "--")) {
+      o += "& " + c.join(" & ") + " \\\\\n";
+    } else {
+      o += "& " + c.slice(0, 5).join(" & ") + "\n";
+      o += "& " + c.slice(5).join(" & ") + " \\\\\n";
+    }
+  });
+
+  o += "\\bottomrule\n\\end{tabular}\n}\n\\vspace{-15pt}\n\\end{table*}\n";
+  return o;
+}
+
+/* ---------------- actions ---------------- */
+
+document.getElementById("reset").addEventListener("click", () => {
+  rows = clone(DEFAULT); save(); build(); render();
+});
+
+document.getElementById("recalc").addEventListener("click", () => {
+  rows.forEach(r => {
+    if (r.v.every(x => x != null)) r.ov = Math.round(r.v.reduce((s, x) => s + x, 0) / 7 * 100) / 100;
+  });
+  save(); render();
+});
+
+document.getElementById("dl").addEventListener("click", () => {
+  const blob = new Blob([toLatex()], { type: "text/x-tex;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "molmoact2_ablation.tex";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
+
+document.getElementById("copy").addEventListener("click", async e => {
+  const btn = e.currentTarget, text = toLatex();
+  let ok = false;
+  try { await navigator.clipboard.writeText(text); ok = true; }
+  catch (err) {
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+    } catch (e2) { ok = false; }
+  }
+  const label = btn.textContent;
+  btn.textContent = ok ? "Copied" : "Select the block below";
+  setTimeout(() => { btn.textContent = label; }, ok ? 1400 : 2600);
+});
+
+(function () {
+  let ok = true;
+  try { localStorage.setItem("__p__", "1"); localStorage.removeItem("__p__"); } catch (e) { ok = false; }
+  if (!ok) {
+    const w = document.createElement("div");
+    w.style.cssText = "margin-top:8px";
+    w.textContent = "This browser blocks storage for local files, so edits are lost on reload. "
+      + "Serve the folder with  python3 -m http.server 8800  to keep them.";
+    document.querySelector("footer").appendChild(w);
+  }
+})();
+
+build();
+render();
+</script>
