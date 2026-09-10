@@ -6,208 +6,129 @@
 <title>Latent Interface Training</title>
 <meta name="description" content="Breaking the Vision–Action Shortcut: Latent Interface Training for Generalizable Robot Foundation Models.">
 <meta property="og:title" content="Latent Interface Training (LIT)">
-<meta property="og:description" content="A framework-agnostic two-stage strategy that constrains visual conditioning through a pose-supervised latent interface. +3.88–10.71 pp on LIBERO-Plus across π0.5, MolmoAct2, FAST-WAM and ImageWAM.">
+<meta property="og:description" content="Learning robot actions through a pose-supervised visual interface for better generalization.">
 <meta property="og:image" content="https://magiclab-nus.github.io/LIT/static/images/framework.png">
 <meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 
 <style>
-:root {
-  --ground:#FBFBFC; --surface:#FFFFFF; --well:#F1F3F6;
-  --ink:#14161A; --ink-2:#3A424E; --muted:#667081; --faint:#9AA2AE;
-  --rule:#DDE1E7; --rule-hard:#1B2027;
-  --accent:#1F4E9C; --accent-w:#E6EDF7;
-  --pos:#1B62C4; --neg:#B23A32;
-  --f-display:"Newsreader",Georgia,"Times New Roman",serif;
-  --f-sans:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  --f-mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --ground:#121418; --surface:#191C21; --well:#22262D;
-    --ink:#E7EAEF; --ink-2:#BEC5D0; --muted:#8B94A2; --faint:#69727F;
-    --rule:#2D333C; --rule-hard:#7E889A;
-    --accent:#7BA6E8; --accent-w:#1D2A3D;
-    --pos:#7FB3F5; --neg:#EE9086;
-  }
-}
+
+:root { color-scheme:light; --ground:#fff; --ink:#17212b; --ink-2:#424e5b; --muted:#637080; --faint:#637080; --accent:#215cbe; --rule:#e4e8ee; --pos:#215cbe; --neg:#ad3c36; --f-mono:"IBM Plex Mono",monospace; }
 * { box-sizing:border-box; }
-html { -webkit-text-size-adjust:100%; scroll-behavior:smooth; scroll-padding-top:64px; }
-body { margin:0; background:var(--ground); color:var(--ink); font-family:var(--f-sans); font-size:16px; line-height:1.65; -webkit-font-smoothing:antialiased; }
-.wrap { max-width:960px; margin:0 auto; padding:0 24px; }
-.wrap-wide { max-width:1120px; margin:0 auto; padding:0 24px; }
-a { color:var(--accent); }
-
-/* ---------- section index (in-flow under the hero, sticks to the top when scrolled past) ---------- */
-.toc { position:sticky; top:0; z-index:20; background:color-mix(in srgb, var(--ground) 92%, transparent); backdrop-filter:saturate(1.4) blur(10px); -webkit-backdrop-filter:saturate(1.4) blur(10px); border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); margin-top:34px; }
-.toc .wrap { display:flex; justify-content:center; align-items:center; gap:6px 26px; flex-wrap:wrap; padding-top:14px; padding-bottom:14px; }
-.toc a { font-size:15.5px; font-weight:500; color:var(--ink-2); text-decoration:none; white-space:nowrap; padding:2px 0; border-bottom:2px solid transparent; transition:color .12s, border-color .12s; }
-.toc a:hover, .toc a.on { color:var(--ink); border-color:var(--accent); }
-@media (max-width:720px) { .toc .wrap { justify-content:flex-start; flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; gap:20px; } .toc .wrap::-webkit-scrollbar { display:none; } .toc a { font-size:14px; } }
-
-/* ---------- hero ---------- */
-header.hero { padding:64px 0 28px; text-align:center; }
-.venue { font-size:11px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); margin:0 0 16px; }
-h1 { font-family:var(--f-display); font-weight:500; font-size:clamp(26px,4.4vw,44px); line-height:1.16; letter-spacing:-0.015em; margin:0 0 6px; text-wrap:balance; }
-h1 .sub { display:block; font-size:inherit; font-weight:inherit; color:var(--ink); margin-top:4px; }
-.authors { margin:24px 0 6px; font-size:17px; line-height:1.7; }
-.authors a { color:var(--ink); text-decoration:none; border-bottom:1px solid var(--rule); }
-.authors a:hover { border-color:var(--accent); color:var(--accent); }
-.authors sup { font-size:11px; color:var(--muted); margin-left:1px; }
-.affil { color:var(--muted); font-size:14.5px; margin:0 0 4px; }
-.affil sup { font-size:10px; margin-right:2px; }
-.notes { color:var(--faint); font-size:12.5px; margin:0 0 24px; }
-.rr-h { font-size:19px; margin:34px 0 6px; }
-.rr-tabs { display:flex; flex-wrap:wrap; gap:8px; margin:6px 0 16px; }
-.rr-tabs button { font:inherit; font-size:13.5px; font-weight:500; color:var(--ink); background:var(--surface); border:1px solid var(--rule); border-radius:999px; padding:7px 15px; cursor:pointer; }
-.rr-tabs button:hover { border-color:var(--accent); color:var(--accent); }
-.rr-tabs button.on { background:var(--accent); border-color:var(--accent); color:#fff; }
-.rr-row { margin:0 0 22px; }
-.rr-title { font-size:14.5px; margin:0 0 6px; }
-.rr-title span { color:var(--muted); } .rr-title em { float:right; font-style:normal; color:var(--muted); font-size:13px; }
-.rr-vid { position:relative; }
-.rr-vid video { display:block; width:100%; height:auto; border-radius:10px; background:#000; }
-.rr-tag { position:absolute; top:10px; font-size:12.5px; font-weight:600; color:#fff; padding:4px 9px; border-radius:6px; pointer-events:none; }
-.rr-tag.base { left:10px; background:rgba(160,40,40,.85); } .rr-tag.lit { left:calc(50% + 10px); background:rgba(30,110,60,.85); }
-.note { color:var(--muted); font-size:14px; margin:8px 0 0; }
-.logos { display:flex; justify-content:center; align-items:flex-start; gap:44px; margin:14px 0 18px; flex-wrap:wrap; }
-.logos span { display:inline-flex; align-items:flex-start; gap:6px; }
-.logos i { font-style:normal; font-size:12px; color:var(--muted); line-height:1; margin-top:2px; }
-.logos img { height:74px; width:auto; }
-.teaser { max-width:960px; margin:26px auto 4px; padding:0 24px; text-align:center; }
-.teaser video { display:block; width:100%; height:auto; border-radius:14px; background:#000; box-shadow:0 10px 30px rgba(0,0,0,.14); }
-.teaser p { color:var(--muted); font-size:14px; margin:10px 0 0; }
-@media (max-width:640px){ .logos img{height:48px} }
-.links { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; }
-.links a { display:inline-flex; align-items:center; gap:7px; font-size:14px; font-weight:500; text-decoration:none; color:var(--ink); background:var(--surface); border:1px solid var(--rule); border-radius:999px; padding:9px 17px; transition:border-color .13s,color .13s; }
-.links a:hover { border-color:var(--accent); color:var(--accent); }
-.links a[aria-disabled="true"] { color:var(--faint); border-style:dashed; cursor:default; pointer-events:none; }
-.links svg { width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.5; flex:none; }
-
-/* ---------- teaser ---------- */
-.teaser { padding:12px 0 8px; }
-.teaser video { display:block; width:100%; height:auto; border-radius:10px; background:#000; border:1px solid var(--rule); }
+html { scroll-behavior:smooth; scroll-padding-top:88px; }
+body { margin:0; background:#fff; color:var(--ink); font:16px/1.65 "IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; -webkit-font-smoothing:antialiased; }
+a { color:var(--accent); text-underline-offset:4px; }
+a:hover { color:#143d81; }
+button, summary, a { -webkit-tap-highlight-color:transparent; }
+:focus-visible { outline:3px solid #6d9be3; outline-offset:5px; }
+.wrap { width:min(100% - 48px,1040px); margin:auto; }
+.hero { padding:64px 0 28px; text-align:center; }
+.venue,.kicker { color:var(--accent); font-size:12px; letter-spacing:.12em; font-weight:600; text-transform:uppercase; margin:0 0 14px; }
+.brand { display:inline-block; padding:4px 14px; border:1px solid #d8e2f2; border-radius:6px; font-weight:600; letter-spacing:.2em; font-size:14px; color:var(--accent); margin-bottom:16px; }
+h1 { font-size:clamp(36px,5.7vw,62px); font-weight:600; letter-spacing:-.045em; line-height:1.08; margin:0 0 18px; text-wrap:balance; }
+.subtitle { max-width:670px; margin:0 auto; font-size:clamp(18px,2.6vw,23px); line-height:1.45; color:var(--muted); text-wrap:balance; }
+.authors { margin:26px 0 8px; font-size:16px; }
+.authors a { color:var(--ink); text-decoration:none; }
+sup { font-size:10px; margin-left:2px; color:var(--muted); }
+.notes { font-size:12px; color:var(--muted); margin:4px 0 18px; }
+.logos { display:flex; justify-content:center; align-items:center; gap:32px; margin:18px 0 24px; }
+.logos span { display:flex; align-items:flex-start; gap:5px; }
+.logos i { font-size:11px; font-style:normal; color:var(--muted); }
+.logos img { height:44px; width:auto; max-width:170px; object-fit:contain; }
+.links { display:flex; justify-content:center; flex-wrap:wrap; gap:10px; }
+.links a { display:inline-flex; align-items:center; gap:8px; text-decoration:none; color:var(--ink); border:1px solid #dce1e8; border-radius:7px; padding:9px 17px; font-size:14px; font-weight:500; background:#fff; }
+.links a:first-child { background:var(--ink); border-color:var(--ink); color:#fff; }
+.links a:hover { border-color:var(--accent); }
+.links svg { width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:1.5; }
+.toc { position:sticky; top:0; z-index:20; background:rgba(255,255,255,.97); border-bottom:1px solid var(--rule); margin-top:20px; }
+.toc .wrap { display:flex; justify-content:center; gap:30px; overflow:auto; scrollbar-width:none; }
+.toc a { flex:none; padding:15px 0 12px; text-decoration:none; color:var(--muted); font-size:14px; border-bottom:2px solid transparent; }
+.toc a.on,.toc a:hover { border-color:var(--accent); color:var(--accent); }
+.teaser { margin:32px auto 0; }
+.teaser video { display:block; width:100%; border-radius:10px; background:#f5f6f8; }
 .teaser figcaption { text-align:center; }
-
-/* ---------- sections ---------- */
-section { padding:44px 0; border-top:1px solid var(--rule); }
-section.tight { padding-top:28px; }
-h2 { font-family:var(--f-display); font-weight:500; font-size:28px; line-height:1.2; letter-spacing:-0.01em; margin:0 0 6px; }
-.kicker { font-size:10.5px; font-weight:600; letter-spacing:.13em; text-transform:uppercase; color:var(--faint); margin:0 0 10px; }
-p { margin:0 0 16px; color:var(--ink-2); }
-section p, figcaption { text-align:justify; hyphens:auto; -webkit-hyphens:auto; }
-p.lead { color:var(--ink); font-size:17px; }
-.nb { white-space:nowrap; }
-section p:last-child { margin-bottom:0; }
-strong { color:var(--ink); font-weight:600; }
-.center p { margin-left:auto; margin-right:auto; }
-
-figure { margin:24px 0 0; }
-figure img { display:block; width:100%; height:auto; border:1px solid var(--rule); border-radius:8px; background:var(--surface); }
-figcaption { margin-top:11px; font-size:13px; line-height:1.6; color:var(--muted); }
-figcaption b { color:var(--ink-2); font-weight:600; }
-
-/* ---------- stages ---------- */
-.stages { display:grid; gap:16px; margin-top:22px; grid-template-columns:1fr 1fr; }
-@media (max-width:720px) { .stages { grid-template-columns:1fr; } }
-.stage { background:var(--surface); border:1px solid var(--rule); border-radius:8px; padding:20px 22px; }
-.stage h3 { font-family:var(--f-sans); font-size:12px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); margin:0 0 8px; }
-.stage p { font-size:14.5px; margin:0; max-width:none; }
-
-/* ---------- stats ---------- */
-.stats { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:22px; }
-@media (max-width:720px) { .stats { grid-template-columns:repeat(2,1fr); } }
-.stat { background:var(--surface); border:1px solid var(--rule); border-radius:8px; padding:16px 18px; }
-.stat .lab { font-size:11px; font-weight:600; letter-spacing:.09em; text-transform:uppercase; color:var(--faint); margin-bottom:8px; }
-.stat .val { font-family:var(--f-mono); font-size:22px; font-variant-numeric:tabular-nums; color:var(--ink); line-height:1.1; }
-.stat .val small { font-size:13px; color:var(--muted); margin-left:2px; }
-.stat .arrow { color:var(--faint); margin:0 6px; font-size:16px; }
-.stat .val b { color:var(--pos); font-weight:600; }
-.stat .d { font-family:var(--f-mono); font-size:12.5px; color:var(--pos); margin-top:6px; }
-
-/* ---------- tables ---------- */
-.tablebox { overflow-x:auto; margin-top:22px; }
+section { padding:58px 0; border-bottom:1px solid var(--rule); }
+h2 { font-size:clamp(27px,3.5vw,36px); line-height:1.2; letter-spacing:-.025em; font-weight:500; margin:0 0 16px; text-wrap:balance; }
+h3 { font-size:18px; line-height:1.4; font-weight:500; margin:26px 0 10px; }
+p { margin:0 0 16px; color:var(--ink-2); text-align:left; }
+.intro { max-width:780px; font-size:18px; line-height:1.7; }
+strong { font-weight:600; color:var(--ink); }
+.kicker { margin-bottom:12px; }
+figure { margin:28px 0 0; }
+figure img { display:block; width:100%; height:auto; }
+figcaption,.note { color:var(--muted); font-size:14px; line-height:1.55; margin:12px 0 0; }
+.stages { display:grid; grid-template-columns:1fr 1fr; gap:32px; margin:28px 0; }
+.stage { border-top:2px solid var(--accent); padding-top:16px; }
+.stage h3 { margin:0 0 8px; font-size:18px; }
+.stage p { margin:0; }
+.stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); margin:28px 0; gap:24px; }
+.stat { border-left:2px solid #dce5f3; padding-left:16px; }
+.stat .lab { color:var(--muted); font-size:13px; margin-bottom:6px; }
+.stat .val { font-size:clamp(24px,3.1vw,34px); line-height:1.2; letter-spacing:-.035em; color:var(--accent); font-weight:500; }
+.stat .d { color:var(--muted); font-size:13px; margin-top:5px; }
+.rr-tabs { display:flex; flex-wrap:wrap; gap:8px; margin:22px 0; }
+.rr-tabs button { font:inherit; font-size:14px; color:var(--muted); background:#fff; border:1px solid var(--rule); border-radius:6px; padding:8px 16px; cursor:pointer; }
+.rr-tabs button.on { color:#fff; background:var(--accent); border-color:var(--accent); }
+.rr-row { margin:0 0 26px; }
+.rr-title { display:flex; justify-content:space-between; gap:12px; align-items:center; margin-bottom:8px; font-size:15px; }
+.rr-title b { font-weight:500; }
+.rr-title em { font-size:13px; font-style:normal; color:var(--muted); }
+.rr-vid { position:relative; }
+.rr-vid video { width:100%; display:block; border-radius:8px; }
+.rr-tag { position:absolute; top:10px; font-size:12px; color:#fff; background:rgba(20,30,42,.8); padding:3px 9px; border-radius:4px; pointer-events:none; }
+.rr-tag.base { left:10px; } .rr-tag.lit { left:calc(50% + 10px); background:rgba(28,80,160,.9); }
+details { border-top:1px solid var(--rule); margin-top:20px; }
+summary { padding:18px 28px 18px 0; font-size:15px; font-weight:500; cursor:pointer; color:var(--ink); }
+summary::marker { color:var(--accent); }
+.detail-body { padding:0 0 20px; }
+.detail-body>p { font-size:15px; }
+.tablebox { overflow-x:auto; margin:12px 0; }
 table { border-collapse:collapse; width:100%; font-variant-numeric:tabular-nums; }
-table.t1 { min-width:560px; } table.t2 { min-width:860px; } table.t3 { min-width:820px; }
-caption { caption-side:bottom; margin-top:12px; text-align:left; font-size:13px; color:var(--muted); line-height:1.6; }
-th, td { padding:7px 9px; text-align:right; font-size:13.5px; }
-th { font-weight:600; color:var(--ink); }
-thead tr:first-child th { border-top:1.5px solid var(--rule-hard); }
-thead tr:last-child th { border-bottom:1px solid var(--rule); padding-bottom:9px; }
-tbody tr:last-child td { border-bottom:1.5px solid var(--rule-hard); }
-th.l, td.l { text-align:left; }
-td.l { color:var(--ink-2); }
-th.grp { font-size:11px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--muted); text-align:center; padding-bottom:3px; }
-th.axis { font-size:10.5px; font-weight:600; letter-spacing:.05em; color:var(--faint); }
-.kind { font-size:10px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--faint); }
-td.num { font-family:var(--f-mono); font-size:13px; }
-td.num b { font-weight:600; color:var(--ink); }
-tr.lit td.l { color:var(--ink); font-weight:600; }
-tr.sep td { border-top:1px solid var(--rule); }
+table.t1 { min-width:580px; } table.t2 { min-width:880px; } table.t3 { min-width:860px; }
+th,td { padding:10px 9px; text-align:right; font-size:13px; border-bottom:1px solid var(--rule); }
+th { font-weight:500; } .l { text-align:left; } .grp { text-align:center; } .axis,.kind { color:var(--muted); font-size:12px; }
+tr.lit { background:#f5f8fc; } .num { font-family:var(--f-mono); font-size:12px; }
 .d-up { color:var(--pos); } .d-dn { color:var(--neg); }
-
-/* ---------- video gallery ---------- */
-.gh { font-family:var(--f-sans); font-size:13px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--ink); margin:30px 0 4px; padding-top:18px; border-top:1px solid var(--rule); text-align:left; }
-.gsub { font-size:13.5px; color:var(--muted); margin:0 0 4px; }
-.gallery { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:14px; }
-@media (max-width:960px) { .gallery { grid-template-columns:repeat(2,1fr); } }
-@media (max-width:520px) { .gallery { grid-template-columns:1fr; } }
-.clip { background:var(--surface); border:1px solid var(--rule); border-radius:8px; overflow:hidden; }
-.clip video { display:block; width:100%; height:auto; background:#000; }
-.clip .meta { padding:9px 11px 10px; }
-.clip .title { font-size:12.5px; font-weight:500; color:var(--ink); margin:0; line-height:1.4; text-align:left; }
-.clip .cap { font-size:11.5px; color:var(--muted); margin:4px 0 0; max-width:none; text-align:left; line-height:1.45; }
-.clip .tag { display:inline-block; font-size:9.5px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--accent); background:var(--accent-w); border-radius:4px; padding:2px 6px; margin-bottom:6px; }
-.empty { color:var(--faint); font-size:13px; }
-
-/* ---------- findings ---------- */
-.questions { margin:18px 0 0; padding:0; list-style:none; counter-reset:q; display:grid; gap:8px; }
-.questions li { position:relative; padding-left:34px; color:var(--ink-2); font-size:15px; line-height:1.55; }
-.questions li::before { counter-increment:q; content:"(" counter(q) ")"; position:absolute; left:0; top:0; font-family:var(--f-mono); font-size:13px; color:var(--accent); }
-.findings { display:grid; gap:14px; margin-top:22px; }
-.finding { display:grid; grid-template-columns:200px 1fr; gap:18px; background:var(--surface); border:1px solid var(--rule); border-radius:8px; padding:16px 20px; }
-@media (max-width:720px) { .finding { grid-template-columns:1fr; gap:8px; } }
-.finding .what { font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); line-height:1.5; padding-top:3px; }
-.finding .what .n { display:block; font-family:var(--f-mono); font-size:22px; letter-spacing:0; text-transform:none; color:var(--ink); margin-top:6px; font-variant-numeric:tabular-nums; }
-.finding .what .n small { font-size:12px; color:var(--neg); margin-left:6px; font-family:var(--f-mono); }
-.finding .what .n small.up { color:var(--pos); }
-.finding h3 { font-family:var(--f-sans); font-size:15.5px; font-weight:600; color:var(--ink); margin:0 0 6px; line-height:1.45; text-align:left; }
-.finding p { font-size:14px; margin:0; color:var(--ink-2); text-align:justify; }
-pre { margin:20px 0 0; background:var(--surface); border:1px solid var(--rule); border-radius:8px; padding:18px 20px; overflow-x:auto; font-family:var(--f-mono); font-size:12.5px; line-height:1.6; color:var(--ink-2); }
-footer { padding:32px 0 60px; font-size:13px; color:var(--faint); text-align:center; border-top:1px solid var(--rule); }
+.gallery { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:24px; margin:14px 0; }
+.clip { min-width:0; }
+.clip video { display:block; width:100%; border-radius:6px; }
+.clip .meta { padding:10px 0; }
+.clip .tag { font-size:12px; color:var(--muted); }
+.clip .title { font-size:14px; color:var(--ink); margin:3px 0 0; }
+.clip .cap { font-size:13px; }
+.insights { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:30px; margin:26px 0; }
+.insights h3 { margin:0 0 8px; font-size:17px; }
+.insights p { font-size:15px; margin:0; }
+footer { padding:30px 0 44px; color:var(--muted); font-size:13px; }
+footer .wrap { display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; }
 footer a { color:var(--muted); }
-@media (prefers-reduced-motion:reduce) { * { transition:none !important; } html { scroll-behavior:auto; } }
+@media(max-width:640px) { .wrap { width:calc(100% - 36px); } .hero { padding-top:38px; } .authors { max-width:330px; margin:22px auto 8px; line-height:2; } .logos { gap:18px; } .logos img { height:32px; max-width:110px; } .toc .wrap { justify-content:flex-start; gap:24px; } .stages,.insights { grid-template-columns:1fr; gap:22px; } .stats { grid-template-columns:repeat(2,minmax(0,1fr)); gap:22px; } section { padding:40px 0; } .intro { font-size:17px; } .gallery { grid-template-columns:1fr; } .rr-tabs { gap:6px; } .rr-tabs button { padding:8px 11px; font-size:13px; } .rr-tag { font-size:11px; top:6px; } .rr-tag.base { left:6px; } .rr-tag.lit { left:calc(50% + 6px); } }
+@media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
 </style>
 </head>
 <body>
 
-
-<header class="hero" id="top">
-  <div class="wrap">
-    <p class="venue">Under review</p>
-    <h1>Breaking the <span class="nb">Vision&ndash;Action Shortcut</span>
-      <span class="sub">Latent Interface Training for Generalizable Robot Foundation Models</span>
-    </h1>
-    <p class="authors">
+<header class="hero" id="top"><div class="wrap">
+<div class="brand">LIT</div>
+<h1>Latent Interface Training</h1>
+<p class="subtitle">Breaking the vision–action shortcut in robot foundation models.</p>
+<p class="authors">
       <a href="https://scholar.google.com/citations?user=ayk7FWMAAAAJ" target="_blank" rel="noopener">Jianman Lin</a><sup>1,&lowast;</sup>&ensp;
       <a href="#">Shailesh Shailesh</a><sup>2,&lowast;</sup>&ensp;
       <a href="#">Zhongyi Luo</a><sup>3</sup>&ensp;
       <a href="https://scholar.google.com/citations?user=d1WCSJIAAAAJ" target="_blank" rel="noopener">Jiafei Duan</a><sup>2,&dagger;</sup>
     </p>
-    <p class="affil"><sup>1</sup>South China University of Technology&ensp;&middot;&ensp;<sup>2</sup>National University of Singapore&ensp;&middot;&ensp;<sup>3</sup>Nanyang Technological University</p>
-    <p class="notes">&lowast; equal co-first contribution &ensp; &dagger; corresponding author</p>
-    <div class="logos">
+<p class="notes">* Equal contribution &nbsp; · &nbsp; † Corresponding author</p>
+<div class="logos">
       <span><i>1</i><img src="static/images/logos/scut.png" alt="South China University of Technology"></span>
       <span><i>2</i><img src="static/images/logos/nus.png" alt="National University of Singapore"></span>
       <span><i>3</i><img src="static/images/logos/ntu.png" alt="Nanyang Technological University"></span>
     </div>
-    <nav class="links">
+<nav class="links">
       <a href="static/paper/LIT.pdf">
         <svg viewBox="0 0 16 16"><path d="M4 1.5h5l3.5 3.5v9.5H4z"/><path d="M9 1.5V5h3.5"/></svg>Paper</a>
-      <a href="#" aria-disabled="true">
-        <svg viewBox="0 0 16 16"><path d="M2 8h12M9 3l5 5-5 5"/></svg>arXiv</a>
       <a href="https://github.com/MAGICLAB-NUS/LIT">
         <svg viewBox="0 0 16 16"><path d="M6 12.5c-3 1-3-1.5-4-2m8 4v-2.2c0-.6-.1-1-.4-1.3 1.9-.2 3.9-.9 3.9-4.1 0-.9-.3-1.7-.9-2.3.1-.2.4-1.1-.1-2.3 0 0-.7-.2-2.4.9a8.3 8.3 0 0 0-4.2 0C4.2 2.1 3.5 2.3 3.5 2.3c-.5 1.2-.2 2.1-.1 2.3-.6.6-.9 1.4-.9 2.3 0 3.2 2 3.9 3.9 4.1-.3.3-.4.7-.4 1.3v2.2"/></svg>Code</a>
       <a href="https://huggingface.co/linjianman/LIT">
@@ -215,93 +136,33 @@ footer a { color:var(--muted); }
       <a href="https://huggingface.co/datasets/chinchinati/yam_bimanual_manipulation">
         <svg viewBox="0 0 16 16"><ellipse cx="8" cy="3.5" rx="5.5" ry="2"/><path d="M2.5 3.5v9c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2v-9M2.5 8c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2"/></svg>Dataset</a>
     </nav>
-  </div>
-</header>
-
-<nav class="toc" id="toc" aria-label="Sections">
-  <div class="wrap">
-    <a href="#abstract">Abstract</a>
-    <a href="#motivation">Motivation</a>
-    <a href="#method">Method</a>
-    <a href="#realworld">Real-robot experiments</a>
-    <a href="#results">Simulation experiments</a>
-    <a href="#analysis">Analysis</a>
-    <a href="#ablation">Ablation</a>
-  </div>
-</nav>
-
-<div class="teaser">
-  <video autoplay muted loop playsinline controls preload="metadata">
-    <source src="static/video/realworld_demo.mp4" type="video/mp4">
-  </video>
+</div></header>
+<nav class="toc" aria-label="Sections"><div class="wrap">
+<a href="#overview">Overview</a><a href="#method">Method</a><a href="#realworld">Real robots</a><a href="#results">Results</a><a href="#videos">Videos</a><a href="#analysis">Analysis</a>
+</div></nav>
+<main class="wrap">
+<figure class="teaser"><video autoplay muted loop playsinline controls preload="metadata" aria-label="LIT real-world robot demonstration"><source src="static/video/realworld_demo.mp4" type="video/mp4"></video><figcaption>Learning actions that generalize beyond the training scene.</figcaption></figure>
+<section id="overview"><p class="kicker">The idea</p><h2>Focus on the goal.</h2>
+<p class="intro">Robots can learn visual shortcuts that fail when the scene changes. <strong>LIT routes vision through a compact, pose-supervised interface</strong> so actions stay grounded in the task. It improves generalization across four robot model architectures.</p>
+<details><summary>Why visual shortcuts fail</summary><div class="detail-body"><p>Lighting, backgrounds, and camera views can correlate with actions during training. LIT constrains visual conditioning while retaining the spatial information needed to act.</p><figure><img src="static/images/motivation.png" alt="Visual shortcuts and LIT training paradigms" loading="lazy"><figcaption>LIT separates learning to act from learning to use vision.</figcaption></figure></div></details>
+</section>
+<section id="method"><p class="kicker">How it works</p><h2>Two stages. One spatial goal.</h2>
+<div class="stages"><div class="stage"><h3>01 &nbsp; Learn to act</h3><p>Train the action expert with language, robot state, and a target end-effector pose—without images.</p></div><div class="stage"><h3>02 &nbsp; Connect vision</h3><p>Route visual features through latent tokens supervised to predict the same target pose.</p></div></div>
+<figure><img src="static/images/framework.png" alt="LIT: action learning followed by a pose-supervised visual interface" loading="lazy"><figcaption>The backbone and action expert are retained. The interface changes.</figcaption></figure>
+</section>
+<section id="realworld"><p class="kicker">Real robots</p><h2>New scenes. More successful actions.</h2>
+<p>One policy, three tasks, and changes in lighting, camera view, and distractors.</p>
+<div class="stats">
+<div class="stat"><div class="lab">In-distribution</div><div class="val">88.0%</div><div class="d">74.7% baseline · +13.3 pp</div></div>
+<div class="stat"><div class="lab">New lighting</div><div class="val">70.0%</div><div class="d">53.3% baseline · +16.7 pp</div></div>
+<div class="stat"><div class="lab">New camera</div><div class="val">46.7%</div><div class="d">30.0% baseline · +16.7 pp</div></div>
+<div class="stat"><div class="lab">Distractors</div><div class="val">63.3%</div><div class="d">50.0% baseline · +13.3 pp</div></div>
 </div>
-
-<div class="wrap">
-
-  <section id="abstract" class="tight">
-    <p class="kicker">Abstract</p>
-    <p class="lead">Robot foundation models achieve strong in-distribution performance but often degrade under visual distribution shifts. When learning to generate actions from pretrained visual representations, models may exploit task-irrelevant visual cues that correlate with demonstrated actions within the training distribution. Such <strong>vision&ndash;action shortcuts</strong> can undermine generalization when these correlations change under distribution shifts. Mitigating these shortcuts requires constraining how visual information is used for action generation while preserving task-relevant spatial information.</p>
-    <p>We propose <strong>Latent Interface Training (LIT)</strong>, a framework-agnostic two-stage strategy that first establishes a spatial-goal-conditioned action prior without images, then constrains visual conditioning through a pose-supervised latent interface. Stage&nbsp;1 trains the action expert to generate action chunks conditioned on language, robot state, and each demonstrated chunk&rsquo;s terminal SE(3) end-effector pose, learning goal-directed action generation independently of visual cues. Stage&nbsp;2 introduces a latent interface that aggregates visual and semantic representations and serves as the pretrained action expert&rsquo;s only visual conditioning pathway. The interface is supervised to reconstruct the terminal pose previously used to condition Stage&nbsp;1, encouraging it to retain the goal-relevant spatial information needed for action generation.</p>
-    <p>Across four vision&ndash;language&ndash;action and world&ndash;action architectures&mdash;&pi;<sub>0.5</sub>, MolmoAct2, FAST-WAM, and ImageWAM&mdash;LIT improves overall LIBERO-Plus success by <strong>3.88&ndash;10.71 percentage points</strong> while preserving or improving average LIBERO success. Real-world evaluations show <strong>13.3&ndash;16.7 percentage-point gains</strong> in success aggregated across three tasks under unseen camera configurations, lighting variations, and distractors.</p>
-  </section>
-
-  <section id="motivation">
-    <p class="kicker">Motivation</p>
-    <h2>The vision&ndash;action shortcut</h2>
-    <p>Under visual conditioning, action experts may learn <strong>vision&ndash;action shortcuts</strong>: reliance on task-irrelevant visual cues that correlate with demonstrated actions during training but become unreliable under distribution shifts. Limited visual diversity in robot demonstrations can further encourage this reliance, undermining generalization to changes in viewpoint, appearance, or sensing conditions. Yet visual representations also encode task-relevant spatial information essential for action generation. Mitigating these shortcuts therefore requires reducing sensitivity to task-irrelevant visual variations while preserving responsiveness to task-relevant changes that require different actions.</p>
-    <p><em>How can action learning and visual conditioning be structured to mitigate vision&ndash;action shortcuts while preserving the task-relevant spatial information needed for action generation?</em></p>
-    <figure>
-      <img src="static/images/motivation.png" alt="The vision–action shortcut: action experts conditioned on visual representations can rely on task-irrelevant visual cues, and LIT constrains visual conditioning through a pose-supervised latent interface.">
-      <figcaption><b>Fig. 1. Training paradigms and generalization performance.</b> Standard training conditions the action expert on visual representations (left). LIT (right) first learns a spatial-goal-conditioned action prior without images to avoid relying on visual correlations during pre-training (Stage 1), then introduces visual conditioning through a pose-supervised latent interface (Stage 2). Across four VLA and WAM architectures, LIT improves out-of-distribution success rates while preserving or improving in-distribution success rates (center).</figcaption>
-    </figure>
-  </section>
-
-  <section id="method">
-    <p class="kicker">Method</p>
-    <h2>Latent Interface Training</h2>
-    <p>LIT keeps the backbone and the action expert as they are and changes only the interface between them. Direct conditioning on backbone visual tokens is removed; a small set of learnable latent tokens becomes the action expert&rsquo;s only visual conditioning pathway, and those tokens are supervised to reconstruct the terminal SE(3) goal. <strong>The shared spatial target thus connects action-prior learning with visual interface learning, while the exclusive interface constrains visual conditioning to mitigate vision&ndash;action shortcuts.</strong></p>
-    <div class="stages">
-      <div class="stage">
-        <h3>Stage 1 &middot; Action prior without images</h3>
-        <p>The action expert is conditioned on language and robot-state representations from a frozen pretrained backbone, together with an encoding of each demonstrated action chunk&rsquo;s terminal SE(3) end-effector pose. This establishes a spatial-goal-conditioned action prior without visual inputs.</p>
-      </div>
-      <div class="stage">
-        <h3>Stage 2 &middot; Pose-supervised latent interface</h3>
-        <p>Learnable latent tokens cross-attend to visual and semantic backbone representations and provide layer-wise conditioning to the pretrained action expert, serving as its only visual conditioning pathway. A pose-reconstruction objective supervises these tokens to recover the same terminal pose used in Stage&nbsp;1.</p>
-      </div>
-    </div>
-    <figure>
-      <img src="static/images/framework.png" alt="Overview of Latent Interface Training: Stage 1 learns a visual-free action prior; Stage 2 routes vision through a pose-supervised latent interface.">
-      <figcaption><b>Overview of Latent Interface Training.</b> Stage&nbsp;1 learns a spatial-goal-conditioned action prior without images; Stage&nbsp;2 introduces visual conditioning exclusively through a pose-supervised latent interface.</figcaption>
-    </figure>
-  </section>
-
-  <section id="realworld">
-    <p class="kicker">Real-robot experiments</p>
-    <h2>Unseen lighting, cameras and distractors</h2>
-    <p>A single multi-task policy is trained on 300 demonstrations and evaluated on three manipulation tasks under the in-distribution setting and three visual shifts: changed scene illumination, a changed camera configuration (top camera only), and task-irrelevant distractor objects added to the scene. The demonstrations are public: <a href="https://huggingface.co/datasets/chinchinati/yam_bimanual_manipulation">chinchinati/yam_bimanual_manipulation</a> (YAM dual-arm platform, three tasks, 292 successful episodes after filtering, LeRobot v3.0). Aggregated across the three tasks:</p>
-    <div class="stats">
-      <div class="stat"><div class="lab">In-distribution</div><div class="val">74.7<span class="arrow">&rarr;</span><b>88.0</b><small>%</small></div><div class="d">+13.3 pp</div></div>
-      <div class="stat"><div class="lab">Lighting OOD</div><div class="val">53.3<span class="arrow">&rarr;</span><b>70.0</b><small>%</small></div><div class="d">+16.7 pp</div></div>
-      <div class="stat"><div class="lab">Camera OOD</div><div class="val">30.0<span class="arrow">&rarr;</span><b>46.7</b><small>%</small></div><div class="d">+16.7 pp</div></div>
-      <div class="stat"><div class="lab">Distractors OOD</div><div class="val">50.0<span class="arrow">&rarr;</span><b>63.3</b><small>%</small></div><div class="d">+13.3 pp</div></div>
-    </div>
-    <figure>
-      <img src="static/images/realrobot_success.png" alt="Real-robot task success under in-distribution and out-of-distribution visual conditions, per task.">
-      <figcaption><b>Real-robot task success under in-distribution (ID) and out-of-distribution (OOD) visual conditions.</b> Camera OOD uses only the top-camera view. Results are reported as successful rollouts / total rollouts, with success rates in parentheses.</figcaption>
-    </figure>
-    <h3 class="rr-h">Rollouts: MolmoAct2 baseline vs. LIT, side by side</h3>
-    <p>Each clip shows the same task under the same condition: the architecture-matched MolmoAct2 baseline on the left, LIT on the right (top camera, real time). Pick a condition:</p>
-    <div class="rr">
-      <div class="rr-tabs" role="tablist">
-        <button class="on" data-c="lighting">Lighting OOD</button>
-        <button data-c="camera">Camera OOD</button>
-        <button data-c="distractors">Distractors OOD</button>
-        <button data-c="id">In-distribution</button>
-      </div>
-      <div class="rr-rows" id="rr-rows"></div>
-    </div>
-    <script>
+<div class="rr-tabs" role="group" aria-label="Robot experiment condition"><button class="on" data-c="lighting" aria-pressed="true">Lighting OOD</button><button data-c="camera" aria-pressed="false">Camera OOD</button><button data-c="distractors" aria-pressed="false">Distractors OOD</button><button data-c="id" aria-pressed="false">In-distribution</button></div><div id="rr-rows"></div>
+<p class="note">Selected rollouts: baseline failures (left), LIT successes (right). Rates above aggregate all trials. OOD = out of distribution; pp = percentage points.</p>
+<details><summary>Success rates by task</summary><div class="detail-body"><figure><img src="static/images/realrobot_success.png" alt="Success rates by task and visual condition" loading="lazy"><figcaption>Three tasks on the YAM dual-arm platform. Camera OOD uses only the top camera.</figcaption></figure></div></details>
+</section>
+<script>
     (function () {
       const TASKS = [
         { k: "blocks",   name: "Keep LEGOs",   instr: "Put all blocks into the box." },
@@ -311,56 +172,42 @@ footer a { color:var(--muted); }
       const COND = { id: "In-distribution", lighting: "Lighting OOD", camera: "Camera OOD", distractors: "Distractors OOD" };
       const rows = document.getElementById("rr-rows"), tabs = document.querySelectorAll(".rr-tabs button");
       function show(c) {
-        tabs.forEach(b => b.classList.toggle("on", b.dataset.c === c));
+        tabs.forEach(b => { b.classList.toggle("on", b.dataset.c === c); b.setAttribute("aria-pressed", String(b.dataset.c === c)); });
         rows.innerHTML = TASKS.map(t => {
           const f = "static/video/real/" + t.k + "_" + c;
           return '<div class="rr-row">' +
-            '<div class="rr-title"><b>' + t.name + '</b> <span>&ldquo;' + t.instr + '&rdquo;</span> <em>' + COND[c] + '</em></div>' +
+            '<div class="rr-title"><b>' + t.name + '</b> <em>' + COND[c] + '</em></div>' +
             '<div class="rr-vid"><video autoplay muted loop playsinline controls preload="metadata" poster="' + f + '.jpg">' +
             '<source src="' + f + '.mp4" type="video/mp4"></video>' +
-            '<span class="rr-tag base">MolmoAct2 baseline &nbsp;&#10007;</span><span class="rr-tag lit">LIT (ours) &nbsp;&#10003;</span></div></div>';
+            '<span class="rr-tag base">Baseline</span><span class="rr-tag lit">LIT</span></div></div>';
         }).join("");
       }
       tabs.forEach(b => b.addEventListener("click", () => show(b.dataset.c)));
       show("lighting");   // 默认落在 OOD:项目页的默认视图应该先给出贡献所在
     })();
     </script>
-    <p class="note">Baseline clips are failure cases and LIT clips are successes under the same condition; success rates over all trials are in the table above.</p>
-  </section>
-
-  <section id="results">
-    <p class="kicker">Simulation experiments</p>
-    <h2>LIBERO and LIBERO-Plus</h2>
-    <p>LIT is instantiated in four architectures spanning both VLA and world&ndash;action model designs. It preserves or improves in-distribution LIBERO success, and improves zero-shot LIBERO-Plus success across all seven perturbation families.</p>
-    <div class="tablebox">
-      <table class="t1"><thead><tr><th class="l">Model</th><th class="l">Variant</th><th>Spatial</th><th>Object</th><th>Goal</th><th>Long</th><th>Avg.</th></tr></thead><tbody><tr class="sep"><td class="l" rowspan="2">π<sub>0.5</sub> <span class="kind">VLA</span></td><td class="l">Baseline</td><td class="num">88.60</td><td class="num">93.40</td><td class="num">89.20</td><td class="num">79.80</td><td class="num">87.75</td></tr><tr class="lit"><td class="l">LIT</td><td class="num"><b>90.20</b></td><td class="num"><b>98.80</b></td><td class="num"><b>93.40</b></td><td class="num"><b>84.80</b></td><td class="num"><b>91.80</b></td></tr><tr class="sep"><td class="l" rowspan="2">MolmoAct2 <span class="kind">VLA</span></td><td class="l">Baseline</td><td class="num">93.00</td><td class="num"><b>97.80</b></td><td class="num"><b>95.40</b></td><td class="num">87.80</td><td class="num">93.50</td></tr><tr class="lit"><td class="l">LIT</td><td class="num"><b>94.60</b></td><td class="num">96.20</td><td class="num">95.20</td><td class="num"><b>90.40</b></td><td class="num"><b>94.10</b></td></tr><tr class="sep"><td class="l" rowspan="2">FAST-WAM <span class="kind">WAM</span></td><td class="l">Baseline</td><td class="num">98.20</td><td class="num"><b>100.00</b></td><td class="num">97.00</td><td class="num">95.20</td><td class="num">97.60</td></tr><tr class="lit"><td class="l">LIT</td><td class="num"><b>98.80</b></td><td class="num">99.80</td><td class="num"><b>98.40</b></td><td class="num"><b>95.40</b></td><td class="num"><b>98.10</b></td></tr><tr class="sep"><td class="l" rowspan="2">ImageWAM <span class="kind">WAM</span></td><td class="l">Baseline</td><td class="num">98.40</td><td class="num"><b>100.00</b></td><td class="num">97.60</td><td class="num"><b>96.40</b></td><td class="num">98.10</td></tr><tr class="lit"><td class="l">LIT</td><td class="num"><b>99.60</b></td><td class="num">99.20</td><td class="num"><b>99.20</b></td><td class="num">95.60</td><td class="num"><b>98.40</b></td></tr></tbody></table>
-    </div>
-    <p style="margin-top:10px"><small style="color:var(--muted)">Table I &middot; In-distribution success rates (%) on LIBERO. Better result in each architecture in bold.</small></p>
-  </section>
-
-  <section id="plus" class="tight">
-    <div class="tablebox">
-      <table class="t2"><thead><tr><th class="l" rowspan="2">Perturbation</th><th class="grp" colspan="3">π<sub>0.5</sub> <span class="kind">(VLA)</span></th><th class="grp" colspan="3">MolmoAct2 <span class="kind">(VLA)</span></th><th class="grp" colspan="3">FAST-WAM <span class="kind">(WAM)</span></th><th class="grp" colspan="3">ImageWAM <span class="kind">(WAM)</span></th></tr><tr><th class="axis">Base</th><th class="axis">LIT</th><th class="axis">&Delta;</th><th class="axis">Base</th><th class="axis">LIT</th><th class="axis">&Delta;</th><th class="axis">Base</th><th class="axis">LIT</th><th class="axis">&Delta;</th><th class="axis">Base</th><th class="axis">LIT</th><th class="axis">&Delta;</th></tr></thead><tbody><tr class=""><td class="l">Camera Viewpoints</td><td class="num">58.29</td><td class="num"><b>80.30</b></td><td class="num d-up">+22.01</td><td class="num">39.40</td><td class="num"><b>48.41</b></td><td class="num d-up">+9.01</td><td class="num">16.40</td><td class="num"><b>43.83</b></td><td class="num d-up">+27.43</td><td class="num">82.16</td><td class="num"><b>84.55</b></td><td class="num d-up">+2.39</td></tr><tr class=""><td class="l">Sensor Noise</td><td class="num">79.89</td><td class="num"><b>91.94</b></td><td class="num d-up">+12.05</td><td class="num">49.03</td><td class="num"><b>70.77</b></td><td class="num d-up">+21.74</td><td class="num">37.70</td><td class="num"><b>56.89</b></td><td class="num d-up">+19.19</td><td class="num">96.54</td><td class="num"><b>97.57</b></td><td class="num d-up">+1.03</td></tr><tr class=""><td class="l">Lighting Conditions</td><td class="num">82.40</td><td class="num"><b>90.11</b></td><td class="num d-up">+7.71</td><td class="num">84.86</td><td class="num"><b>85.64</b></td><td class="num d-up">+0.78</td><td class="num">78.20</td><td class="num"><b>83.89</b></td><td class="num d-up">+5.69</td><td class="num">97.65</td><td class="num"><b>97.99</b></td><td class="num d-up">+0.34</td></tr><tr class=""><td class="l">Background Textures</td><td class="num">85.32</td><td class="num"><b>86.99</b></td><td class="num d-up">+1.67</td><td class="num">89.78</td><td class="num"><b>94.42</b></td><td class="num d-up">+4.64</td><td class="num">53.70</td><td class="num"><b>57.22</b></td><td class="num d-up">+3.52</td><td class="num">88.26</td><td class="num"><b>94.24</b></td><td class="num d-up">+5.98</td></tr><tr class=""><td class="l">Robot Initial States</td><td class="num">60.71</td><td class="num"><b>63.71</b></td><td class="num d-up">+3.00</td><td class="num">50.71</td><td class="num"><b>59.03</b></td><td class="num d-up">+8.32</td><td class="num">44.50</td><td class="num"><b>48.86</b></td><td class="num d-up">+4.36</td><td class="num">47.81</td><td class="num"><b>60.19</b></td><td class="num d-up">+12.38</td></tr><tr class=""><td class="l">Object Layout</td><td class="num">64.00</td><td class="num"><b>73.11</b></td><td class="num d-up">+9.11</td><td class="num">55.90</td><td class="num"><b>71.61</b></td><td class="num d-up">+15.71</td><td class="num">60.70</td><td class="num"><b>64.17</b></td><td class="num d-up">+3.47</td><td class="num">77.72</td><td class="num"><b>83.67</b></td><td class="num d-up">+5.95</td></tr><tr class=""><td class="l">Language Instructions</td><td class="num">52.15</td><td class="num"><b>71.50</b></td><td class="num d-up">+19.35</td><td class="num"><b>75.69</b></td><td class="num">73.58</td><td class="num d-dn">&minus;2.11</td><td class="num">68.90</td><td class="num"><b>69.55</b></td><td class="num d-up">+0.65</td><td class="num"><b>90.97</b></td><td class="num">90.05</td><td class="num d-dn">&minus;0.92</td></tr><tr class="lit sep"><td class="l">Overall</td><td class="num">68.97</td><td class="num"><b>79.67</b></td><td class="num d-up">+10.70</td><td class="num">63.62</td><td class="num"><b>71.92</b></td><td class="num d-up">+8.30</td><td class="num">51.44</td><td class="num"><b>60.63</b></td><td class="num d-up">+9.19</td><td class="num">83.02</td><td class="num"><b>86.89</b></td><td class="num d-up">+3.87</td></tr></tbody></table>
-    </div>
-    <p style="margin-top:10px"><small style="color:var(--muted)">Table II &middot; Zero-shot success rates (%) on LIBERO-Plus. &Delta;: change from the paired baseline. Overall: mean over the seven perturbations. Better result in each architecture in bold.</small></p>
-  </section>
-
-
-
-  <section id="videos">
-    <p class="kicker">Videos</p>
-    <h2>What the latent interface decodes to, mapped back onto the image</h2>
-    <p>Closed-loop rollouts of LIT on MolmoAct2 (Stage-2 checkpoint, 30K steps). At every control step the pose decoder reads the 8 pose-supervised latent tokens, recovers a terminal SE(3) end-effector pose, and that pose is projected back onto the rendered observation: the <strong style="color:#d9342b">red square (PRED)</strong> is where the model says the gripper should be at the end of the current action chunk (t+10); the <strong style="color:#12a4c9">cyan circle (CUR)</strong> is the gripper&rsquo;s actual current pose from the simulator; the line between them is the remaining displacement. The right panel shows the same two poses in a fixed-view 3D workspace. PRED is a prediction, so it should lead CUR rather than track it. No pose is given to the policy at inference &mdash; everything in red is inferred from vision through the interface. Clips play at half speed.</p>
-
-    <h3 class="gh">LIBERO &middot; in-distribution</h3>
-    <p class="gsub">Standard LIBERO tasks, one episode each. Two tasks per suite.</p>
-    <div class="gallery" id="gallery-id"></div>
-
-    <h3 class="gh">LIBERO-Plus &middot; zero-shot out-of-distribution</h3>
-    <p class="gsub">The same two tasks under four LIBERO-Plus perturbations the policy never saw in training: camera viewpoint, lighting, background texture, and added distractor objects. The decoded pose keeps pointing at the object and the goal while the appearance changes.</p>
-    <div class="gallery" id="gallery-ood"></div>
-  </section>
-
+<section id="results"><p class="kicker">Simulation results</p><h2>Generalization across four architectures.</h2>
+<p>LIT improves average success on LIBERO-Plus while preserving or improving in-distribution performance.</p>
+<div class="stats">
+<div class="stat"><div class="lab">π<sub>0.5</sub></div><div class="val">79.67%</div><div class="d">68.97% baseline</div></div>
+<div class="stat"><div class="lab">MolmoAct2</div><div class="val">71.92%</div><div class="d">63.62% baseline</div></div>
+<div class="stat"><div class="lab">FAST-WAM</div><div class="val">60.63%</div><div class="d">51.44% baseline</div></div>
+<div class="stat"><div class="lab">ImageWAM</div><div class="val">86.89%</div><div class="d">83.02% baseline</div></div>
+</div><p class="note">LIBERO-Plus: mean success across seven perturbation categories.</p>
+<details><summary>Full LIBERO-Plus results</summary><div class="detail-body"><div class="tablebox"><table class="t2"><thead><tr><th class="l" rowspan="2">Perturbation</th><th class="grp" colspan="3">π<sub>0.5</sub> <span class="kind">(VLA)</span></th><th class="grp" colspan="3">MolmoAct2 <span class="kind">(VLA)</span></th><th class="grp" colspan="3">FAST-WAM <span class="kind">(WAM)</span></th><th class="grp" colspan="3">ImageWAM <span class="kind">(WAM)</span></th></tr><tr><th class="axis">Base</th><th class="axis">LIT</th><th class="axis">&Delta;</th><th class="axis">Base</th><th class="axis">LIT</th><th class="axis">&Delta;</th><th class="axis">Base</th><th class="axis">LIT</th><th class="axis">&Delta;</th><th class="axis">Base</th><th class="axis">LIT</th><th class="axis">&Delta;</th></tr></thead><tbody><tr class=""><td class="l">Camera Viewpoints</td><td class="num">58.29</td><td class="num"><b>80.30</b></td><td class="num d-up">+22.01</td><td class="num">39.40</td><td class="num"><b>48.41</b></td><td class="num d-up">+9.01</td><td class="num">16.40</td><td class="num"><b>43.83</b></td><td class="num d-up">+27.43</td><td class="num">82.16</td><td class="num"><b>84.55</b></td><td class="num d-up">+2.39</td></tr><tr class=""><td class="l">Sensor Noise</td><td class="num">79.89</td><td class="num"><b>91.94</b></td><td class="num d-up">+12.05</td><td class="num">49.03</td><td class="num"><b>70.77</b></td><td class="num d-up">+21.74</td><td class="num">37.70</td><td class="num"><b>56.89</b></td><td class="num d-up">+19.19</td><td class="num">96.54</td><td class="num"><b>97.57</b></td><td class="num d-up">+1.03</td></tr><tr class=""><td class="l">Lighting Conditions</td><td class="num">82.40</td><td class="num"><b>90.11</b></td><td class="num d-up">+7.71</td><td class="num">84.86</td><td class="num"><b>85.64</b></td><td class="num d-up">+0.78</td><td class="num">78.20</td><td class="num"><b>83.89</b></td><td class="num d-up">+5.69</td><td class="num">97.65</td><td class="num"><b>97.99</b></td><td class="num d-up">+0.34</td></tr><tr class=""><td class="l">Background Textures</td><td class="num">85.32</td><td class="num"><b>86.99</b></td><td class="num d-up">+1.67</td><td class="num">89.78</td><td class="num"><b>94.42</b></td><td class="num d-up">+4.64</td><td class="num">53.70</td><td class="num"><b>57.22</b></td><td class="num d-up">+3.52</td><td class="num">88.26</td><td class="num"><b>94.24</b></td><td class="num d-up">+5.98</td></tr><tr class=""><td class="l">Robot Initial States</td><td class="num">60.71</td><td class="num"><b>63.71</b></td><td class="num d-up">+3.00</td><td class="num">50.71</td><td class="num"><b>59.03</b></td><td class="num d-up">+8.32</td><td class="num">44.50</td><td class="num"><b>48.86</b></td><td class="num d-up">+4.36</td><td class="num">47.81</td><td class="num"><b>60.19</b></td><td class="num d-up">+12.38</td></tr><tr class=""><td class="l">Object Layout</td><td class="num">64.00</td><td class="num"><b>73.11</b></td><td class="num d-up">+9.11</td><td class="num">55.90</td><td class="num"><b>71.61</b></td><td class="num d-up">+15.71</td><td class="num">60.70</td><td class="num"><b>64.17</b></td><td class="num d-up">+3.47</td><td class="num">77.72</td><td class="num"><b>83.67</b></td><td class="num d-up">+5.95</td></tr><tr class=""><td class="l">Language Instructions</td><td class="num">52.15</td><td class="num"><b>71.50</b></td><td class="num d-up">+19.35</td><td class="num"><b>75.69</b></td><td class="num">73.58</td><td class="num d-dn">&minus;2.11</td><td class="num">68.90</td><td class="num"><b>69.55</b></td><td class="num d-up">+0.65</td><td class="num"><b>90.97</b></td><td class="num">90.05</td><td class="num d-dn">&minus;0.92</td></tr><tr class="lit sep"><td class="l">Overall</td><td class="num">68.97</td><td class="num"><b>79.67</b></td><td class="num d-up">+10.70</td><td class="num">63.62</td><td class="num"><b>71.92</b></td><td class="num d-up">+8.30</td><td class="num">51.44</td><td class="num"><b>60.63</b></td><td class="num d-up">+9.19</td><td class="num">83.02</td><td class="num"><b>86.89</b></td><td class="num d-up">+3.87</td></tr></tbody></table></div><p class="note">Success (%). Δ is the change from the paired baseline.</p></div></details>
+<details><summary>In-distribution LIBERO results</summary><div class="detail-body"><div class="tablebox"><table class="t1"><thead><tr><th class="l">Model</th><th class="l">Variant</th><th>Spatial</th><th>Object</th><th>Goal</th><th>Long</th><th>Avg.</th></tr></thead><tbody><tr class="sep"><td class="l" rowspan="2">π<sub>0.5</sub> <span class="kind">VLA</span></td><td class="l">Baseline</td><td class="num">88.60</td><td class="num">93.40</td><td class="num">89.20</td><td class="num">79.80</td><td class="num">87.75</td></tr><tr class="lit"><td class="l">LIT</td><td class="num"><b>90.20</b></td><td class="num"><b>98.80</b></td><td class="num"><b>93.40</b></td><td class="num"><b>84.80</b></td><td class="num"><b>91.80</b></td></tr><tr class="sep"><td class="l" rowspan="2">MolmoAct2 <span class="kind">VLA</span></td><td class="l">Baseline</td><td class="num">93.00</td><td class="num"><b>97.80</b></td><td class="num"><b>95.40</b></td><td class="num">87.80</td><td class="num">93.50</td></tr><tr class="lit"><td class="l">LIT</td><td class="num"><b>94.60</b></td><td class="num">96.20</td><td class="num">95.20</td><td class="num"><b>90.40</b></td><td class="num"><b>94.10</b></td></tr><tr class="sep"><td class="l" rowspan="2">FAST-WAM <span class="kind">WAM</span></td><td class="l">Baseline</td><td class="num">98.20</td><td class="num"><b>100.00</b></td><td class="num">97.00</td><td class="num">95.20</td><td class="num">97.60</td></tr><tr class="lit"><td class="l">LIT</td><td class="num"><b>98.80</b></td><td class="num">99.80</td><td class="num"><b>98.40</b></td><td class="num"><b>95.40</b></td><td class="num"><b>98.10</b></td></tr><tr class="sep"><td class="l" rowspan="2">ImageWAM <span class="kind">WAM</span></td><td class="l">Baseline</td><td class="num">98.40</td><td class="num"><b>100.00</b></td><td class="num">97.60</td><td class="num"><b>96.40</b></td><td class="num">98.10</td></tr><tr class="lit"><td class="l">LIT</td><td class="num"><b>99.60</b></td><td class="num">99.20</td><td class="num"><b>99.20</b></td><td class="num">95.60</td><td class="num"><b>98.40</b></td></tr></tbody></table></div><p class="note">Success (%). Better results within each architecture are bold.</p></div></details>
+</section>
+<section id="videos"><p class="kicker">Inside the interface</p><h2>See the predicted goal.</h2>
+<p><strong>Red</strong> marks the predicted target pose; <strong>cyan</strong> marks the current gripper pose. Predictions come from vision. MolmoAct2 rollouts play at half speed.</p>
+<details><summary>8 in-distribution rollouts</summary><div class="detail-body"><div class="gallery" id="gallery-id"></div></div></details>
+<details><summary>8 out-of-distribution rollouts</summary><div class="detail-body"><p>Unseen cameras, lighting, backgrounds, and distractors.</p><div class="gallery" id="gallery-ood"></div></div></details>
+</section>
+<section id="analysis"><p class="kicker">A closer look</p><h2>What makes the difference?</h2>
+<div class="insights"><div><h3>Task-focused attention</h3><p>LIT’s attention stays closer to relevant robot–object regions as scenes change.</p></div><div><h3>Responsive to goals</h3><p>Actions resist irrelevant visual changes and adapt when the goal changes.</p></div><div><h3>Both stages matter</h3><p>Removing the action prior or pose supervision reduces generalization.</p></div></div>
+<details><summary>Attention and intervention figures</summary><div class="detail-body"><figure><img src="static/images/attention.png" alt="Baseline and LIT attention under visual shifts" loading="lazy"><figcaption>LIT maintains more consistent attention on task-relevant regions.</figcaption></figure><figure><img src="static/images/intervention.png" alt="Trajectories under distractors, blur, and changed instructions" loading="lazy"><figcaption>LIT resists irrelevant visual changes and responds to a new goal.</figcaption></figure></div></details>
+<details><summary>Training dynamics</summary><div class="detail-body"><figure><img src="static/images/training_dynamics.png" alt="Action and pose losses over training" loading="lazy"><figcaption>Compared at the same 30K-step training budget, LIT reaches a lower action loss.</figcaption></figure></div></details>
+<details><summary>Ablation results</summary><div class="detail-body"><div class="tablebox"><table class="t3"><thead><tr><th class="l" rowspan="2">Variant</th><th class="grp">ID</th><th class="grp" colspan="8">OOD: LIBERO-Plus</th></tr><tr><th class="axis">LIBERO Avg.</th><th class="axis">Camera</th><th class="axis">Noise</th><th class="axis">Lighting</th><th class="axis">Backgr.</th><th class="axis">Robot</th><th class="axis">Layout</th><th class="axis">Lang.</th><th class="axis">Overall</th></tr></thead><tbody><tr class="sep"><td class="l">MolmoAct2</td><td class="num">93.50</td><td class="num">39.40</td><td class="num">49.03</td><td class="num">84.86</td><td class="num">89.78</td><td class="num">50.71</td><td class="num">55.90</td><td class="num">75.69</td><td class="num">63.62</td></tr><tr class="sep"><td class="l">Vanilla staged training</td><td class="num">93.75</td><td class="num">43.28</td><td class="num">52.09</td><td class="num">85.17</td><td class="num">88.08</td><td class="num">55.16</td><td class="num">60.98</td><td class="num">73.46</td><td class="num">65.46</td></tr><tr class=""><td class="l">LIT w/o Stage 1 &amp; pose supervision</td><td class="num">93.45</td><td class="num">39.84</td><td class="num">49.34</td><td class="num">87.22</td><td class="num">89.63</td><td class="num">53.00</td><td class="num">68.20</td><td class="num">72.67</td><td class="num">65.70</td></tr><tr class=""><td class="l">LIT w/o Stage 1</td><td class="num">93.70</td><td class="num">46.15</td><td class="num">54.65</td><td class="num">87.13</td><td class="num">86.34</td><td class="num">63.10</td><td class="num">66.43</td><td class="num">73.80</td><td class="num">68.23</td></tr><tr class=""><td class="l">LIT w/o pose supervision</td><td class="num">93.50</td><td class="num">42.78</td><td class="num">60.02</td><td class="num">91.07</td><td class="num">88.38</td><td class="num">57.81</td><td class="num">68.85</td><td class="num">73.11</td><td class="num">68.86</td></tr><tr class=""><td class="l">Baseline w/ pose supervision</td><td class="num">93.20</td><td class="num">40.32</td><td class="num">51.30</td><td class="num">89.00</td><td class="num">90.13</td><td class="num">55.45</td><td class="num">58.37</td><td class="num">73.56</td><td class="num">65.45</td></tr><tr class=""><td class="l">LIT w/ direct visual access</td><td class="num">94.25</td><td class="num">42.96</td><td class="num">55.28</td><td class="num">88.18</td><td class="num">89.22</td><td class="num">62.49</td><td class="num">63.74</td><td class="num">72.33</td><td class="num">67.74</td></tr><tr class="sep lit"><td class="l">LIT</td><td class="num">94.10</td><td class="num">48.41</td><td class="num">70.77</td><td class="num">85.64</td><td class="num">94.42</td><td class="num">59.03</td><td class="num">71.61</td><td class="num">73.58</td><td class="num">71.92</td></tr></tbody></table></div><p class="note">MolmoAct2 success (%). LIT reaches 71.92% on LIBERO-Plus; removing Stage 1 gives 68.23%, and removing pose supervision gives 68.86%.</p></div></details>
+</section>
 <script>
 /* ---- Video gallery ----------------------------------------------------------
    To add a clip: drop the .mp4 into docs/static/video/ and add one entry here.
@@ -369,43 +216,43 @@ footer a { color:var(--muted); }
    cap   : optional caption
    poster: optional still image
 ------------------------------------------------------------------------------ */
-/* group: "id" (LIBERO) or "ood" (LIBERO-Plus). Four per row.
+/* group: "id" (LIBERO) or "ood" (LIBERO-Plus).
    Real-robot clips go in a third group once they arrive — e.g. group: "real". */
 const VIDEOS = [
   // ---- LIBERO, in-distribution ----
   { group: "id", src: "static/video/pose_id/libero_spatial_00.mp4", tag: "Spatial",
-    title: "Pick up the black bowl between the plate and the ramekin and place it on the plate" },
+    title: "Place the bowl on the plate" },
   { group: "id", src: "static/video/pose_id/libero_spatial_08.mp4", tag: "Spatial",
-    title: "Pick up the black bowl next to the plate and place it on the plate" },
+    title: "Place the nearby bowl on the plate" },
   { group: "id", src: "static/video/pose_id/libero_object_04.mp4", tag: "Object",
-    title: "Pick up the ketchup and place it in the basket" },
+    title: "Ketchup into the basket" },
   { group: "id", src: "static/video/pose_id/libero_object_06.mp4", tag: "Object",
-    title: "Pick up the butter and place it in the basket" },
+    title: "Butter into the basket" },
   { group: "id", src: "static/video/pose_id/libero_goal_06.mp4", tag: "Goal",
-    title: "Put the cream cheese in the bowl" },
+    title: "Cream cheese into the bowl" },
   { group: "id", src: "static/video/pose_id/libero_goal_09.mp4", tag: "Goal",
-    title: "Put the wine bottle on the rack" },
+    title: "Wine bottle onto the rack" },
   { group: "id", src: "static/video/pose_id/libero_10_01.mp4", tag: "Long",
-    title: "Put both the cream cheese box and the butter in the basket" },
+    title: "Cream cheese and butter into the basket" },
   { group: "id", src: "static/video/pose_id/libero_10_04.mp4", tag: "Long",
-    title: "Put the white mug on the left plate and put the yellow and white mug on the right plate" },
+    title: "Place both mugs on their plates" },
   // ---- LIBERO-Plus, zero-shot OOD: same two tasks, four perturbations each ----
   { group: "ood", src: "static/video/pose_ood/ood_spatial_camera.mp4", tag: "Camera viewpoint",
-    title: "Pick up the black bowl between the plate and the ramekin and place it on the plate" },
+    title: "Place the bowl on the plate" },
   { group: "ood", src: "static/video/pose_ood/ood_spatial_light.mp4", tag: "Lighting",
-    title: "Pick up the black bowl between the plate and the ramekin and place it on the plate" },
+    title: "Place the bowl on the plate" },
   { group: "ood", src: "static/video/pose_ood/ood_spatial_background.mp4", tag: "Background texture",
-    title: "Pick up the black bowl between the plate and the ramekin and place it on the plate" },
+    title: "Place the bowl on the plate" },
   { group: "ood", src: "static/video/pose_ood/ood_spatial_distractor.mp4", tag: "Added distractors",
-    title: "Pick up the black bowl between the plate and the ramekin and place it on the plate" },
+    title: "Place the bowl on the plate" },
   { group: "ood", src: "static/video/pose_ood/ood_object_camera.mp4", tag: "Camera viewpoint",
-    title: "Pick up the alphabet soup and place it in the basket" },
+    title: "Alphabet soup into the basket" },
   { group: "ood", src: "static/video/pose_ood/ood_object_light.mp4", tag: "Lighting",
-    title: "Pick up the alphabet soup and place it in the basket" },
+    title: "Alphabet soup into the basket" },
   { group: "ood", src: "static/video/pose_ood/ood_object_background.mp4", tag: "Background texture",
-    title: "Pick up the alphabet soup and place it in the basket" },
+    title: "Alphabet soup into the basket" },
   { group: "ood", src: "static/video/pose_ood/ood_object_distractor.mp4", tag: "Added distractors",
-    title: "Pick up the alphabet soup and place it in the basket" },
+    title: "Alphabet soup into the basket" },
   // ---- Real robot: add here when the clips arrive ----
   // { group: "real", src: "static/video/realworld_01.mp4", tag: "Real robot", title: "..." },
 ];
@@ -418,7 +265,7 @@ const VIDEOS = [
     for (const v of items) {
       const el = document.createElement("div"); el.className = "clip";
       el.innerHTML =
-        '<video autoplay muted loop playsinline controls preload="auto"' + (v.poster ? ' poster="' + v.poster + '"' : '') + '>' +
+        '<video autoplay muted loop playsinline controls preload="metadata"' + (v.poster ? ' poster="' + v.poster + '"' : '') + '>' +
         '<source src="' + v.src + '#t=0.1" type="video/mp4"></video>' +
         '<div class="meta">' + (v.tag ? '<span class="tag">' + v.tag + '</span>' : '') +
         '<p class="title">' + v.title + '</p>' + (v.cap ? '<p class="cap">' + v.cap + '</p>' : '') + '</div>';
@@ -438,125 +285,5 @@ const VIDEOS = [
   secs.forEach(sec => io.observe(sec));
 })();
 </script>
-
-  <section id="analysis">
-    <p class="kicker">Analysis</p>
-    <h2>Behavior, learning dynamics, and design choices</h2>
-    <p>Having established LIT&rsquo;s generalization improvements in Table&nbsp;II, we examine the behavior, learning dynamics, and design choices underlying these gains. Unless otherwise specified, all analyses and ablations use MolmoAct2. We address four questions:</p>
-    <ol class="questions">
-      <li>Does LIT maintain attention to task-relevant regions under distribution shifts?</li>
-      <li>Do its responses to visual and goal interventions indicate reduced reliance on vision&ndash;action shortcuts?</li>
-      <li>Do LIT&rsquo;s training dynamics support effective action-prior and visual-interface learning, helping explain its generalization gains?</li>
-      <li>Which components contribute to LIT&rsquo;s generalization gains?</li>
-    </ol>
-
-    <div class="findings">
-      <div class="finding">
-        <div class="what">Stability of action-to-image attention</div>
-        <div>
-          <h3>Under distribution shifts, LIT keeps looking at the task-relevant robot&ndash;object regions; the baseline&rsquo;s attention drifts.</h3>
-          <p>For the baseline we use direct action-to-visual attention; for LIT we compose attention from the action expert to the latent tokens with attention from the latent tokens to visual representations. Across clean and perturbed observations, baseline attention shifts across perturbations, whereas LIT&rsquo;s attention remains more concentrated on task-relevant robot&ndash;object regions.</p>
-        </div>
-      </div>
-    </div>
-    <figure>
-      <img src="static/images/attention.png" alt="Effective action-to-image attention under distribution shifts, baseline versus LIT.">
-      <figcaption><b>Effective action-to-image attention under distribution shifts.</b> Baseline attention varies substantially across perturbations, whereas LIT remains consistently aligned with task-relevant robot&ndash;object regions.</figcaption>
-    </figure>
-
-    <div class="findings">
-      <div class="finding">
-        <div class="what">Probing vision&ndash;action shortcuts</div>
-        <div>
-          <h3>LIT is unmoved by task-irrelevant visual changes and follows a changed goal; the baseline does the opposite.</h3>
-          <p><strong>Task-preserving visual interventions:</strong> adding a distractor or blurring the image while keeping the instruction, spatial goal, and robot state fixed. The baseline trajectories deviate substantially from their clean counterparts, whereas LIT&rsquo;s remain close. <strong>Goal-changing intervention:</strong> changing the instructed goal while keeping the visual scene and robot state fixed. The baseline still moves toward the original goal, consistent with reliance on unchanged visual cues; LIT instead redirects toward the new goal.</p>
-        </div>
-      </div>
-    </div>
-    <figure>
-      <img src="static/images/intervention.png" alt="Counterfactual interventions: adding a distractor, blurring the image, swapping the instruction.">
-      <figcaption><b>Counterfactual interventions.</b> Left and middle: task-preserving visual interventions (add a distractor, blur the image). Right: goal-changing intervention (swap the instruction). End-effector trajectories before and after intervention for baseline and LIT.</figcaption>
-    </figure>
-
-    <div class="findings">
-      <div class="finding">
-        <div class="what">Learning dynamics across stages</div>
-        <div>
-          <h3>Each stage learns what it is designed to learn, and LIT reaches a lower action loss than the baseline on the same 30K-step budget.</h3>
-          <p>Stage&nbsp;1 action loss decreases rapidly to <strong>0.029</strong> after 10K steps, indicating that the expert effectively learns goal-directed action generation without images. In Stage&nbsp;2, pose-reconstruction loss reaches <strong>0.003</strong> after 20K steps, showing that the demonstrated spatial goals are recoverable from the learned interface on training data. LIT also achieves a lower action loss in 20K visual training steps than the baseline reaches in 30K steps, with both methods using the same total training budget.</p>
-        </div>
-      </div>
-    </div>
-    <figure>
-      <img src="static/images/training_dynamics.png" alt="Training dynamics on MolmoAct2: Stage 1 flow-matching loss, Stage 2 pose-reconstruction loss, and action flow-matching loss during visual policy training.">
-      <figcaption><b>Training dynamics on MolmoAct2.</b> (a) Stage&nbsp;1 action flow-matching loss. (b) Stage&nbsp;2 pose-reconstruction loss. (c) Action flow-matching loss during visual policy training. LIT uses 10K Stage&nbsp;1 and 20K Stage&nbsp;2 steps, matching the baseline&rsquo;s 30K-step total budget. LIT&rsquo;s Stage&nbsp;2 action loss reaches a lower value than the baseline&rsquo;s final loss. Panel (c) counts visual training steps; the 0.63&times; ratio compares losses at 20K steps.</figcaption>
-    </figure>
-  </section>
-
-  <section id="ablation">
-    <p class="kicker">Ablation</p>
-    <h2>Which components contribute to the gains</h2>
-    <p>We next examine how LIT&rsquo;s training and conditioning designs contribute to generalization through the ablations in Table&nbsp;III. Every variant keeps in-distribution LIBERO success essentially unchanged; the differences are all in out-of-distribution success on LIBERO-Plus.</p>
-    <div class="tablebox">
-      <table class="t3"><thead><tr><th class="l" rowspan="2">Variant</th><th class="grp">ID</th><th class="grp" colspan="8">OOD: LIBERO-Plus</th></tr><tr><th class="axis">LIBERO Avg.</th><th class="axis">Camera</th><th class="axis">Noise</th><th class="axis">Lighting</th><th class="axis">Backgr.</th><th class="axis">Robot</th><th class="axis">Layout</th><th class="axis">Lang.</th><th class="axis">Overall</th></tr></thead><tbody><tr class="sep"><td class="l">MolmoAct2</td><td class="num">93.50</td><td class="num">39.40</td><td class="num">49.03</td><td class="num">84.86</td><td class="num">89.78</td><td class="num">50.71</td><td class="num">55.90</td><td class="num">75.69</td><td class="num">63.62</td></tr><tr class="sep"><td class="l">Vanilla staged training</td><td class="num">93.75</td><td class="num">43.28</td><td class="num">52.09</td><td class="num">85.17</td><td class="num">88.08</td><td class="num">55.16</td><td class="num">60.98</td><td class="num">73.46</td><td class="num">65.46</td></tr><tr class=""><td class="l">LIT w/o Stage 1 &amp; pose supervision</td><td class="num">93.45</td><td class="num">39.84</td><td class="num">49.34</td><td class="num">87.22</td><td class="num">89.63</td><td class="num">53.00</td><td class="num">68.20</td><td class="num">72.67</td><td class="num">65.70</td></tr><tr class=""><td class="l">LIT w/o Stage 1</td><td class="num">93.70</td><td class="num">46.15</td><td class="num">54.65</td><td class="num">87.13</td><td class="num">86.34</td><td class="num">63.10</td><td class="num">66.43</td><td class="num">73.80</td><td class="num">68.23</td></tr><tr class=""><td class="l">LIT w/o pose supervision</td><td class="num">93.50</td><td class="num">42.78</td><td class="num">60.02</td><td class="num">91.07</td><td class="num">88.38</td><td class="num">57.81</td><td class="num">68.85</td><td class="num">73.11</td><td class="num">68.86</td></tr><tr class=""><td class="l">Baseline w/ pose supervision</td><td class="num">93.20</td><td class="num">40.32</td><td class="num">51.30</td><td class="num">89.00</td><td class="num">90.13</td><td class="num">55.45</td><td class="num">58.37</td><td class="num">73.56</td><td class="num">65.45</td></tr><tr class=""><td class="l">LIT w/ direct visual access</td><td class="num">94.25</td><td class="num">42.96</td><td class="num">55.28</td><td class="num">88.18</td><td class="num">89.22</td><td class="num">62.49</td><td class="num">63.74</td><td class="num">72.33</td><td class="num">67.74</td></tr><tr class="sep lit"><td class="l">LIT</td><td class="num">94.10</td><td class="num">48.41</td><td class="num">70.77</td><td class="num">85.64</td><td class="num">94.42</td><td class="num">59.03</td><td class="num">71.61</td><td class="num">73.58</td><td class="num">71.92</td></tr></tbody></table>
-    </div>
-    <p style="margin-top:10px"><small style="color:var(--muted)">Table III &middot; Ablation study of LIT on MolmoAct2. Task success rates (%) on LIBERO (ID) and LIBERO-Plus (OOD). Overall: mean across the seven OOD perturbation categories. Higher is better.</small></p>
-
-    <div class="findings">
-      <div class="finding">
-        <div class="what">Vanilla staged training<span class="n">65.46<small>&minus;6.46 vs. LIT</small></span></div>
-        <div>
-          <h3>Two-stage training alone does not account for LIT&rsquo;s gains.</h3>
-          <p>An LA4VLA-inspired baseline first predicts actions from language and robot state without images, then conditions the action expert on backbone visual representations. OOD success increases from 63.62% for the MolmoAct2 baseline to 65.46%, but remains 6.46 percentage points below LIT (71.92%).</p>
-        </div>
-      </div>
-      <div class="finding">
-        <div class="what">LIT w/o Stage 1 &amp; pose supervision<span class="n">65.70<small>&minus;6.22 vs. LIT</small></span></div>
-        <div>
-          <h3>A latent interface trained only through the action objective barely helps.</h3>
-          <p>Learnable tokens still aggregate backbone representations to condition the action expert, as in query-based interfaces such as VLA-Adapter, but are trained solely through the action objective. OOD success reaches 65.70%, only 2.08 percentage points above the baseline and 6.22 points below LIT &mdash; the interface needs both the action prior and the spatial-goal supervision.</p>
-        </div>
-      </div>
-      <div class="finding">
-        <div class="what">LIT w/o Stage 1<span class="n">68.23<small>&minus;3.69 vs. LIT</small></span></div>
-        <div>
-          <h3>The action prior matters for the visual policy learned on top of it.</h3>
-          <p>Skipping Stage&nbsp;1 and randomly initializing the action expert, while retaining the Stage&nbsp;2 latent interface and pose supervision, gives 68.23% OOD success compared with 71.92% for LIT &mdash; a 3.69-percentage-point decrease.</p>
-        </div>
-      </div>
-      <div class="finding">
-        <div class="what">LIT w/o pose supervision<span class="n">68.86<small>&minus;3.06 vs. LIT</small></span></div>
-        <div>
-          <h3>Spatial-goal supervision is what buys robustness to task-irrelevant visual perturbations.</h3>
-          <p>Removing the Stage&nbsp;2 pose-reconstruction loss while retaining all other components gives 68.86%, above the baseline&rsquo;s 63.62% but 3.06 percentage points below LIT. The largest decreases occur under Sensor Noise (70.77% &rarr; 60.02%, 10.75 points) and Background Textures (94.42% &rarr; 88.38%, 6.04 points).</p>
-        </div>
-      </div>
-      <div class="finding">
-        <div class="what">Baseline w/ pose supervision<span class="n">65.45<small>&minus;6.47 vs. LIT</small></span></div>
-        <div>
-          <h3>Pose supervision alone cannot explain the improvement.</h3>
-          <p>Adding the same pose-reconstruction objective to the baseline &mdash; an MLP decoder reconstructs the terminal goal state from the baseline&rsquo;s final-layer backbone features, with its original visual conditioning architecture retained &mdash; raises OOD success from 63.62% to only 65.45%, 6.47 percentage points below LIT.</p>
-        </div>
-      </div>
-      <div class="finding">
-        <div class="what">LIT w/ direct visual access<span class="n">67.74<small>&minus;4.18 vs. LIT</small></span></div>
-        <div>
-          <h3>The generalization comes from the interface being the action expert&rsquo;s only visual pathway.</h3>
-          <p>Allowing the action expert to directly access backbone visual representations while retaining all LIT components keeps LIBERO success comparable (94.25% vs.&nbsp;94.10%) but drops LIBERO-Plus success from 71.92% to 67.74% &mdash; a 4.18-percentage-point decrease.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-
-</div>
-
-<footer>
-  <div class="wrap">
-    Code and reproduction instructions at <a href="https://github.com/MAGICLAB-NUS/LIT">github.com/MAGICLAB-NUS/LIT</a>.
-  </div>
-</footer>
-
-
-</body>
-</html>
+</main><footer><div class="wrap"><span>Latent Interface Training · Under review</span><a href="https://github.com/MAGICLAB-NUS/LIT">Code &amp; reproduction ↗</a></div></footer>
+</body></html>
