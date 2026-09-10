@@ -21,16 +21,23 @@ geometry rather than appearance.
 The method is a localised change to four existing codebases, so each stays its own fork rather than
 being vendored here. Pin these commits:
 
-| Framework | Repository | Branch | Commit |
-| --- | --- | --- | --- |
-| MolmoAct2 | [`jianmanlincjx/Molmoact2`](https://github.com/jianmanlincjx/Molmoact2) | `feat/libero-goal-prior-v4` | `9228c10` |
-| ↳ policy library (submodule) | [`jianmanlincjx/lerobot`](https://github.com/jianmanlincjx/lerobot) | `feat/libero-goal-prior-v4` | `b966b8c0` |
-| FAST-WAM | [`jianmanlincjx/fastwam`](https://github.com/jianmanlincjx/fastwam) | `feat/goal-pose-prior` | `12e4573` |
-| ImageWAM | [`jianmanlincjx/ImageWAM`](https://github.com/jianmanlincjx/ImageWAM) | `feat/goal-prior-bottleneck-fix` | `66f4b91` |
-| π0.5 | [`jianmanlincjx/pi05`](https://github.com/jianmanlincjx/pi05) | `main` | `085a699` |
+| Framework | Repository | Branch | Commit | Verified on a fresh machine |
+| --- | --- | --- | --- | --- |
+| MolmoAct2 | [`jianmanlincjx/Molmoact2`](https://github.com/jianmanlincjx/Molmoact2) | `feat/libero-goal-prior-v4` | `33d59ae` | released weights load; LIBERO and LIBERO-Plus rollouts run (2026-09-10) |
+| ↳ policy library (submodule) | [`jianmanlincjx/lerobot`](https://github.com/jianmanlincjx/lerobot) | `feat/libero-goal-prior-v4` | `b966b8c0` | — |
+| π0.5 | [`jianmanlincjx/Pi05`](https://github.com/jianmanlincjx/Pi05) | `main` | `d5f13e6` | baseline and LIT weights load; 2/2 LIBERO rollouts each (2026-09-10) |
+| FAST-WAM | [`jianmanlincjx/fastwam`](https://github.com/jianmanlincjx/fastwam) | `feat/goal-pose-prior` | `9450718` | environment build in progress |
+| ImageWAM | [`jianmanlincjx/ImageWAM`](https://github.com/jianmanlincjx/ImageWAM) | `feat/goal-prior-bottleneck-fix` | `07e0026` | environment build in progress |
 
 `Molmoact2` drives `lerobot` as a git submodule, so clone it recursively. The ablation switches
 (`LIT_ALLOW_OPEN_VISUAL_PATH`, `enable_ae_pose_head`) live in the submodule.
+
+`Pi05` is a small package on top of **upstream LeRobot 0.6.2** (stock `pi05` policy, untouched):
+importing `pi05_goal_prior` registers the `pi05_goal_prior` policy type. Released π0.5 checkpoints
+carry `"type": "pi05"` (baseline) or `"type": "pi05_goal_prior"` (LIT) in `config.json`, and
+`lerobot_eval` loads either directly.
+
+Project page: **https://jianmanlincjx.github.io/LIT/**
 
 ```bash
 git clone --recursive -b feat/libero-goal-prior-v4 \
@@ -127,8 +134,13 @@ scripts/
   eval_libero_plus.sh LIBERO-Plus, sliced across GPUs, resumable
   aggregate.py        per-axis / per-suite aggregation and paired comparison
   molmoact2/          the MolmoAct2 training and evaluation scripts, at the pinned commit
+  render_pose_videos.sh
+                      re-render rollouts with the decoded terminal pose drawn back onto the
+                      frame (the clips on the project page); one line per clip in JOBS —
+                      `gpu envtype suite task_id label`, envtype `libero` or `libero_plus`
   paper_runs/         the launchers as they were actually run for the paper (machine-specific
                       paths; kept for provenance, not meant to run elsewhere)
+docs/                 the project page (GitHub Pages, served from /docs)
 ```
 
 ## Checkpoints
