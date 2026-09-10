@@ -6,7 +6,7 @@
 <title>Latent Interface Training</title>
 <meta name="description" content="Breaking the Vision–Action Shortcut: Latent Interface Training for Generalizable Robot Foundation Models.">
 <meta property="og:title" content="Latent Interface Training (LIT)">
-<meta property="og:description" content="Route vision to the action expert only through a pose-supervised latent interface. +3.88–10.71 pp on LIBERO-Plus across π0.5, MolmoAct2, FAST-WAM and ImageWAM, with no in-distribution cost.">
+<meta property="og:description" content="Route vision to the action expert only through a pose-supervised latent interface. +13–17 pp on a real robot under unseen lighting, cameras and distractors; +3.88–10.71 pp on LIBERO-Plus across four architectures.">
 <meta property="og:image" content="static/images/motivation.png">
 <meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -84,7 +84,9 @@ h1 .sub { display:block; font-size:inherit; font-weight:inherit; color:var(--ink
 .strip { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:22px 0 0; }
 @media (max-width:720px) { .strip { grid-template-columns:repeat(2,1fr); } }
 .strip .cell { position:relative; border-radius:8px; overflow:hidden; border:1px solid var(--rule); background:#000; }
-.strip video { display:block; width:100%; height:auto; }
+.strip video, .strip img { display:block; width:100%; height:auto; }
+.strip .num { position:absolute; right:8px; top:8px; font-family:var(--f-mono); font-size:12px; color:#fff; background:rgba(0,0,0,.55); border-radius:4px; padding:3px 7px; font-variant-numeric:tabular-nums; }
+.strip .num i { font-style:normal; opacity:.7; margin:0 2px; } .strip .num b { color:#9fd0ff; font-weight:600; }
 .strip .lbl { position:absolute; left:8px; bottom:8px; font-size:10.5px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:#fff; background:rgba(0,0,0,.55); border-radius:4px; padding:3px 7px; }
 .stripcap { text-align:center; font-size:13px; color:var(--muted); margin:10px 0 0; }
 .stripcap a { color:var(--muted); }
@@ -230,9 +232,9 @@ footer a { color:var(--muted); }
     <a class="brand" href="#top">LIT</a>
     <a class="item" href="#abstract">Abstract</a>
     <a class="item" href="#method">Method</a>
-    <a class="item" href="#videos">Videos</a>
-    <a class="item" href="#results">Results</a>
     <a class="item" href="#realworld">Real robot</a>
+    <a class="item" href="#videos">Videos</a>
+    <a class="item" href="#results">Simulation</a>
     <a class="item" href="#analysis">Why it works</a>
     <a class="item" href="#ablation">Ablation</a>
     <a class="item" href="#bibtex">BibTeX</a>
@@ -247,7 +249,7 @@ footer a { color:var(--muted); }
     <h1>Breaking the <span class="nb">Vision&ndash;Action Shortcut</span>
       <span class="sub">Latent Interface Training for Generalizable Robot Foundation Models</span>
     </h1>
-    <p class="tldr">Route vision to the action expert <b>only</b> through a pose-supervised latent interface. Better zero-shot generalization on <b>four</b> VLA and WAM architectures, with no in-distribution cost.</p>
+    <p class="tldr">Route vision to the action expert <b>only</b> through a pose-supervised latent interface. On a real robot, <b>+13&ndash;17 pp</b> under lighting, camera and distractor shifts it never saw in training; the same recipe lifts <b>four</b> VLA and WAM architectures on LIBERO-Plus, with no in-distribution cost.</p>
     <p class="authors">
       <a href="#">Jianman Lin</a><sup>1,&lowast;</sup>&ensp;
       <a href="#">Shailesh Shailesh</a><sup>2,&lowast;</sup>&ensp;
@@ -270,19 +272,19 @@ footer a { color:var(--muted); }
     </nav>
 
     <div class="stats">
+      <div class="stat"><div class="val up">+<span data-count="16.7" data-dec="1">16.7</span><small>pp</small></div><div class="lab">real-robot success under unseen lighting and camera, aggregated over three tasks</div></div>
+      <div class="stat"><div class="val"><span data-count="3">3</span><small>&times; 4</small></div><div class="lab">real-robot tasks, each under the training setting and three visual shifts</div></div>
       <div class="stat"><div class="val"><span data-count="4">4</span></div><div class="lab">architectures: &pi;<sub>0.5</sub>, MolmoAct2, FAST-WAM, ImageWAM</div></div>
-      <div class="stat"><div class="val up">+<span data-count="10.70" data-dec="2">10.70</span><small>pp</small></div><div class="lab">largest LIBERO-Plus gain over the paired baseline</div></div>
-      <div class="stat"><div class="val"><span data-count="10030" data-sep="1">10,030</span></div><div class="lab">LIBERO-Plus tasks, seven perturbation families, zero-shot</div></div>
-      <div class="stat"><div class="val up">+<span data-count="16.7" data-dec="1">16.7</span><small>pp</small></div><div class="lab">real-robot gain under unseen lighting and camera, aggregated over three tasks</div></div>
+      <div class="stat"><div class="val up">+<span data-count="10.70" data-dec="2">10.70</span><small>pp</small></div><div class="lab">largest LIBERO-Plus gain over the paired baseline, 10,030 zero-shot tasks</div></div>
     </div>
 
-    <div class="strip" id="strip">
-      <div class="cell"><video autoplay muted loop playsinline preload="auto"><source src="static/video/pose_ood/ood_spatial_camera.mp4#t=0.1" type="video/mp4"></video><span class="lbl">Camera viewpoint</span></div>
-      <div class="cell"><video autoplay muted loop playsinline preload="auto"><source src="static/video/pose_ood/ood_spatial_light.mp4#t=0.1" type="video/mp4"></video><span class="lbl">Lighting</span></div>
-      <div class="cell"><video autoplay muted loop playsinline preload="auto"><source src="static/video/pose_ood/ood_spatial_background.mp4#t=0.1" type="video/mp4"></video><span class="lbl">Background</span></div>
-      <div class="cell"><video autoplay muted loop playsinline preload="auto"><source src="static/video/pose_ood/ood_spatial_distractor.mp4#t=0.1" type="video/mp4"></video><span class="lbl">Distractors</span></div>
+    <div class="strip real" id="strip">
+      <div class="cell"><img src="static/images/real/id.png" alt="Real robot, in-distribution setting"><span class="lbl">In-distribution</span><span class="num">74.7 <i>&rarr;</i> <b>88.0</b></span></div>
+      <div class="cell"><img src="static/images/real/lighting.png" alt="Real robot, lighting OOD"><span class="lbl">Lighting OOD</span><span class="num">53.3 <i>&rarr;</i> <b>70.0</b></span></div>
+      <div class="cell"><img src="static/images/real/camera.png" alt="Real robot, camera OOD (top camera only)"><span class="lbl">Camera OOD</span><span class="num">30.0 <i>&rarr;</i> <b>46.7</b></span></div>
+      <div class="cell"><img src="static/images/real/distractors.png" alt="Real robot, distractors OOD"><span class="lbl">Distractors OOD</span><span class="num">50.0 <i>&rarr;</i> <b>63.3</b></span></div>
     </div>
-    <p class="stripcap">The pose the latent interface decodes (red), mapped back onto the image, while the same task is perturbed four ways the policy never saw in training. <a href="#videos">More rollouts &darr;</a></p>
+    <p class="stripcap">Real-robot success (%), baseline &rarr; LIT, aggregated over three tasks. One multi-task policy, 300 demonstrations, evaluated under the training setting and three visual shifts it never saw. <a href="#realworld">Details &darr;</a></p>
   </div>
 </header>
 
@@ -290,7 +292,7 @@ footer a { color:var(--muted); }
 
   <section id="abstract" class="tight rv">
     <p class="kicker">In one paragraph</p>
-    <p class="lead">Action experts trained on top of pretrained visual representations can learn <strong>vision&ndash;action shortcuts</strong>: they latch onto task-irrelevant visual cues that happen to correlate with the demonstrated motions, and fall apart when the scene changes. LIT removes the direct visual pathway and makes a small set of learnable latent tokens the action expert&rsquo;s <strong>only</strong> route to vision. Stage&nbsp;1 first learns an action prior from language, robot state and the terminal SE(3) goal with no images at all; Stage&nbsp;2 then supervises the latent tokens to reconstruct that same terminal pose, so what crosses the interface is geometry rather than appearance. The recipe changes nothing else about the model, and it transfers across four architectures.</p>
+    <p class="lead">Action experts trained on top of pretrained visual representations can learn <strong>vision&ndash;action shortcuts</strong>: they latch onto task-irrelevant visual cues that happen to correlate with the demonstrated motions, and fall apart when the scene changes. LIT removes the direct visual pathway and makes a small set of learnable latent tokens the action expert&rsquo;s <strong>only</strong> route to vision. Stage&nbsp;1 first learns an action prior from language, robot state and the terminal SE(3) goal with no images at all; Stage&nbsp;2 then supervises the latent tokens to reconstruct that same terminal pose, so what crosses the interface is geometry rather than appearance. The recipe changes nothing else about the model. On a real robot it raises success by 13&ndash;17 percentage points under lighting, camera and distractor shifts never seen in training, and it transfers unchanged across four VLA and WAM architectures.</p>
     <details class="fold">
       <summary>Read the full abstract</summary>
       <div class="body">
@@ -330,36 +332,8 @@ footer a { color:var(--muted); }
     </figure>
   </section>
 
-  <section id="videos" class="rv">
-    <p class="kicker">Videos</p>
-    <h2>What the latent interface decodes to, mapped back onto the image</h2>
-    <p>Closed-loop rollouts of LIT on MolmoAct2 (Stage-2 checkpoint, 30K steps). At every control step the pose decoder reads the 8 pose-supervised latent tokens, recovers a terminal SE(3) end-effector pose, and that pose is projected back onto the rendered observation. PRED is a prediction of where the gripper should be at the end of the current action chunk (t+10), so it should lead CUR rather than track it. The right panel shows both poses in a fixed-view 3D workspace. No pose is given to the policy at inference &mdash; everything in red is inferred from vision through the interface. Clips play at half speed.</p>
-    <div class="legend"><span><i class="sq"></i>PRED &mdash; pose decoded from the latent tokens (t+10)</span><span><i class="ci"></i>CUR &mdash; current end-effector pose from the simulator</span><span>Line &mdash; remaining displacement</span></div>
 
-    <h3 class="gh">LIBERO-Plus &middot; zero-shot out-of-distribution</h3>
-    <p class="gsub">The same two tasks under four perturbations the policy never saw in training. Pick a perturbation; both tasks update.</p>
-    <div class="tabs" id="tabs"></div>
-    <div class="pair" id="pair"></div>
 
-    <h3 class="gh">LIBERO &middot; in-distribution</h3>
-    <p class="gsub">Standard LIBERO tasks, one episode each, two per suite.</p>
-    <div class="gallery" id="gallery-id"></div>
-  </section>
-
-  <section id="results" class="rv">
-    <p class="kicker">Simulation</p>
-    <h2>LIBERO and LIBERO-Plus</h2>
-    <p>LIT is instantiated in four architectures spanning both VLA and world&ndash;action model designs. It preserves or improves in-distribution LIBERO success, and improves zero-shot LIBERO-Plus success on every architecture.</p>
-    <div class="chart">
-      <p class="ct">LIBERO-Plus overall success &middot; gain over the paired baseline</p>
-      <div class="bars"><div class="bar"><span class="nm">π<sub>0.5</sub><span class="kind">VLA</span></span><span class="tr"><span class="fl" data-w="100.0"></span></span><span class="v">+10.70<small>68.97 &rarr; 79.67</small></span></div><div class="bar"><span class="nm">MolmoAct2<span class="kind">VLA</span></span><span class="tr"><span class="fl" data-w="77.6"></span></span><span class="v">+8.30<small>63.62 &rarr; 71.92</small></span></div><div class="bar"><span class="nm">FAST-WAM<span class="kind">WAM</span></span><span class="tr"><span class="fl" data-w="85.9"></span></span><span class="v">+9.19<small>51.44 &rarr; 60.63</small></span></div><div class="bar"><span class="nm">ImageWAM<span class="kind">WAM</span></span><span class="tr"><span class="fl" data-w="36.2"></span></span><span class="v">+3.87<small>83.02 &rarr; 86.89</small></span></div></div>
-      <p class="cn">Overall is the mean over the seven perturbation families; values from Table II.</p>
-    </div>
-    <div class="tablebox"><table class="t1"><thead><tr><th class="l">Model</th><th class="l">Variant</th><th>Spatial</th><th>Object</th><th>Goal</th><th>Long</th><th>Avg.</th></tr></thead><tbody><tr class="sep"><td class="l" rowspan="2">π<sub>0.5</sub> <span class="kind">VLA</span></td><td class="l">Baseline</td><td class="num">88.60</td><td class="num">93.40</td><td class="num">89.20</td><td class="num">79.80</td><td class="num">87.75</td></tr><tr class="lit"><td class="l">LIT</td><td class="num"><b>90.20</b></td><td class="num"><b>98.80</b></td><td class="num"><b>93.40</b></td><td class="num"><b>84.80</b></td><td class="num"><b>91.80</b></td></tr><tr class="sep"><td class="l" rowspan="2">MolmoAct2 <span class="kind">VLA</span></td><td class="l">Baseline</td><td class="num">93.00</td><td class="num"><b>97.80</b></td><td class="num"><b>95.40</b></td><td class="num">87.80</td><td class="num">93.50</td></tr><tr class="lit"><td class="l">LIT</td><td class="num"><b>94.60</b></td><td class="num">96.20</td><td class="num">95.20</td><td class="num"><b>90.40</b></td><td class="num"><b>94.10</b></td></tr><tr class="sep"><td class="l" rowspan="2">FAST-WAM <span class="kind">WAM</span></td><td class="l">Baseline</td><td class="num">98.20</td><td class="num"><b>100.00</b></td><td class="num">97.00</td><td class="num">95.20</td><td class="num">97.60</td></tr><tr class="lit"><td class="l">LIT</td><td class="num"><b>98.80</b></td><td class="num">99.80</td><td class="num"><b>98.40</b></td><td class="num"><b>95.40</b></td><td class="num"><b>98.10</b></td></tr><tr class="sep"><td class="l" rowspan="2">ImageWAM <span class="kind">WAM</span></td><td class="l">Baseline</td><td class="num">98.40</td><td class="num"><b>100.00</b></td><td class="num">97.60</td><td class="num"><b>96.40</b></td><td class="num">98.10</td></tr><tr class="lit"><td class="l">LIT</td><td class="num"><b>99.60</b></td><td class="num">99.20</td><td class="num"><b>99.20</b></td><td class="num">95.60</td><td class="num"><b>98.40</b></td></tr></tbody></table></div>
-    <p class="tcap">Table I &middot; In-distribution success rates (%) on LIBERO. Better result in each architecture in bold.</p>
-    <div class="tablebox"><table class="t2"><thead><tr><th class="l" rowspan="2">Perturbation</th><th class="grp" colspan="3">π<sub>0.5</sub> <span class="kind">(VLA)</span></th><th class="grp" colspan="3">MolmoAct2 <span class="kind">(VLA)</span></th><th class="grp" colspan="3">FAST-WAM <span class="kind">(WAM)</span></th><th class="grp" colspan="3">ImageWAM <span class="kind">(WAM)</span></th></tr><tr><th class="axis">Base</th><th class="axis">LIT</th><th class="axis">&Delta;</th><th class="axis">Base</th><th class="axis">LIT</th><th class="axis">&Delta;</th><th class="axis">Base</th><th class="axis">LIT</th><th class="axis">&Delta;</th><th class="axis">Base</th><th class="axis">LIT</th><th class="axis">&Delta;</th></tr></thead><tbody><tr class=""><td class="l">Camera Viewpoints</td><td class="num">58.29</td><td class="num"><b>80.30</b></td><td class="num d-up">+22.01</td><td class="num">39.40</td><td class="num"><b>48.41</b></td><td class="num d-up">+9.01</td><td class="num">16.40</td><td class="num"><b>43.83</b></td><td class="num d-up">+27.43</td><td class="num">82.16</td><td class="num"><b>84.55</b></td><td class="num d-up">+2.39</td></tr><tr class=""><td class="l">Sensor Noise</td><td class="num">79.89</td><td class="num"><b>91.94</b></td><td class="num d-up">+12.05</td><td class="num">49.03</td><td class="num"><b>70.77</b></td><td class="num d-up">+21.74</td><td class="num">37.70</td><td class="num"><b>56.89</b></td><td class="num d-up">+19.19</td><td class="num">96.54</td><td class="num"><b>97.57</b></td><td class="num d-up">+1.03</td></tr><tr class=""><td class="l">Lighting Conditions</td><td class="num">82.40</td><td class="num"><b>90.11</b></td><td class="num d-up">+7.71</td><td class="num">84.86</td><td class="num"><b>85.64</b></td><td class="num d-up">+0.78</td><td class="num">78.20</td><td class="num"><b>83.89</b></td><td class="num d-up">+5.69</td><td class="num">97.65</td><td class="num"><b>97.99</b></td><td class="num d-up">+0.34</td></tr><tr class=""><td class="l">Background Textures</td><td class="num">85.32</td><td class="num"><b>86.99</b></td><td class="num d-up">+1.67</td><td class="num">89.78</td><td class="num"><b>94.42</b></td><td class="num d-up">+4.64</td><td class="num">53.70</td><td class="num"><b>57.22</b></td><td class="num d-up">+3.52</td><td class="num">88.26</td><td class="num"><b>94.24</b></td><td class="num d-up">+5.98</td></tr><tr class=""><td class="l">Robot Initial States</td><td class="num">60.71</td><td class="num"><b>63.71</b></td><td class="num d-up">+3.00</td><td class="num">50.71</td><td class="num"><b>59.03</b></td><td class="num d-up">+8.32</td><td class="num">44.50</td><td class="num"><b>48.86</b></td><td class="num d-up">+4.36</td><td class="num">47.81</td><td class="num"><b>60.19</b></td><td class="num d-up">+12.38</td></tr><tr class=""><td class="l">Object Layout</td><td class="num">64.00</td><td class="num"><b>73.11</b></td><td class="num d-up">+9.11</td><td class="num">55.90</td><td class="num"><b>71.61</b></td><td class="num d-up">+15.71</td><td class="num">60.70</td><td class="num"><b>64.17</b></td><td class="num d-up">+3.47</td><td class="num">77.72</td><td class="num"><b>83.67</b></td><td class="num d-up">+5.95</td></tr><tr class=""><td class="l">Language Instructions</td><td class="num">52.15</td><td class="num"><b>71.50</b></td><td class="num d-up">+19.35</td><td class="num"><b>75.69</b></td><td class="num">73.58</td><td class="num d-dn">&minus;2.11</td><td class="num">68.90</td><td class="num"><b>69.55</b></td><td class="num d-up">+0.65</td><td class="num"><b>90.97</b></td><td class="num">90.05</td><td class="num d-dn">&minus;0.92</td></tr><tr class="lit sep"><td class="l">Overall</td><td class="num">68.97</td><td class="num"><b>79.67</b></td><td class="num d-up">+10.70</td><td class="num">63.62</td><td class="num"><b>71.92</b></td><td class="num d-up">+8.30</td><td class="num">51.44</td><td class="num"><b>60.63</b></td><td class="num d-up">+9.19</td><td class="num">83.02</td><td class="num"><b>86.89</b></td><td class="num d-up">+3.87</td></tr></tbody></table></div>
-    <p class="tcap">Table II &middot; Zero-shot success rates (%) on LIBERO-Plus. &Delta;: change from the paired baseline. Overall: mean over the seven perturbations. Better result in each architecture in bold.</p>
-  </section>
 
   <section id="realworld" class="rv">
     <p class="kicker">Real robot</p>
@@ -380,6 +354,37 @@ footer a { color:var(--muted); }
       <figcaption><b>Real-robot task success under in-distribution (ID) and out-of-distribution (OOD) visual conditions.</b> Camera OOD uses only the top-camera view. Results are reported as successful rollouts / total rollouts, with success rates in parentheses.</figcaption>
     </figure>
     <div class="gallery" id="gallery-real"></div>
+  </section>
+
+  <section id="videos" class="rv">
+    <p class="kicker">Simulation rollouts</p>
+    <h2>What the latent interface decodes to, mapped back onto the image</h2>
+    <p>Closed-loop rollouts of LIT on MolmoAct2 (Stage-2 checkpoint, 30K steps). At every control step the pose decoder reads the 8 pose-supervised latent tokens, recovers a terminal SE(3) end-effector pose, and that pose is projected back onto the rendered observation. PRED is a prediction of where the gripper should be at the end of the current action chunk (t+10), so it should lead CUR rather than track it. The right panel shows both poses in a fixed-view 3D workspace. No pose is given to the policy at inference &mdash; everything in red is inferred from vision through the interface. Clips play at half speed.</p>
+    <div class="legend"><span><i class="sq"></i>PRED &mdash; pose decoded from the latent tokens (t+10)</span><span><i class="ci"></i>CUR &mdash; current end-effector pose from the simulator</span><span>Line &mdash; remaining displacement</span></div>
+
+    <h3 class="gh">LIBERO-Plus &middot; zero-shot out-of-distribution</h3>
+    <p class="gsub">The same two tasks under four perturbations the policy never saw in training. Pick a perturbation; both tasks update.</p>
+    <div class="tabs" id="tabs"></div>
+    <div class="pair" id="pair"></div>
+
+    <h3 class="gh">LIBERO &middot; in-distribution</h3>
+    <p class="gsub">Standard LIBERO tasks, one episode each, two per suite.</p>
+    <div class="gallery" id="gallery-id"></div>
+  </section>
+
+  <section id="results" class="rv">
+    <p class="kicker">Simulation benchmarks</p>
+    <h2>LIBERO and LIBERO-Plus</h2>
+    <p>LIT is instantiated in four architectures spanning both VLA and world&ndash;action model designs. It preserves or improves in-distribution LIBERO success, and improves zero-shot LIBERO-Plus success on every architecture.</p>
+    <div class="chart">
+      <p class="ct">LIBERO-Plus overall success &middot; gain over the paired baseline</p>
+      <div class="bars"><div class="bar"><span class="nm">π<sub>0.5</sub><span class="kind">VLA</span></span><span class="tr"><span class="fl" data-w="100.0"></span></span><span class="v">+10.70<small>68.97 &rarr; 79.67</small></span></div><div class="bar"><span class="nm">MolmoAct2<span class="kind">VLA</span></span><span class="tr"><span class="fl" data-w="77.6"></span></span><span class="v">+8.30<small>63.62 &rarr; 71.92</small></span></div><div class="bar"><span class="nm">FAST-WAM<span class="kind">WAM</span></span><span class="tr"><span class="fl" data-w="85.9"></span></span><span class="v">+9.19<small>51.44 &rarr; 60.63</small></span></div><div class="bar"><span class="nm">ImageWAM<span class="kind">WAM</span></span><span class="tr"><span class="fl" data-w="36.2"></span></span><span class="v">+3.87<small>83.02 &rarr; 86.89</small></span></div></div>
+      <p class="cn">Overall is the mean over the seven perturbation families; values from Table II.</p>
+    </div>
+    <div class="tablebox"><table class="t1"><thead><tr><th class="l">Model</th><th class="l">Variant</th><th>Spatial</th><th>Object</th><th>Goal</th><th>Long</th><th>Avg.</th></tr></thead><tbody><tr class="sep"><td class="l" rowspan="2">π<sub>0.5</sub> <span class="kind">VLA</span></td><td class="l">Baseline</td><td class="num">88.60</td><td class="num">93.40</td><td class="num">89.20</td><td class="num">79.80</td><td class="num">87.75</td></tr><tr class="lit"><td class="l">LIT</td><td class="num"><b>90.20</b></td><td class="num"><b>98.80</b></td><td class="num"><b>93.40</b></td><td class="num"><b>84.80</b></td><td class="num"><b>91.80</b></td></tr><tr class="sep"><td class="l" rowspan="2">MolmoAct2 <span class="kind">VLA</span></td><td class="l">Baseline</td><td class="num">93.00</td><td class="num"><b>97.80</b></td><td class="num"><b>95.40</b></td><td class="num">87.80</td><td class="num">93.50</td></tr><tr class="lit"><td class="l">LIT</td><td class="num"><b>94.60</b></td><td class="num">96.20</td><td class="num">95.20</td><td class="num"><b>90.40</b></td><td class="num"><b>94.10</b></td></tr><tr class="sep"><td class="l" rowspan="2">FAST-WAM <span class="kind">WAM</span></td><td class="l">Baseline</td><td class="num">98.20</td><td class="num"><b>100.00</b></td><td class="num">97.00</td><td class="num">95.20</td><td class="num">97.60</td></tr><tr class="lit"><td class="l">LIT</td><td class="num"><b>98.80</b></td><td class="num">99.80</td><td class="num"><b>98.40</b></td><td class="num"><b>95.40</b></td><td class="num"><b>98.10</b></td></tr><tr class="sep"><td class="l" rowspan="2">ImageWAM <span class="kind">WAM</span></td><td class="l">Baseline</td><td class="num">98.40</td><td class="num"><b>100.00</b></td><td class="num">97.60</td><td class="num"><b>96.40</b></td><td class="num">98.10</td></tr><tr class="lit"><td class="l">LIT</td><td class="num"><b>99.60</b></td><td class="num">99.20</td><td class="num"><b>99.20</b></td><td class="num">95.60</td><td class="num"><b>98.40</b></td></tr></tbody></table></div>
+    <p class="tcap">Table I &middot; In-distribution success rates (%) on LIBERO. Better result in each architecture in bold.</p>
+    <div class="tablebox"><table class="t2"><thead><tr><th class="l" rowspan="2">Perturbation</th><th class="grp" colspan="3">π<sub>0.5</sub> <span class="kind">(VLA)</span></th><th class="grp" colspan="3">MolmoAct2 <span class="kind">(VLA)</span></th><th class="grp" colspan="3">FAST-WAM <span class="kind">(WAM)</span></th><th class="grp" colspan="3">ImageWAM <span class="kind">(WAM)</span></th></tr><tr><th class="axis">Base</th><th class="axis">LIT</th><th class="axis">&Delta;</th><th class="axis">Base</th><th class="axis">LIT</th><th class="axis">&Delta;</th><th class="axis">Base</th><th class="axis">LIT</th><th class="axis">&Delta;</th><th class="axis">Base</th><th class="axis">LIT</th><th class="axis">&Delta;</th></tr></thead><tbody><tr class=""><td class="l">Camera Viewpoints</td><td class="num">58.29</td><td class="num"><b>80.30</b></td><td class="num d-up">+22.01</td><td class="num">39.40</td><td class="num"><b>48.41</b></td><td class="num d-up">+9.01</td><td class="num">16.40</td><td class="num"><b>43.83</b></td><td class="num d-up">+27.43</td><td class="num">82.16</td><td class="num"><b>84.55</b></td><td class="num d-up">+2.39</td></tr><tr class=""><td class="l">Sensor Noise</td><td class="num">79.89</td><td class="num"><b>91.94</b></td><td class="num d-up">+12.05</td><td class="num">49.03</td><td class="num"><b>70.77</b></td><td class="num d-up">+21.74</td><td class="num">37.70</td><td class="num"><b>56.89</b></td><td class="num d-up">+19.19</td><td class="num">96.54</td><td class="num"><b>97.57</b></td><td class="num d-up">+1.03</td></tr><tr class=""><td class="l">Lighting Conditions</td><td class="num">82.40</td><td class="num"><b>90.11</b></td><td class="num d-up">+7.71</td><td class="num">84.86</td><td class="num"><b>85.64</b></td><td class="num d-up">+0.78</td><td class="num">78.20</td><td class="num"><b>83.89</b></td><td class="num d-up">+5.69</td><td class="num">97.65</td><td class="num"><b>97.99</b></td><td class="num d-up">+0.34</td></tr><tr class=""><td class="l">Background Textures</td><td class="num">85.32</td><td class="num"><b>86.99</b></td><td class="num d-up">+1.67</td><td class="num">89.78</td><td class="num"><b>94.42</b></td><td class="num d-up">+4.64</td><td class="num">53.70</td><td class="num"><b>57.22</b></td><td class="num d-up">+3.52</td><td class="num">88.26</td><td class="num"><b>94.24</b></td><td class="num d-up">+5.98</td></tr><tr class=""><td class="l">Robot Initial States</td><td class="num">60.71</td><td class="num"><b>63.71</b></td><td class="num d-up">+3.00</td><td class="num">50.71</td><td class="num"><b>59.03</b></td><td class="num d-up">+8.32</td><td class="num">44.50</td><td class="num"><b>48.86</b></td><td class="num d-up">+4.36</td><td class="num">47.81</td><td class="num"><b>60.19</b></td><td class="num d-up">+12.38</td></tr><tr class=""><td class="l">Object Layout</td><td class="num">64.00</td><td class="num"><b>73.11</b></td><td class="num d-up">+9.11</td><td class="num">55.90</td><td class="num"><b>71.61</b></td><td class="num d-up">+15.71</td><td class="num">60.70</td><td class="num"><b>64.17</b></td><td class="num d-up">+3.47</td><td class="num">77.72</td><td class="num"><b>83.67</b></td><td class="num d-up">+5.95</td></tr><tr class=""><td class="l">Language Instructions</td><td class="num">52.15</td><td class="num"><b>71.50</b></td><td class="num d-up">+19.35</td><td class="num"><b>75.69</b></td><td class="num">73.58</td><td class="num d-dn">&minus;2.11</td><td class="num">68.90</td><td class="num"><b>69.55</b></td><td class="num d-up">+0.65</td><td class="num"><b>90.97</b></td><td class="num">90.05</td><td class="num d-dn">&minus;0.92</td></tr><tr class="lit sep"><td class="l">Overall</td><td class="num">68.97</td><td class="num"><b>79.67</b></td><td class="num d-up">+10.70</td><td class="num">63.62</td><td class="num"><b>71.92</b></td><td class="num d-up">+8.30</td><td class="num">51.44</td><td class="num"><b>60.63</b></td><td class="num d-up">+9.19</td><td class="num">83.02</td><td class="num"><b>86.89</b></td><td class="num d-up">+3.87</td></tr></tbody></table></div>
+    <p class="tcap">Table II &middot; Zero-shot success rates (%) on LIBERO-Plus. &Delta;: change from the paired baseline. Overall: mean over the seven perturbations. Better result in each architecture in bold.</p>
   </section>
 
   <section id="analysis" class="rv">
