@@ -214,10 +214,6 @@ footer a { color:var(--muted); }
         <svg viewBox="0 0 16 16"><path d="M2 11.5v2h12v-2M8 2v9M4.5 7.5 8 11l3.5-3.5"/></svg>Checkpoints</a>
       <a href="https://huggingface.co/datasets/chinchinati/yam_bimanual_manipulation">
         <svg viewBox="0 0 16 16"><ellipse cx="8" cy="3.5" rx="5.5" ry="2"/><path d="M2.5 3.5v9c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2v-9M2.5 8c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2"/></svg>Dataset</a>
-      <a href="#videos">
-        <svg viewBox="0 0 16 16"><rect x="1.5" y="3.5" width="13" height="9" rx="1.5"/><path d="M6.5 6v4l3.5-2z"/></svg>Videos</a>
-      <a href="#bibtex">
-        <svg viewBox="0 0 16 16"><path d="M3 2h10v12l-5-3-5 3z"/></svg>BibTeX</a>
     </nav>
   </div>
 </header>
@@ -229,10 +225,8 @@ footer a { color:var(--muted); }
     <a href="#method">Method</a>
     <a href="#realworld">Real-robot experiments</a>
     <a href="#results">Simulation experiments</a>
-    <a href="#videos">Videos</a>
     <a href="#analysis">Analysis</a>
     <a href="#ablation">Ablation</a>
-    <a href="#bibtex">BibTeX</a>
   </div>
 </nav>
 
@@ -352,19 +346,6 @@ footer a { color:var(--muted); }
   </section>
 
 
-  <section id="videos">
-    <p class="kicker">Videos</p>
-    <h2>What the latent interface decodes to, mapped back onto the image</h2>
-    <p>Closed-loop rollouts of LIT on MolmoAct2 (Stage-2 checkpoint, 30K steps). At every control step the pose decoder reads the 8 pose-supervised latent tokens, recovers a terminal SE(3) end-effector pose, and that pose is projected back onto the rendered observation: the <strong style="color:#d9342b">red square (PRED)</strong> is where the model says the gripper should be at the end of the current action chunk (t+10); the <strong style="color:#12a4c9">cyan circle (CUR)</strong> is the gripper&rsquo;s actual current pose from the simulator; the line between them is the remaining displacement. The right panel shows the same two poses in a fixed-view 3D workspace. PRED is a prediction, so it should lead CUR rather than track it. No pose is given to the policy at inference &mdash; everything in red is inferred from vision through the interface. Clips play at half speed.</p>
-
-    <h3 class="gh">LIBERO &middot; in-distribution</h3>
-    <p class="gsub">Standard LIBERO tasks, one episode each. Two tasks per suite.</p>
-    <div class="gallery" id="gallery-id"></div>
-
-    <h3 class="gh">LIBERO-Plus &middot; zero-shot out-of-distribution</h3>
-    <p class="gsub">The same two tasks under four LIBERO-Plus perturbations the policy never saw in training: camera viewpoint, lighting, background texture, and added distractor objects. The decoded pose keeps pointing at the object and the goal while the appearance changes.</p>
-    <div class="gallery" id="gallery-ood"></div>
-  </section>
 
   <section id="analysis">
     <p class="kicker">Analysis</p>
@@ -475,17 +456,6 @@ footer a { color:var(--muted); }
     </div>
   </section>
 
-  <section id="bibtex">
-    <p class="kicker">Citation</p>
-    <h2>BibTeX</h2>
-<pre>@article{lin2026lit,
-  title   = {Breaking the Vision--Action Shortcut: Latent Interface Training
-             for Generalizable Robot Foundation Models},
-  author  = {Lin, Jianman and Shailesh, Shailesh and Luo, Zhongyi and Duan, Jiafei},
-  journal = {Under review},
-  year    = {2026}
-}</pre>
-  </section>
 
 </div>
 
@@ -495,82 +465,6 @@ footer a { color:var(--muted); }
   </div>
 </footer>
 
-<script>
-/* ---- Video gallery ----------------------------------------------------------
-   To add a clip: drop the .mp4 into docs/static/video/ and add one entry here.
-   tag   : short label shown above the title (e.g. "Real robot", "LIBERO-Plus")
-   title : one line
-   cap   : optional caption
-   poster: optional still image
------------------------------------------------------------------------------- */
-/* group: "id" (LIBERO) or "ood" (LIBERO-Plus). Four per row.
-   Real-robot clips go in a third group once they arrive — e.g. group: "real". */
-const VIDEOS = [
-  // ---- LIBERO, in-distribution ----
-  { group: "id", src: "static/video/pose_id/libero_spatial_00.mp4", tag: "Spatial",
-    title: "Pick up the black bowl between the plate and the ramekin and place it on the plate" },
-  { group: "id", src: "static/video/pose_id/libero_spatial_08.mp4", tag: "Spatial",
-    title: "Pick up the black bowl next to the plate and place it on the plate" },
-  { group: "id", src: "static/video/pose_id/libero_object_04.mp4", tag: "Object",
-    title: "Pick up the ketchup and place it in the basket" },
-  { group: "id", src: "static/video/pose_id/libero_object_06.mp4", tag: "Object",
-    title: "Pick up the butter and place it in the basket" },
-  { group: "id", src: "static/video/pose_id/libero_goal_06.mp4", tag: "Goal",
-    title: "Put the cream cheese in the bowl" },
-  { group: "id", src: "static/video/pose_id/libero_goal_09.mp4", tag: "Goal",
-    title: "Put the wine bottle on the rack" },
-  { group: "id", src: "static/video/pose_id/libero_10_01.mp4", tag: "Long",
-    title: "Put both the cream cheese box and the butter in the basket" },
-  { group: "id", src: "static/video/pose_id/libero_10_04.mp4", tag: "Long",
-    title: "Put the white mug on the left plate and put the yellow and white mug on the right plate" },
-  // ---- LIBERO-Plus, zero-shot OOD: same two tasks, four perturbations each ----
-  { group: "ood", src: "static/video/pose_ood/ood_spatial_camera.mp4", tag: "Camera viewpoint",
-    title: "Pick up the black bowl between the plate and the ramekin and place it on the plate" },
-  { group: "ood", src: "static/video/pose_ood/ood_spatial_light.mp4", tag: "Lighting",
-    title: "Pick up the black bowl between the plate and the ramekin and place it on the plate" },
-  { group: "ood", src: "static/video/pose_ood/ood_spatial_background.mp4", tag: "Background texture",
-    title: "Pick up the black bowl between the plate and the ramekin and place it on the plate" },
-  { group: "ood", src: "static/video/pose_ood/ood_spatial_distractor.mp4", tag: "Added distractors",
-    title: "Pick up the black bowl between the plate and the ramekin and place it on the plate" },
-  { group: "ood", src: "static/video/pose_ood/ood_object_camera.mp4", tag: "Camera viewpoint",
-    title: "Pick up the alphabet soup and place it in the basket" },
-  { group: "ood", src: "static/video/pose_ood/ood_object_light.mp4", tag: "Lighting",
-    title: "Pick up the alphabet soup and place it in the basket" },
-  { group: "ood", src: "static/video/pose_ood/ood_object_background.mp4", tag: "Background texture",
-    title: "Pick up the alphabet soup and place it in the basket" },
-  { group: "ood", src: "static/video/pose_ood/ood_object_distractor.mp4", tag: "Added distractors",
-    title: "Pick up the alphabet soup and place it in the basket" },
-  // ---- Real robot: add here when the clips arrive ----
-  // { group: "real", src: "static/video/realworld_01.mp4", tag: "Real robot", title: "..." },
-];
 
-(function () {
-  for (const grp of ["id", "ood"]) {
-    const g = document.getElementById("gallery-" + grp);
-    const items = VIDEOS.filter(v => v.group === grp);
-    if (!items.length) { g.innerHTML = '<p class="empty">Clips coming soon.</p>'; continue; }
-    for (const v of items) {
-      const el = document.createElement("div"); el.className = "clip";
-      el.innerHTML =
-        '<video autoplay muted loop playsinline controls preload="auto"' + (v.poster ? ' poster="' + v.poster + '"' : '') + '>' +
-        '<source src="' + v.src + '#t=0.1" type="video/mp4"></video>' +
-        '<div class="meta">' + (v.tag ? '<span class="tag">' + v.tag + '</span>' : '') +
-        '<p class="title">' + v.title + '</p>' + (v.cap ? '<p class="cap">' + v.cap + '</p>' : '') + '</div>';
-      g.appendChild(el);
-      // Half speed so the decoded pose is easy to follow; re-applied on play in case the browser resets it.
-      const vid = el.querySelector("video");
-      const slow = () => { vid.playbackRate = 0.5; };
-      slow(); vid.addEventListener("loadedmetadata", slow); vid.addEventListener("play", slow);
-    }
-  }
-})();
-
-(function navHighlight() {
-  const links = [...document.querySelectorAll(".toc a")];
-  const secs = links.map(a => document.querySelector(a.getAttribute("href"))).filter(Boolean);
-  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(a => a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id)); }), { rootMargin: "-40% 0px -55% 0px" });
-  secs.forEach(sec => io.observe(sec));
-})();
-</script>
 </body>
 </html>
