@@ -53,10 +53,10 @@ and keeps the upstream README as `README_upstream.md`. Use the pinned branch and
 
 | Framework | Repository | Branch | Commit | Verified on a fresh machine |
 | --- | --- | --- | --- | --- |
-| MolmoAct2 | [Molmoact2](https://github.com/jianmanlincjx/Molmoact2) + [lerobot](https://github.com/jianmanlincjx/lerobot) submodule | `feat/libero-goal-prior-v4` | `0dc1d64` / `b966b8c0` | ✅ weights load; LIBERO and LIBERO-Plus rollouts |
-| π0.5 | [Pi05](https://github.com/jianmanlincjx/Pi05) | `main` | `4209419` | ✅ baseline and LIT weights load; rollouts |
-| FAST-WAM | [fastwam](https://github.com/jianmanlincjx/fastwam) | `feat/goal-pose-prior` | `77d3632` | ✅ LIT weights load; rollouts (environment recipe in its README) |
-| ImageWAM | [ImageWAM](https://github.com/jianmanlincjx/ImageWAM) | `feat/goal-prior-bottleneck-fix` | `6b5d02d` | ⏳ environment build |
+| MolmoAct2 | [Molmoact2](https://github.com/jianmanlincjx/Molmoact2) + [lerobot](https://github.com/jianmanlincjx/lerobot) submodule | `feat/libero-goal-prior-v4` | `d7e9a63` / `b966b8c0` | ✅ weights load; LIBERO and LIBERO-Plus rollouts |
+| π0.5 | [Pi05](https://github.com/jianmanlincjx/Pi05) | `main` | `b227a65` | ✅ baseline and LIT weights load; rollouts |
+| FAST-WAM | [fastwam](https://github.com/jianmanlincjx/fastwam) | `feat/goal-pose-prior` | `64dcd74` | ✅ LIT weights load; rollouts (environment recipe in its README) |
+| ImageWAM | [ImageWAM](https://github.com/jianmanlincjx/ImageWAM) | `feat/goal-prior-bottleneck-fix` | `850fb79` | ⏳ environment build |
 
 ## Checkpoints
 
