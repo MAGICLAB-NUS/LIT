@@ -18,7 +18,7 @@ checkpoint that produced each reported number. Use the pinned branch/commit.
 | --- | --- | --- | --- | --- |
 | MolmoAct2 | [Molmoact2](https://github.com/jianmanlincjx/Molmoact2) (+ [lerobot](https://github.com/jianmanlincjx/lerobot) submodule) | `feat/libero-goal-prior-v4` | `33d59ae` / `b966b8c0` | weights load; LIBERO and LIBERO-Plus rollouts ✓ |
 | π0.5 | [Pi05](https://github.com/jianmanlincjx/Pi05) | `main` | `d5f13e6` | baseline and LIT weights load; rollouts ✓ |
-| FAST-WAM | [fastwam](https://github.com/jianmanlincjx/fastwam) | `feat/goal-pose-prior` | `9450718` | in progress |
+| FAST-WAM | [fastwam](https://github.com/jianmanlincjx/fastwam) | `feat/goal-pose-prior` | `9450718`+ | LIT weights load; 2/2 LIBERO rollouts ✓ (env recipe in its REPRODUCE.md) |
 | ImageWAM | [ImageWAM](https://github.com/jianmanlincjx/ImageWAM) | `feat/goal-prior-bottleneck-fix` | `07e0026` | in progress |
 
 ## Checkpoints
