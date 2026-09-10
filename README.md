@@ -26,11 +26,11 @@ architectures.
 
 <div align="center">
 
-| | π0.5 | MolmoAct2 | FAST-WAM | ImageWAM | Real robot (3 tasks) |
-| --- | :-: | :-: | :-: | :-: | :-: |
-| **LIBERO-Plus / OOD success, Base → LIT** | 68.97 → **79.67** | 63.62 → **71.92** | 51.44 → **60.63** | 83.02 → **86.89** | 53.3 → **70.0** (lighting) · 30.0 → **46.7** (camera) · 50.0 → **63.3** (distractors) |
+<img src="docs/static/images/results_strip.png" width="88%" alt="Base vs LIT: LIBERO-Plus Overall on π0.5 68.97→79.67, MolmoAct2 63.62→71.92, FAST-WAM 51.44→60.63, ImageWAM 83.02→86.89; real robot (MolmoAct2) lighting 53.3→70.0, camera 30.0→46.7, distractors 50.0→63.3.">
 
-<sub>Zero-shot on all 10,030 LIBERO-Plus tasks; Overall is the mean over the seven perturbation axes. In-distribution LIBERO success is preserved or improved on every architecture.</sub>
+<sub>LIBERO-Plus: zero-shot on all 10,030 tasks, one episode each; Overall is the mean over the seven perturbation axes.
+Real robot: three tasks on the MolmoAct2 backbone, 10 rollouts per task per OOD condition. In-distribution LIBERO success is preserved or improved on every architecture.
+Per-axis numbers are on the <a href="https://jianmanlincjx.github.io/LIT/#plus">project page</a>; <code>results/plot_results_strip.py</code> redraws this figure.</sub>
 
 </div>
 
