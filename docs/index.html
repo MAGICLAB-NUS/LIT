@@ -26,7 +26,7 @@ button, summary, a { -webkit-tap-highlight-color:transparent; }
 .wrap { width:min(100% - 48px,1040px); margin:auto; }
 .hero { padding:64px 0 28px; text-align:center; }
 .venue,.kicker { color:var(--accent); font-size:12px; letter-spacing:.12em; font-weight:600; text-transform:uppercase; margin:0 0 14px; }
-.brand { display:inline-block; padding:4px 14px; border:1px solid #d8e2f2; border-radius:6px; font-weight:600; letter-spacing:.2em; font-size:14px; color:var(--accent); margin-bottom:16px; }
+.brand { display:inline-flex; align-items:center; gap:10px; padding:8px 20px; border:1px solid #d8e2f2; border-radius:8px; font-weight:600; letter-spacing:.12em; font-size:28px; color:var(--accent); margin-bottom:20px; }
 h1 { font-size:clamp(36px,5.7vw,62px); font-weight:600; letter-spacing:-.045em; line-height:1.08; margin:0 0 18px; text-wrap:balance; }
 .subtitle { max-width:670px; margin:0 auto; font-size:clamp(18px,2.6vw,23px); line-height:1.45; color:var(--muted); text-wrap:balance; }
 .authors { margin:26px 0 8px; font-size:16px; }
@@ -111,7 +111,7 @@ footer a { color:var(--muted); }
 <body>
 
 <header class="hero" id="top"><div class="wrap">
-<div class="brand">LIT</div>
+<div class="brand">LIT <span aria-hidden="true">🔥</span></div>
 <h1>Latent Interface Training</h1>
 <p class="subtitle">Breaking the vision–action shortcut in robot foundation models.</p>
 <p class="authors">
