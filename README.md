@@ -34,7 +34,7 @@ architectures.
 
 </div>
 
-**Contents** &nbsp; [Code](#code) · [Checkpoints](#checkpoints) · [Quick start](#quick-start) · [Two things that change the numbers](#two-things-that-change-the-numbers) · [Layout](#layout) · [Citation](#citation)
+**Contents** &nbsp; [Code](#code) · [Checkpoints](#checkpoints) · [Quick start](#quick-start) · [Two things that change the numbers](#two-things-that-change-the-numbers) · [Integrating LIT](#integrating-lit-into-your-own-model) · [Citation](#citation)
 
 ---
 
@@ -119,24 +119,42 @@ SE(3) encoder as unexpected keys when it loads — expected; the encoder is trai
   Background 1,076 · Robot 1,550 · Layout 1,525 · Language 1,537 tasks). The task-weighted rate is about two
   points lower; `aggregate.py` prints both and labels the reported one.
 
-## Layout
+## Integrating LIT into your own model
 
-```
-README.md              this page
-docs/                  project page (GitHub Pages, served from /docs)
-scripts/
-  env.sh preflight.sh                  paths and pre-run checks
-  eval_libero.sh eval_libero_plus.sh   the two evaluation protocols (MolmoAct2; resumable, sharded)
-  aggregate.py                         per-axis / per-suite aggregation, paired comparison of two runs
-  render_pose_videos.sh                rollouts with the decoded pose drawn back onto the frame
-results/
-  ablation_results.{tsv,csv,md}        Table III as evaluated (all arms, seven axes, ID)
-  extract_tables_from_pdf.py           pulls Tables I–III out of the submission PDF and checks them digit for digit
-  editors/*.html                       offline table editors that export the paper's LaTeX
-archive/paper_runs/                    launchers exactly as run for the paper (machine-specific; provenance only)
+LIT is a change to the *interface* between a backbone and an action expert, not to either of them. It fits
+any architecture in which an action expert is conditioned on backbone token features — cross-attention
+(MolmoAct2), a shared self-attention over a joint sequence (π0.5), or feature injection into a DiT (FAST-WAM,
+ImageWAM). Four pieces, in the order we would add them:
+
+| # | Piece | What to build | Reference implementations |
+| :-: | --- | --- | --- |
+| 1 | **Firewall** | Find where visual features enter the action expert and close that path: mask image tokens out of the action expert's attention, or drop the visual feature injection. Language and state may stay (MolmoAct2) or go too (π0.5, `mask_language_from_action_expert`) — vision must have no direct path. | `mask_image_from_action_expert` in MolmoAct2's `modeling_molmoact2.py`; attention mask in Pi05 `modeling_pi05_goal_prior.py` |
+| 2 | **Latent interface** | `N = 100` learnable tokens. They read the backbone's visual *and* semantic features (a small self-/cross-attention stack, or appended to the backbone sequence so the backbone contextualises them layer by layer) and are handed to the action expert at exactly the coupling point you closed in step 1 — layer-wise if the host conditions layer-wise. | `semantic_visual_recurrent` (MolmoAct2); `goal_prior.py` in Pi05 / fastwam; `goal_pose_prior.py` in ImageWAM |
+| 3 | **Spatial supervision** | Reserve 8 of the latents. A 3-layer MLP (`inner_dim = 512`) decodes them to the **terminal pose of the current action chunk**: end-effector position + axis-angle rotation + gripper, read from the dataset's state at `t + H` (`H` = chunk length, 10 here) and quantile-normalised to `[-1, 1]`. Loss: MSE, weight `λ = 0.3`. | `GoalPoseDecoder` in every fork; target built in MolmoAct2's `processor_molmoact2.py` (`target_pose_delta_index`) |
+| 4 | **SE(3) encoder (Stage 1 only)** | A 3-layer MLP that turns the same 8-d target into a few conditioning tokens for the action expert. Used only while training without images; deleted afterwards. | `SE3Encoder` / `GoalPoseEncoder` in every fork |
+
+Then train in two stages, keeping the host's action representation, chunk length and generation objective untouched:
+
+```text
+Stage 1   backbone frozen · no images · action expert from scratch
+          condition on  language + state + SE(3)-encoded terminal pose  →  native action loss      (10K steps)
+Stage 2   init action expert from Stage 1 · drop the SE(3) encoder · enable latents + pose decoder
+          fine-tune everything:  L = L_action + 0.3 · L_pose                                          (30K steps)
 ```
 
-Per-framework training and evaluation scripts live in the forks at their pinned commits, not here.
+Learning rates that mattered for us: new modules (latents, aggregator) and the action expert at `1e-4` with
+`5K` warmup, the backbone at `1e-5`. Interface settings were **not** tuned per architecture:
+`num_latents=100`, `num_pose_tokens=8`, `latent_dim=768`, `inner_dim=512`, `lambda_pose=0.3`.
+
+Three checks before you trust a run — each caught a silent failure for us at least once:
+
+- **Is the interface used at all?** Measure the action expert's attention mass on the latent tokens vs. everything
+  else (`tools/probe_latent_attention.py` in Pi05, `scripts/audit_goal_prior_v2.py` in ImageWAM). Near zero
+  means the firewall leaks or a gate never opened.
+- **Do the latents carry the pose?** Normalised pose loss should reach ~`1e-3` on training data; decode it and draw it
+  back onto the frame (`scripts/render_pose_videos.sh`) — the red marker should lead the gripper, not trail it.
+- **New parameters actually train and save.** Under bf16 autocast, small gates and freshly added modules can freeze
+  or be dropped from the checkpoint; check the parameter count in `train_config.json` and that the new keys load.
 
 ## Citation
 
