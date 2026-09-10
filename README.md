@@ -13,6 +13,12 @@
 [![Checkpoints](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-linjianman%2FLIT-f7c843)](https://huggingface.co/linjianman/LIT)
 [![License](https://img.shields.io/badge/License-Apache%202.0-2ea44f)](./LICENSE)
 
+</div>
+
+---
+
+<div align="center">
+
 <img src="docs/static/images/framework.png" width="92%" alt="Latent Interface Training: Stage 1 learns an action prior without images; Stage 2 routes vision through a pose-supervised latent interface.">
 
 </div>
