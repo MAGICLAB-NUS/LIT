@@ -23,17 +23,22 @@ checkpoint that produced each reported number. Use the pinned branch/commit.
 
 ## Checkpoints
 
-Released on Hugging Face (link to follow), one directory per model:
+Released on Hugging Face at **https://huggingface.co/linjianman/LIT** (stage-2 models; ModelScope mirror to follow), one directory per model:
 
 ```
-molmoact2/{baseline, lit_stage1, lit_stage2}     LeRobot policy dirs — pass the directory to --policy.path
-pi05/{baseline, lit_stage1, lit_stage2}
-fastwam/{lit_stage1, lit_stage2}                 model.pt + config.yaml + dataset_stats.json
-imagewam/{lit_stage1, lit_stage2}                (baselines for these two are the authors' released weights)
+molmoact2/lit_stage2     LeRobot policy dir — pass the directory to --policy.path
+pi05/lit_stage2          LeRobot policy dir
+fastwam/lit_stage2       model.pt + config.yaml + dataset_stats.json
+imagewam/lit_stage2      model.pt + config.yaml + dataset_stats.json
 ```
 
-`lit_stage2` is the model reported in the tables; `lit_stage1` is the image-free action prior it was
-initialised from.
+`lit_stage2` is the model reported in the tables. Stage-1 action priors and the MolmoAct2 / π0.5 baselines
+we fine-tuned are available on request; FAST-WAM and ImageWAM baselines are the authors' released weights.
+
+```bash
+hf download linjianman/LIT --local-dir LIT_ckpt      # all four, 41 GB
+hf download linjianman/LIT --include "molmoact2/*" --local-dir LIT_ckpt
+```
 
 ## Quick start (MolmoAct2)
 
