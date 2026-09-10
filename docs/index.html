@@ -184,6 +184,10 @@ footer a { color:var(--muted); }
         <svg viewBox="0 0 16 16"><path d="M2 8h12M9 3l5 5-5 5"/></svg>arXiv</a>
       <a href="https://github.com/jianmanlincjx/LIT">
         <svg viewBox="0 0 16 16"><path d="M6 12.5c-3 1-3-1.5-4-2m8 4v-2.2c0-.6-.1-1-.4-1.3 1.9-.2 3.9-.9 3.9-4.1 0-.9-.3-1.7-.9-2.3.1-.2.4-1.1-.1-2.3 0 0-.7-.2-2.4.9a8.3 8.3 0 0 0-4.2 0C4.2 2.1 3.5 2.3 3.5 2.3c-.5 1.2-.2 2.1-.1 2.3-.6.6-.9 1.4-.9 2.3 0 3.2 2 3.9 3.9 4.1-.3.3-.4.7-.4 1.3v2.2"/></svg>Code</a>
+      <a href="https://huggingface.co/linjianman/LIT">
+        <svg viewBox="0 0 16 16"><path d="M2 11.5v2h12v-2M8 2v9M4.5 7.5 8 11l3.5-3.5"/></svg>Checkpoints</a>
+      <a href="https://huggingface.co/datasets/chinchinati/yam_bimanual_manipulation">
+        <svg viewBox="0 0 16 16"><ellipse cx="8" cy="3.5" rx="5.5" ry="2"/><path d="M2.5 3.5v9c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2v-9M2.5 8c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2"/></svg>Dataset</a>
       <a href="#videos">
         <svg viewBox="0 0 16 16"><rect x="1.5" y="3.5" width="13" height="9" rx="1.5"/><path d="M6.5 6v4l3.5-2z"/></svg>Videos</a>
       <a href="#bibtex">
@@ -264,7 +268,7 @@ footer a { color:var(--muted); }
   <section id="realworld">
     <p class="kicker">Real robot</p>
     <h2>Unseen lighting, cameras and distractors</h2>
-    <p>A single multi-task policy is trained on 300 demonstrations and evaluated on three manipulation tasks under the in-distribution setting and three visual shifts: changed scene illumination, a changed camera configuration (top camera only), and task-irrelevant distractor objects added to the scene. Aggregated across the three tasks:</p>
+    <p>A single multi-task policy is trained on 300 demonstrations and evaluated on three manipulation tasks under the in-distribution setting and three visual shifts: changed scene illumination, a changed camera configuration (top camera only), and task-irrelevant distractor objects added to the scene. The demonstrations are public: <a href="https://huggingface.co/datasets/chinchinati/yam_bimanual_manipulation">chinchinati/yam_bimanual_manipulation</a> (YAM dual-arm platform, three tasks, 292 successful episodes after filtering, LeRobot v3.0). Aggregated across the three tasks:</p>
     <div class="stats">
       <div class="stat"><div class="lab">In-distribution</div><div class="val">74.7<span class="arrow">&rarr;</span><b>88.0</b><small>%</small></div><div class="d">+13.3 pp</div></div>
       <div class="stat"><div class="lab">Lighting OOD</div><div class="val">53.3<span class="arrow">&rarr;</span><b>70.0</b><small>%</small></div><div class="d">+16.7 pp</div></div>

@@ -10,7 +10,8 @@
 
 [![Project page](https://img.shields.io/badge/Project-Page-1F4E9C)](https://jianmanlincjx.github.io/LIT/)
 [![Paper](https://img.shields.io/badge/Paper-PDF-B23A32)](https://jianmanlincjx.github.io/LIT/static/paper/LIT.pdf)
-[![Checkpoints](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-linjianman%2FLIT-f7c843)](https://huggingface.co/linjianman/LIT)
+[![Checkpoints](https://img.shields.io/badge/%F0%9F%A4%97%20Checkpoints-linjianman%2FLIT-f7c843)](https://huggingface.co/linjianman/LIT)
+[![Dataset](https://img.shields.io/badge/%F0%9F%A4%97%20Real--robot%20data-yam__bimanual__manipulation-f7c843)](https://huggingface.co/datasets/chinchinati/yam_bimanual_manipulation)
 [![License](https://img.shields.io/badge/License-Apache%202.0-2ea44f)](./LICENSE)
 
 </div>
@@ -60,7 +61,7 @@ and keeps the upstream README as `README_upstream.md`. Use the pinned branch and
 ## Checkpoints
 
 The stage-2 models reported in the tables are on Hugging Face: **[linjianman/LIT](https://huggingface.co/linjianman/LIT)**
-(43 GB total; ModelScope mirror to follow).
+(43 GB, public, no login needed).
 
 ```bash
 hf download linjianman/LIT --local-dir LIT_ckpt                          # all four
@@ -74,6 +75,11 @@ hf download linjianman/LIT --include "molmoact2/*" --local-dir LIT_ckpt  # one f
 
 Stage-1 action priors and the MolmoAct2 / π0.5 baselines we fine-tuned are available on request;
 the FAST-WAM and ImageWAM baselines are the authors' released weights.
+
+**Real-robot data.** The demonstrations behind the real-robot results are public:
+[chinchinati/yam_bimanual_manipulation](https://huggingface.co/datasets/chinchinati/yam_bimanual_manipulation)
+— YAM dual-arm platform, three tasks (blocks → box, dust-pan wipe, egg transfer), 292 successful episodes,
+three cameras, LeRobot v3.0, 4.8 GB (`hf download chinchinati/yam_bimanual_manipulation --repo-type dataset`).
 
 ## Quick start
 
