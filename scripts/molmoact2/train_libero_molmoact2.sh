@@ -9,7 +9,11 @@ source "${WS}/scripts/activate_train_env.sh"
 export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0,1,2,3,4,5,6}"
 NUM_PROCESSES="$(awk -F',' '{print NF}' <<<"${CUDA_VISIBLE_DEVICES}")"
 
-DATASET_ROOT="${DATASET_ROOT:-/data2/JM/dataset/libero_lerobot_format}"
+DATASET_ROOT="${DATASET_ROOT:-}"
+if [[ -z "${DATASET_ROOT}" || ! -d "${DATASET_ROOT}" ]]; then
+  echo "Set DATASET_ROOT to the LIBERO dataset in LeRobot format." >&2
+  exit 2
+fi
 DATASET_REPO_ID="${DATASET_REPO_ID:-local/libero_lerobot_format}"
 CHECKPOINT_PATH="${CHECKPOINT_PATH:-${WS}/Checkpoint/MolmoAct2}"
 POLICY_PATH="${POLICY_PATH:-}"

@@ -1,43 +1,37 @@
 #!/usr/bin/env bash
+# Evaluate a plain MolmoAct2 baseline checkpoint on standard LIBERO suites.
+#
+# Defaults keep the old 4-GPU / 32-ep path. Official50 + task sharding is
+# available via EVAL_TASK_IDS / OFFICIAL_HORIZONS for the 8-GPU launcher.
 set -euo pipefail
 
 WS="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 # shellcheck source=/dev/null
 source "${WS}/scripts/activate_train_env.sh"
 
-DEFAULT_POLICY_PATH="${WS}/lerobot/outputs/libero_goal_prior_v2b/seed_1000/stage2/checkpoints/025000/pretrained_model"
+DEFAULT_POLICY_PATH="${WS}/lerobot/outputs/libero_goal_prior_v3/seed_1000/baseline_bs224/checkpoints/030000/pretrained_model"
 POLICY_PATH="${1:-${POLICY_PATH:-${DEFAULT_POLICY_PATH}}}"
 if [[ -z "${POLICY_PATH}" || ! -f "${POLICY_PATH}/config.json" ]]; then
-  echo "Goal-pose v2b checkpoint not found: ${POLICY_PATH}" >&2
+  echo "LIBERO baseline checkpoint not found: ${POLICY_PATH}" >&2
   echo "Override with: bash $0 /path/to/checkpoint/pretrained_model" >&2
   exit 2
 fi
 POLICY_PATH="$(cd "${POLICY_PATH}" && pwd)"
 
-EVAL_VARIANT="${EVAL_VARIANT:-v2b}"
-python - "${POLICY_PATH}/config.json" "${EVAL_VARIANT}" <<'PY'
+python - "${POLICY_PATH}/config.json" <<'PY'
 import json
 import sys
 
 with open(sys.argv[1], encoding="utf-8") as f:
     cfg = json.load(f)
-variant = sys.argv[2]
-# v4 hard bottleneck: all latents are pose-supervised (tokens == pose_tokens == 8).
-# v2b/v3 soft bottleneck: 100 latents with 8 pose + 92 context.
-num_tokens = 8 if variant == "v4" else 100
+
 expected = {
     "type": "molmoact2",
-    "enable_goal_pose": True,
-    "goal_conditioning_mode": "semantic_visual_recurrent",
-    "goal_token_source": "learnable_queries",
-    "num_semantic_visual_tokens": num_tokens,
-    "num_semantic_visual_pose_tokens": 8,
-    "semantic_visual_hidden_dim": 768,
-    "semantic_visual_enable_self_attention": True,
-    "semantic_visual_num_layer_groups": 6,
-    "mask_image_from_action_expert": True,
-    "enable_pose_reconstruction": True,
-    "pose_recon_loss_weight": 0.3,
+    "action_mode": "continuous",
+    "enable_goal_pose": False,
+    "disable_visual_input": False,
+    "mask_image_from_action_expert": False,
+    "enable_pose_reconstruction": False,
     "chunk_size": 10,
     "n_action_steps": 10,
 }
@@ -46,35 +40,17 @@ mismatches = [
     for key, want in expected.items()
     if cfg.get(key) != want
 ]
-pose_tokens = cfg.get("num_semantic_visual_pose_tokens")
-total_tokens = cfg.get("num_semantic_visual_tokens", 0)
-if variant == "v4":
-    ok_pose = isinstance(pose_tokens, int) and 1 <= pose_tokens <= total_tokens
-    pose_rule = "1 <= P <= num_semantic_visual_tokens"
-else:
-    ok_pose = isinstance(pose_tokens, int) and 1 <= pose_tokens < total_tokens
-    pose_rule = "1 <= P < num_semantic_visual_tokens"
-if not ok_pose:
-    mismatches.append(
-        f"num_semantic_visual_pose_tokens: expected {pose_rule}, "
-        f"got {pose_tokens!r} (total={total_tokens!r})"
-    )
-if mismatches and __import__("os").environ.get("EVAL_SKIP_CONFIG_GUARD") != "1":
+if mismatches:
     raise SystemExit(
-        "Refusing to evaluate: checkpoint is not a v2b-compatible semantic-visual Goal-Pose Prior:\n  "
+        "Refusing to evaluate: checkpoint is not the clean LIBERO baseline:\n  "
         + "\n  ".join(mismatches)
     )
-elif mismatches:
-    # ablation arms (stagewise / open-visual-path / no-pose-loss) legitimately differ; opt-in skip
-    print("[eval] WARNING config guard skipped (EVAL_SKIP_CONFIG_GUARD=1):\n  " + "\n  ".join(mismatches))
 print(
-    f"[eval] verified {variant}:"
-    f" mode={cfg.get('goal_conditioning_mode')}"
-    f" tokens={cfg.get('num_semantic_visual_tokens')}"
-    f" pose_tokens={pose_tokens}"
-    f" groups={cfg['semantic_visual_num_layer_groups']}"
-    f" self_attn={cfg['semantic_visual_enable_self_attention']}"
-    f" hidden={cfg['semantic_visual_hidden_dim']}"
+    "[eval] verified baseline:"
+    f" goal={cfg['enable_goal_pose']}"
+    f" visual_disabled={cfg['disable_visual_input']}"
+    f" chunk={cfg['chunk_size']}"
+    f" pretrained_path={cfg.get('pretrained_path')!r}"
 )
 PY
 
@@ -82,11 +58,11 @@ EVAL_SEED="${EVAL_SEED:-1000}"
 EPISODES_PER_TASK="${EPISODES_PER_TASK:-32}"
 EVAL_BATCH_SIZE="${EVAL_BATCH_SIZE:-32}"
 MAX_EPISODES_RENDERED="${MAX_EPISODES_RENDERED:-${EPISODES_PER_TASK}}"
-GPU_IDS=(${EVAL_GPU_IDS:-7})
-SUITES=(${EVAL_SUITES:-libero_spatial libero_object libero_10 libero_goal})
+GPU_IDS=(${EVAL_GPU_IDS:-0 1 2 3})
+SUITES=(${EVAL_SUITES:-libero_spatial libero_goal libero_object libero_10})
 TASK_IDS="${EVAL_TASK_IDS:-}"
-# OpenVLA public-leaderboard horizons (set OFFICIAL_HORIZONS=true for 50-ep board).
 OFFICIAL_HORIZONS="${OFFICIAL_HORIZONS:-false}"
+
 episode_length_for_suite() {
   case "$1" in
     libero_spatial) echo 220 ;;
@@ -96,6 +72,7 @@ episode_length_for_suite() {
     *) echo 300 ;;
   esac
 }
+
 if [[ "${#GPU_IDS[@]}" -lt 1 ]]; then
   echo "EVAL_GPU_IDS must contain at least one GPU ID" >&2
   exit 2
@@ -113,7 +90,8 @@ for suite in "${SUITES[@]}"; do
       ;;
   esac
 done
-RESOURCE_ROOT="${LIBERO_RESOURCE_ROOT:-${WS}}"
+
+RESOURCE_ROOT="${LIBERO_RESOURCE_ROOT:-/data2/JM/Code/molmo_serious/molmoact2-main}"
 export LIBERO_CONFIG_PATH="${LIBERO_CONFIG_PATH:-${RESOURCE_ROOT}/.cache/libero_config}"
 export HF_HOME="${HF_HOME:-${RESOURCE_ROOT}/.cache/huggingface}"
 export HF_DATASETS_CACHE="${HF_DATASETS_CACHE:-${RESOURCE_ROOT}/.cache/hf_datasets}"
@@ -124,20 +102,9 @@ export OMP_NUM_THREADS="${OMP_NUM_THREADS:-1}"
 export MKL_NUM_THREADS="${MKL_NUM_THREADS:-1}"
 export PYTHONPATH="${WS}/lerobot/src${PYTHONPATH:+:${PYTHONPATH}}"
 
-python - <<'PY'
-from lerobot.policies.molmoact2.modeling_molmoact2 import MolmoAct2Policy
-
-if not hasattr(MolmoAct2Policy, "_uses_policy_continuous_generation"):
-    raise SystemExit(
-        "Refusing to evaluate: local MolmoAct2 code lacks the non-RTC learned-context "
-        "inference fix."
-    )
-print("[eval] verified non-RTC learned-context inference fix")
-PY
-
 checkpoint_step="$(basename "$(dirname "${POLICY_PATH}")")"
-CHECKPOINT_LABEL="${CHECKPOINT_LABEL:-goal_prior_v2b_${checkpoint_step}}"
-MODEL_LABEL="${MODEL_LABEL:-goal_pose_prior_v2b}"
+CHECKPOINT_LABEL="${CHECKPOINT_LABEL:-baseline_bs224_${checkpoint_step}}"
+MODEL_LABEL="${MODEL_LABEL:-clean_bootstrap_baseline}"
 EVAL_ROOT="${EVAL_ROOT:-${WS}/lerobot/outputs/libero_eval/${CHECKPOINT_LABEL}/libero_seed_${EVAL_SEED}}"
 mkdir -p "${EVAL_ROOT}"
 
@@ -147,12 +114,14 @@ python - \
   "${CHECKPOINT_LABEL}" \
   "${MODEL_LABEL}" \
   "${EPISODES_PER_TASK}" \
+  "${EVAL_BATCH_SIZE}" \
   "${MAX_EPISODES_RENDERED}" \
   "${EVAL_SEED}" \
   "${SUITES[*]}" \
   "${GPU_IDS[*]}" \
   "${TASK_IDS}" <<'PY'
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -162,6 +131,7 @@ from pathlib import Path
     checkpoint_label,
     model_label,
     episodes_per_task,
+    eval_batch_size,
     max_episodes_rendered,
     eval_seed,
     suites_text,
@@ -178,6 +148,7 @@ payload = {
     "protocol": "openvla_public_50ep" if int(episodes_per_task) == 50 else "custom",
     "suites": suites,
     "episodes_per_task": int(episodes_per_task),
+    "eval_batch_size": int(eval_batch_size),
     "max_episodes_rendered": int(max_episodes_rendered),
     "eval_seed": int(eval_seed),
     "gpu_ids": gpu_ids,
@@ -185,7 +156,7 @@ payload = {
         suite: gpu_ids[index % len(gpu_ids)] for index, suite in enumerate(suites)
     },
     "task_ids": json.loads(task_ids_text) if task_ids_text else None,
-    "official_horizons": __import__("os").environ.get("OFFICIAL_HORIZONS", "false"),
+    "official_horizons": os.environ.get("OFFICIAL_HORIZONS", "false"),
 }
 Path(output_path).write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
 PY
@@ -193,7 +164,7 @@ PY
 if [[ "${DRY_RUN:-false}" == "true" ]]; then
   echo "[dry-run] policy=${POLICY_PATH}"
   echo "[dry-run] output=${EVAL_ROOT}"
-  echo "[dry-run] suites=${SUITES[*]} task_ids=${TASK_IDS:-all} episodes/task=${EPISODES_PER_TASK} gpus=${GPU_IDS[*]}"
+  echo "[dry-run] suites=${SUITES[*]} task_ids=${TASK_IDS:-all} episodes/task=${EPISODES_PER_TASK} batch=${EVAL_BATCH_SIZE}"
   for index in "${!SUITES[@]}"; do
     echo "[dry-run] ${SUITES[$index]} -> GPU ${GPU_IDS[$((index % ${#GPU_IDS[@]}))]}"
   done
@@ -254,6 +225,7 @@ for index in "${!SUITES[@]}"; do
     exit "${rc}"
   ) &
   pids+=("$!")
+  echo "[eval] launched ${suite} on GPU ${gpu} (pid=${pids[-1]})"
   if [[ "${run_sequential}" == "true" ]]; then
     if ! wait "${pids[-1]}"; then
       echo "[eval] suite ${suite} failed" >&2
@@ -266,9 +238,11 @@ if [[ "${run_sequential}" != "true" ]]; then
 fi
 
 rc=0
-for pid in "${pids[@]}"; do
-  if ! wait "${pid}"; then rc=1; fi
-done
+if [[ "${run_sequential}" != "true" ]]; then
+  for pid in "${pids[@]}"; do
+    if ! wait "${pid}"; then rc=1; fi
+  done
+fi
 python "${WS}/scripts/libero_eval/monitor_eval.py" --eval-root "${EVAL_ROOT}" --once
 echo "[eval] results: ${EVAL_ROOT}"
 exit "${rc}"

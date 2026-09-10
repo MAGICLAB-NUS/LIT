@@ -29,14 +29,9 @@ else
   GPU_IDS=(${EVAL_GPU_IDS:-0 1 2 3})
 fi
 
-SUITES=(${EVAL_SUITES:-libero_object libero_10 libero_goal libero_spatial})
-RESOURCE_ROOT="${LIBERO_RESOURCE_ROOT:-${WS}}"
+SUITES=(libero_object libero_10 libero_goal libero_spatial)
+RESOURCE_ROOT="${LIBERO_RESOURCE_ROOT:-/data2/JM/Code/molmo_serious/molmoact2-main}"
 LIBERO_PLUS_ROOT="${LIBERO_PLUS_ROOT:-${RESOURCE_ROOT}/third_party/LIBERO-plus}"
-if [[ -z "${LIBERO_PLUS_ROOT}" || ! -d "${LIBERO_PLUS_ROOT}" ]]; then
-  echo "LIBERO-Plus not found. Set LIBERO_PLUS_ROOT to your LIBERO-plus checkout," >&2
-  echo "or LIBERO_RESOURCE_ROOT to the directory that contains third_party/LIBERO-plus." >&2
-  exit 2
-fi
 LIBERO_PLUS_PACKAGE="${LIBERO_PLUS_ROOT}/libero/libero"
 CLASSIFICATION="${LIBERO_PLUS_CLASSIFICATION:-${LIBERO_PLUS_PACKAGE}/benchmark/task_classification.json}"
 
@@ -84,42 +79,6 @@ python "${WS}/scripts/libero_eval/build_libero_plus_manifest.py" \
   --protocol "${PLUS_PROTOCOL}" \
   --samples-per-cell "${SAMPLES_PER_CELL}" \
   --episodes-per-task "${EPISODES_PER_TASK}"
-
-# --- [patch] 按 SUITES 过滤 + 剔除已完成任务（续跑）。默认不改变任何东西。 ---
-python - "${EVAL_ROOT}/task_manifest.json" "${SUITES[*]}" "${EVAL_EXCLUDE_DONE_ROOTS:-}" "${EVAL_TASK_SHARD:-}" <<'PYFILTER'
-import json, sys, glob, os
-from pathlib import Path
-mp = Path(sys.argv[1]); m = json.loads(mp.read_text(encoding="utf-8"))
-keep_suites = set(sys.argv[2].split())
-roots = [r for r in sys.argv[3].split(":") if r]
-before = len(m["tasks"])
-tasks = [t for t in m["tasks"] if t["suite"] in keep_suites]
-done = set()
-for root in roots:
-    for pat in ("**/gpu_*/**/live_eval.json", "**/gpu_*/**/eval_info.json"):
-        for f in glob.glob(os.path.join(root, pat), recursive=True):
-            try: d = json.load(open(f))
-            except Exception: continue
-            for t in d.get("per_task", []) or []:
-                s = str(t.get("task_group") or "")
-                su = (t.get("metrics", {}) or {}).get("successes", []) or []
-                if s and su: done.add((s, int(t["task_id"])))
-# 先切片、后排除：排除必须发生在切片之后，否则并发写入的已完成任务会移除元素、
-# 使取模下标整体错位，令部分任务落入无人负责的缝隙（9-9 在 ⑤ 上实测漏 6 条）。
-shard = sys.argv[4] if len(sys.argv) > 4 else ""
-if shard:
-    i, n = (int(x) for x in shard.split("/"))
-    tasks = [t for k, t in enumerate(tasks) if k % n == i]
-if done:
-    tasks = [t for t in tasks if (t["suite"], int(t["task_id"])) not in done]
-m["tasks"] = tasks
-m["suites"] = [s for s in m["suites"] if s in keep_suites]
-m["num_tasks"] = len(tasks)
-m["num_rollouts"] = len(tasks) * int(m.get("episodes_per_task", 1))
-mp.write_text(json.dumps(m, indent=2) + "\n", encoding="utf-8")
-print(f"[manifest-filter] suites={sorted(keep_suites)} shard={shard or '-'} tasks {before} -> {len(tasks)}"
-      + (f" (excluded {len(done)} already-done pairs from {len(roots)} root(s))" if roots else ""))
-PYFILTER
 
 python - "${EVAL_ROOT}/task_manifest.json" "${EVAL_ROOT}/gpu_shards.json" "${GPU_IDS[*]}" <<'PY'
 import json

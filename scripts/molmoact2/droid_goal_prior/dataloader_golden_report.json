@@ -1,0 +1,111 @@
+{
+  "absolute_indices": [
+    167,
+    13764704,
+    27630359
+  ],
+  "dataset_frames": 27630375,
+  "episode_indices": [
+    1,
+    47798,
+    95657
+  ],
+  "frame_indices": [
+    0,
+    413,
+    239
+  ],
+  "manifest_anchors": 17259872,
+  "manifest_episodes": 74546,
+  "max_abs_error": {
+    "action": 0.0,
+    "goal_pose": 0.0,
+    "state": 0.0
+  },
+  "normalization_masks": {
+    "action": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false
+    ],
+    "observation.ee_pose": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false
+    ],
+    "observation.state": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false
+    ]
+  },
+  "processed_shapes": {
+    "action": [
+      3,
+      15,
+      32
+    ],
+    "goal_pose": [
+      3,
+      7
+    ],
+    "state": [
+      3,
+      8
+    ]
+  },
+  "public_positions": [
+    0,
+    8629936,
+    17259871
+  ],
+  "raw_shapes": {
+    "action": [
+      3,
+      15,
+      8
+    ],
+    "goal_feature": [
+      3,
+      2,
+      7
+    ],
+    "state": [
+      3,
+      8
+    ]
+  },
+  "status": "passed",
+  "visual_inputs": {
+    "image_grids": [
+      9,
+      4
+    ],
+    "image_num_crops": [
+      9
+    ],
+    "image_token_pooling": [
+      1764,
+      4
+    ],
+    "pixel_values": [
+      9,
+      729,
+      588
+    ]
+  }
+}

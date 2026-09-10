@@ -32,7 +32,7 @@ checkpoint_step="$(basename "$(dirname "${POLICY_PATH}")")"
 CHECKPOINT_LABEL="${CHECKPOINT_LABEL:-baseline_bs224_${checkpoint_step}}"
 MODEL_LABEL="${MODEL_LABEL:-clean_bootstrap_baseline}"
 EVAL_ROOT="${EVAL_ROOT:-${WS}/lerobot/outputs/libero_eval/${CHECKPOINT_LABEL}/libero_official50_seed_${EVAL_SEED}}"
-LIBERO_RESOURCE_ROOT="${LIBERO_RESOURCE_ROOT:-/data2/JM/Code/molmo_serious/molmoact2-main}"
+LIBERO_RESOURCE_ROOT="${LIBERO_RESOURCE_ROOT:-${WS}}"
 
 if [[ "${EPISODES_PER_TASK}" -ne 50 ]]; then
   echo "Official protocol requires EPISODES_PER_TASK=50" >&2
