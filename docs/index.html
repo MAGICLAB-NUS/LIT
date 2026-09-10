@@ -7,7 +7,7 @@
 <meta name="description" content="Breaking the Vision–Action Shortcut: Latent Interface Training for Generalizable Robot Foundation Models.">
 <meta property="og:title" content="Latent Interface Training (LIT)">
 <meta property="og:description" content="A framework-agnostic two-stage strategy that constrains visual conditioning through a pose-supervised latent interface. +3.88–10.71 pp on LIBERO-Plus across π0.5, MolmoAct2, FAST-WAM and ImageWAM.">
-<meta property="og:image" content="static/images/framework.png">
+<meta property="og:image" content="https://magiclab-nus.github.io/LIT/static/images/framework.png">
 <meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -208,7 +208,7 @@ footer a { color:var(--muted); }
         <svg viewBox="0 0 16 16"><path d="M4 1.5h5l3.5 3.5v9.5H4z"/><path d="M9 1.5V5h3.5"/></svg>Paper</a>
       <a href="#" aria-disabled="true">
         <svg viewBox="0 0 16 16"><path d="M2 8h12M9 3l5 5-5 5"/></svg>arXiv</a>
-      <a href="https://github.com/jianmanlincjx/LIT">
+      <a href="https://github.com/MAGICLAB-NUS/LIT">
         <svg viewBox="0 0 16 16"><path d="M6 12.5c-3 1-3-1.5-4-2m8 4v-2.2c0-.6-.1-1-.4-1.3 1.9-.2 3.9-.9 3.9-4.1 0-.9-.3-1.7-.9-2.3.1-.2.4-1.1-.1-2.3 0 0-.7-.2-2.4.9a8.3 8.3 0 0 0-4.2 0C4.2 2.1 3.5 2.3 3.5 2.3c-.5 1.2-.2 2.1-.1 2.3-.6.6-.9 1.4-.9 2.3 0 3.2 2 3.9 3.9 4.1-.3.3-.4.7-.4 1.3v2.2"/></svg>Code</a>
       <a href="https://huggingface.co/linjianman/LIT">
         <svg viewBox="0 0 16 16"><path d="M2 11.5v2h12v-2M8 2v9M4.5 7.5 8 11l3.5-3.5"/></svg>Checkpoints</a>
@@ -232,7 +232,6 @@ footer a { color:var(--muted); }
 
 <div class="teaser">
   <video autoplay muted loop playsinline controls preload="metadata">
-    <source src="https://cdn.jsdelivr.net/gh/jianmanlincjx/LIT@ad95633/docs/static/video/realworld_demo.mp4" type="video/mp4">
     <source src="static/video/realworld_demo.mp4" type="video/mp4">
   </video>
 </div>
@@ -309,18 +308,16 @@ footer a { color:var(--muted); }
         { k: "dustpan",  name: "Wipe trash",   instr: "Clean the table using the dust pan." },
         { k: "transfer", name: "Transfer egg", instr: "Transfer the egg from the pan into the bowl." },
       ];
-      const CDN = "https://cdn.jsdelivr.net/gh/jianmanlincjx/LIT@f23efa7/";  // pin = commit that last touched docs/static/video/real
       const COND = { id: "In-distribution", lighting: "Lighting OOD", camera: "Camera OOD", distractors: "Distractors OOD" };
       const rows = document.getElementById("rr-rows"), tabs = document.querySelectorAll(".rr-tabs button");
       function show(c) {
         tabs.forEach(b => b.classList.toggle("on", b.dataset.c === c));
         rows.innerHTML = TASKS.map(t => {
           const f = "static/video/real/" + t.k + "_" + c;
-          const cdn = CDN + "docs/" + f;   // same file via jsDelivr (fast in CN); local copy as fallback
           return '<div class="rr-row">' +
             '<div class="rr-title"><b>' + t.name + '</b> <span>&ldquo;' + t.instr + '&rdquo;</span> <em>' + COND[c] + '</em></div>' +
             '<div class="rr-vid"><video autoplay muted loop playsinline controls preload="metadata" poster="' + f + '.jpg">' +
-            '<source src="' + cdn + '.mp4" type="video/mp4"><source src="' + f + '.mp4" type="video/mp4"></video>' +
+            '<source src="' + f + '.mp4" type="video/mp4"></video>' +
             '<span class="rr-tag base">MolmoAct2 baseline &nbsp;&#10007;</span><span class="rr-tag lit">LIT (ours) &nbsp;&#10003;</span></div></div>';
         }).join("");
       }
@@ -556,7 +553,7 @@ const VIDEOS = [
 
 <footer>
   <div class="wrap">
-    Code and reproduction instructions at <a href="https://github.com/jianmanlincjx/LIT">github.com/jianmanlincjx/LIT</a>.
+    Code and reproduction instructions at <a href="https://github.com/MAGICLAB-NUS/LIT">github.com/MAGICLAB-NUS/LIT</a>.
   </div>
 </footer>
 
