@@ -60,7 +60,7 @@ and keeps the upstream README as `README_upstream.md`. Use the pinned branch and
 ## Checkpoints
 
 The stage-2 models reported in the tables are on Hugging Face: **[linjianman/LIT](https://huggingface.co/linjianman/LIT)**
-(41 GB total; ModelScope mirror to follow).
+(43 GB total; ModelScope mirror to follow).
 
 ```bash
 hf download linjianman/LIT --local-dir LIT_ckpt                          # all four
