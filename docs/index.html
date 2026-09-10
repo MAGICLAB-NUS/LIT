@@ -27,12 +27,11 @@ button, summary, a { -webkit-tap-highlight-color:transparent; }
 .hero { padding:64px 0 28px; text-align:center; }
 .venue,.kicker { color:var(--accent); font-size:12px; letter-spacing:.12em; font-weight:600; text-transform:uppercase; margin:0 0 14px; }
 .brand { display:inline-flex; align-items:center; gap:10px; padding:8px 20px; border:1px solid #d8e2f2; border-radius:8px; font-weight:600; letter-spacing:.12em; font-size:28px; color:var(--accent); margin-bottom:20px; }
-h1 { font-size:clamp(36px,5.7vw,62px); font-weight:600; letter-spacing:-.045em; line-height:1.08; margin:0 0 18px; text-wrap:balance; }
-.subtitle { max-width:670px; margin:0 auto; font-size:clamp(18px,2.6vw,23px); line-height:1.45; color:var(--muted); text-wrap:balance; }
-.authors { margin:26px 0 8px; font-size:16px; }
+h1 { max-width:1000px; font-size:clamp(30px,4.5vw,48px); font-weight:600; letter-spacing:-.03em; line-height:1.15; margin:0 auto 18px; text-align:center; text-wrap:balance; }
+.authors { margin:26px 0 8px; font-size:16px; text-align:center; }
 .authors a { color:var(--ink); text-decoration:none; }
 sup { font-size:10px; margin-left:2px; color:var(--muted); }
-.notes { font-size:12px; color:var(--muted); margin:4px 0 18px; }
+.notes { font-size:12px; color:var(--muted); margin:4px 0 18px; text-align:center; }
 .logos { display:flex; justify-content:center; align-items:center; gap:32px; margin:18px 0 24px; }
 .logos span { display:flex; align-items:flex-start; gap:5px; }
 .logos i { font-size:11px; font-style:normal; color:var(--muted); }
@@ -112,8 +111,7 @@ footer a { color:var(--muted); }
 
 <header class="hero" id="top"><div class="wrap">
 <div class="brand">LIT <span aria-hidden="true">🔥</span></div>
-<h1>Latent Interface Training</h1>
-<p class="subtitle">Breaking the vision–action shortcut in robot foundation models.</p>
+<h1>Breaking the Vision–Action Shortcut: Latent Interface Training for Generalizable Robot Foundation Models</h1>
 <p class="authors">
       <a href="https://scholar.google.com/citations?user=ayk7FWMAAAAJ" target="_blank" rel="noopener">Jianman Lin</a><sup>1,&lowast;</sup>&ensp;
       <a href="#">Shailesh Shailesh</a><sup>2,&lowast;</sup>&ensp;
