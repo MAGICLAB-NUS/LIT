@@ -68,8 +68,10 @@ section { padding:44px 0; border-top:1px solid var(--rule); }
 section.tight { padding-top:28px; }
 h2 { font-family:var(--f-display); font-weight:500; font-size:28px; line-height:1.2; letter-spacing:-0.01em; margin:0 0 6px; }
 .kicker { font-size:10.5px; font-weight:600; letter-spacing:.13em; text-transform:uppercase; color:var(--faint); margin:0 0 10px; }
-p { margin:0 0 16px; max-width:76ch; color:var(--ink-2); }
+p { margin:0 0 16px; color:var(--ink-2); }
+section p, figcaption { text-align:justify; hyphens:auto; -webkit-hyphens:auto; }
 p.lead { color:var(--ink); font-size:17px; }
+.nb { white-space:nowrap; }
 section p:last-child { margin-bottom:0; }
 strong { color:var(--ink); font-weight:600; }
 .center p { margin-left:auto; margin-right:auto; }
@@ -140,8 +142,8 @@ footer a { color:var(--muted); }
 <header class="hero">
   <div class="wrap">
     <p class="venue">Under review</p>
-    <h1>Breaking the Vision&ndash;Action Shortcut
-      <span class="sub">Latent Interface Training for Generalizable Robot Foundation Models</span>
+    <h1>Breaking the <span class="nb">Vision&ndash;Action Shortcut</span>
+      <span class="sub">Latent Interface Training for<br>Generalizable Robot Foundation Models</span>
     </h1>
     <p class="authors">
       <a href="#">Jianman Lin</a><sup>1,&lowast;</sup>&ensp;
@@ -149,7 +151,7 @@ footer a { color:var(--muted); }
       <a href="#">Zhongyi Luo</a>&ensp;
       <a href="#">Jiafei Duan</a><sup>2,&dagger;</sup>
     </p>
-    <p class="affil"><sup>1</sup>School of Future Technology, South China University of Technology&ensp;&middot;&ensp;<sup>2</sup>National University of Singapore</p>
+    <p class="affil"><sup>1</sup>School of Future Technology, South China University of Technology<br><sup>2</sup>National University of Singapore</p>
     <p class="notes">&lowast; equal co-first contribution &ensp; &dagger; corresponding author</p>
     <nav class="links">
       <a href="static/paper/LIT.pdf">
@@ -166,7 +168,7 @@ footer a { color:var(--muted); }
   </div>
 </header>
 
-<div class="wrap-wide teaser">
+<div class="wrap teaser">
   <figure>
     <video autoplay muted loop playsinline controls preload="metadata" poster="static/images/realrobot_envs.png">
       <source src="static/video/realworld_01.mp4" type="video/mp4">
@@ -182,6 +184,15 @@ footer a { color:var(--muted); }
     <p class="lead">Robot foundation models achieve strong in-distribution performance but often degrade under visual distribution shifts. When learning to generate actions from pretrained visual representations, models may exploit task-irrelevant visual cues that correlate with demonstrated actions within the training distribution. Such <strong>vision&ndash;action shortcuts</strong> can undermine generalization when these correlations change under distribution shifts. Mitigating these shortcuts requires constraining how visual information is used for action generation while preserving task-relevant spatial information.</p>
     <p>We propose <strong>Latent Interface Training (LIT)</strong>, a framework-agnostic two-stage strategy that first establishes a spatial-goal-conditioned action prior without images, then constrains visual conditioning through a pose-supervised latent interface. Stage&nbsp;1 trains the action expert to generate action chunks conditioned on language, robot state, and each demonstrated chunk&rsquo;s terminal SE(3) end-effector pose, learning goal-directed action generation independently of visual cues. Stage&nbsp;2 introduces a latent interface that aggregates visual and semantic representations and serves as the pretrained action expert&rsquo;s only visual conditioning pathway. The interface is supervised to reconstruct the terminal pose previously used to condition Stage&nbsp;1, encouraging it to retain the goal-relevant spatial information needed for action generation.</p>
     <p>Across four vision&ndash;language&ndash;action and world&ndash;action architectures&mdash;&pi;<sub>0.5</sub>, MolmoAct2, FAST-WAM, and ImageWAM&mdash;LIT improves overall LIBERO-Plus success by <strong>3.88&ndash;10.71 percentage points</strong> while preserving or improving average LIBERO success. Real-world evaluations show <strong>13.3&ndash;16.7 percentage-point gains</strong> in success aggregated across three tasks under unseen camera configurations, lighting variations, and distractors.</p>
+  </section>
+
+  <section id="motivation">
+    <p class="kicker">Motivation</p>
+    <h2>The vision&ndash;action shortcut</h2>
+    <figure>
+      <img src="static/images/motivation.png" alt="The vision–action shortcut: action experts conditioned on visual representations can rely on task-irrelevant visual cues, and LIT constrains visual conditioning through a pose-supervised latent interface.">
+      <figcaption><b>The vision&ndash;action shortcut.</b> Action experts conditioned directly on visual representations can rely on task-irrelevant visual cues that correlate with demonstrated actions; LIT constrains visual conditioning through a pose-supervised latent interface.</figcaption>
+    </figure>
   </section>
 
   <section id="method">
