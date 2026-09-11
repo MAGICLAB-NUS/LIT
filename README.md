@@ -8,8 +8,8 @@
 
 <sup>1</sup>South China University of Technology · <sup>2</sup>National University of Singapore · <sup>3</sup>Nanyang Technological University
 
-[![Project page](https://img.shields.io/badge/Project-Page-1F4E9C)](https://jianmanlincjx.github.io/LIT/)
-[![Paper](https://img.shields.io/badge/Paper-PDF-B23A32)](https://jianmanlincjx.github.io/LIT/static/paper/LIT.pdf)
+[![Project page](https://img.shields.io/badge/Project-Page-1F4E9C)](https://magiclab-nus.github.io/LIT/)
+[![Paper](https://img.shields.io/badge/Paper-PDF-B23A32)](https://magiclab-nus.github.io/LIT/static/paper/LIT.pdf)
 [![Checkpoints](https://img.shields.io/badge/%F0%9F%A4%97%20Real--robot%20checkpoints-shailes--h%2FMolmoact2--LIT-f7c843)](https://huggingface.co/shailes-h/Molmoact2-LIT)
 [![Dataset](https://img.shields.io/badge/%F0%9F%A4%97%20Real--robot%20data-yam__bimanual__manipulation-f7c843)](https://huggingface.co/datasets/shailes-h/yam_bimanual_manipulation)
 [![License](https://img.shields.io/badge/License-Apache%202.0-2ea44f)](./LICENSE)
@@ -37,7 +37,7 @@ architectures.
 
 <sub>LIBERO-Plus: zero-shot on all 10,030 tasks, one episode each; Overall is the mean over the seven perturbation axes.
 Real robot: three tasks on the MolmoAct2 backbone, 10 rollouts per task per OOD condition. In-distribution LIBERO success is preserved or improved on every architecture.
-Per-axis numbers are on the <a href="https://jianmanlincjx.github.io/LIT/#plus">project page</a>; <code>results/plot_results_strip.py</code> redraws this figure.</sub>
+Per-axis numbers are on the <a href="https://magiclab-nus.github.io/LIT/#plus">project page</a>; <code>results/plot_results_strip.py</code> redraws this figure.</sub>
 
 </div>
 
