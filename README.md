@@ -74,13 +74,14 @@ hf download linjianman/LIT --include "molmoact2/*" --local-dir LIT_ckpt         
 | `fastwam/lit_stage2`, `imagewam/lit_stage2` | `model.pt` + `config.yaml` + `dataset_stats.json` | `ckpt=<dir>/model.pt` `dataset_stats_path=<dir>/dataset_stats.json` |
 | `*/lit_stage1` | same layout as the Stage 2 of that framework | start Stage 2 from it and skip Stage 1 — each fork's README ② gives the variable (`POLICY_PATH`, `STAGE1`, `resume=`, `STAGE1_CHECKPOINT`) |
 
-The MolmoAct2 / π0.5 baselines we fine-tuned are available on request; the FAST-WAM and ImageWAM
-baselines are the authors' released weights.
+The MolmoAct2 checkpoints used for evals, plus the MolmoAct2 baseline checkpoint, are public:
+[shailes-h/Molmoact2-LIT](https://huggingface.co/shailes-h/Molmoact2-LIT)
+(`hf download shailes-h/Molmoact2-LIT`).
 
 **Real-robot data.** The demonstrations behind the real-robot results are public:
-[chinchinati/yam_bimanual_manipulation](https://huggingface.co/datasets/chinchinati/yam_bimanual_manipulation)
+[shailes-h/yam_bimanual_manipulation](https://huggingface.co/datasets/shailes-h/yam_bimanual_manipulation)
 — YAM dual-arm platform, three tasks (blocks → box, dust-pan wipe, egg transfer), 292 successful episodes,
-three cameras, LeRobot v3.0, 4.8 GB (`hf download chinchinati/yam_bimanual_manipulation --repo-type dataset`).
+three cameras, LeRobot v3.0, 4.8 GB (`hf download shailes-h/yam_bimanual_manipulation --repo-type dataset`).
 
 ## Quick start
 
