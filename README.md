@@ -4,7 +4,7 @@
 
 ### Breaking the Vision–Action Shortcut for Generalizable Robot Foundation Models
 
-[Jianman Lin](https://github.com/jianmanlincjx)<sup>1\*</sup> · [Shailesh Shailesh](https://shailes-h.github.io)<sup>2\*</sup> · Zhongyi Luo<sup>3</sup> · [Jiafei Duan](https://jiafei1224.github.io)<sup>2†</sup>
+[Jianman Lin](https://jianmanlincjx.github.io/Jianman-lin.github.io/)<sup>1\*</sup> · [Shailesh Shailesh](https://shailes-h.github.io)<sup>2\*</sup> · Zhongyi Luo<sup>3</sup> · [Jiafei Duan](https://jiafei1224.github.io)<sup>2†</sup>
 
 <sup>1</sup>South China University of Technology · <sup>2</sup>National University of Singapore · <sup>3</sup>Nanyang Technological University
 
