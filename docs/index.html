@@ -165,7 +165,7 @@ footer a { color:var(--muted); }
     </nav>
 </div></header>
 <nav class="toc" aria-label="Sections"><div class="wrap">
-<a href="#overview">Overview</a><a href="#method">Method</a><a href="#realworld">Real-world Exp</a><a href="#results">Results</a><a href="#videos">Videos</a><a href="#analysis">Analysis</a>
+<a href="#overview">Overview</a><a href="#method">Method</a><a href="#stage1">Stage 1</a><a href="#realworld">Real-world Exp</a><a href="#results">Results</a><a href="#videos">Videos</a><a href="#analysis">Analysis</a>
 </div></nav>
 <main class="wrap">
 <figure class="teaser"><video autoplay muted loop playsinline controls preload="metadata" aria-label="LIT real-world robot demonstration"><source src="static/video/realworld_demo.mp4?v=651f955cb17f" type="video/mp4"></video><figcaption>Learning actions that generalize beyond the training scene.</figcaption></figure>
@@ -176,6 +176,11 @@ footer a { color:var(--muted); }
 <section id="method"><p class="kicker">How it works</p><h2>Two stages. One spatial goal.</h2>
 <div class="stages"><div class="stage"><h3>01 &nbsp; Learn to act</h3><p>Train the action expert with language, robot state, and a target end-effector pose—without images.</p></div><div class="stage"><h3>02 &nbsp; Connect vision</h3><p>Route visual features through latent tokens supervised to predict the same target pose.</p></div></div>
 <figure><img src="static/images/framework.png" alt="LIT: action learning followed by a pose-supervised visual interface" loading="lazy"><figcaption>The backbone and action expert are retained. The interface changes.</figcaption></figure>
+</section>
+<section id="stage1"><p class="kicker">Stage 1 alone</p><h2>Follow a goal without images.</h2>
+<p>The action expert receives the instruction, the robot state and a target end-effector position &mdash; <strong>no image</strong>. Green marks the positions this task was trained on, drawn at the height of the current target; the dashed line sits 8&nbsp;cm outside it. Targets are labelled <strong>ID</strong> (&lt;&nbsp;3&nbsp;cm), <strong>OOD</strong> (3&ndash;8&nbsp;cm) and <strong>Extreme OOD</strong> (&gt;&nbsp;8&nbsp;cm) by their distance to those positions.</p>
+<p class="intro">Across five LIBERO tasks, <strong>15 of 16</strong> targets 8&ndash;20&nbsp;cm outside the task&rsquo;s own training positions are still reached.</p>
+<details open><summary>Two LIBERO tasks, every target from the initial state</summary><div class="detail-body"><div class="gallery" id="gallery-stage1"></div></div></details>
 </section>
 <section id="realworld"><p class="kicker">Real-world Exp</p><h2>New scenes. More successful actions.</h2>
 <p>One policy, three tasks, and changes in lighting, camera view, and distractors.</p>
@@ -303,12 +308,17 @@ const VIDEOS = [
     title: "Alphabet soup into the basket" },
   { group: "ood", src: "static/video/pose_ood/ood_object_distractor.mp4?v=20260913", tag: "Added distractors",
     title: "Alphabet soup into the basket" },
+  // ---- Stage 1 only: commanded goals, no image (already 1.5x, so no slowdown) ----
+  { group: "stage1", src: "static/video/stage1/object_t0.mp4?v=20260916", tag: "LIBERO-Object",
+    title: "Reach eight commanded targets", cap: "ID, OOD and Extreme OOD by distance to this task's training positions" },
+  { group: "stage1", src: "static/video/stage1/libero10_t0.mp4?v=20260916", tag: "LIBERO-10",
+    title: "Reach seven commanded targets", cap: "Green region is drawn at the height of the current target" },
   // ---- Real robot: add here when the clips arrive ----
   // { group: "real", src: "static/video/realworld_01.mp4", tag: "Real robot", title: "..." },
 ];
 
 (function () {
-  for (const grp of ["id", "ood"]) {
+  for (const grp of ["id", "ood", "stage1"]) {
     const g = document.getElementById("gallery-" + grp);
     const items = VIDEOS.filter(v => v.group === grp);
     if (!items.length) { g.innerHTML = '<p class="empty">Clips coming soon.</p>'; continue; }
@@ -321,9 +331,11 @@ const VIDEOS = [
         '<p class="title">' + v.title + '</p>' + (v.cap ? '<p class="cap">' + v.cap + '</p>' : '') + '</div>';
       g.appendChild(el);
       // Half speed so the decoded pose is easy to follow; re-applied on play in case the browser resets it.
-      const vid = el.querySelector("video");
-      const slow = () => { vid.playbackRate = 0.5; };
-      slow(); vid.addEventListener("loadedmetadata", slow); vid.addEventListener("play", slow);
+      if (grp !== "stage1") {   // stage-1 clips are already time-scaled
+        const vid = el.querySelector("video");
+        const slow = () => { vid.playbackRate = 0.5; };
+        slow(); vid.addEventListener("loadedmetadata", slow); vid.addEventListener("play", slow);
+      }
     }
   }
 })();
