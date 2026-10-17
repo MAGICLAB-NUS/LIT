@@ -226,11 +226,10 @@ and keeps the upstream README as `README_upstream.md`. Use the pinned branch and
 ## Citation
 
 ```bibtex
-@article{lin2026lit,
-  title   = {Breaking the Vision--Action Shortcut: Latent Interface Training
-             for Generalizable Robot Foundation Models},
-  author  = {Lin, Jianman and Shailesh, Shailesh and Luo, Zhongyi and Duan, Jiafei},
-  journal = {Under review},
-  year    = {2026}
+@article{lin2026breaking,
+  title={Breaking the Vision-Action Shortcut: Latent Interface Training for Generalizable Robotics Foundation Models},
+  author={Lin, Jianman and Shailesh, Shailesh and Luo, Zhongyi and Duan, Jiafei},
+  journal={arXiv preprint arXiv:2609.12641},
+  year={2026}
 }
 ```
